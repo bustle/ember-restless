@@ -2,9 +2,9 @@
 
 RESTless is a lightweight data persistence library for Ember.js.
 
-It is used to communcate with a remote persistance layer (such as a JSON API) and map that data between your client side javascript ember application.
+It is used to communicate with a remote persistence layer (such as a JSON API) and map that data between your client side JavaScript Ember application.
 
-Its goal is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), with a similar API, while remaining lightweight and stable.  Transistioning between the two should be possible with minimal effort.  The main departure from ember-data is the idea of the 'Store'. Instead, all transactions are executed immediately.  This can help alleviate bugs found in regards to syncing the Store with the backend service.
+Its goal is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), with a similar API, while remaining lightweight and stable.  Transitioning between the two should be possible with minimal effort.  The main departure from ember-data is the idea of the 'Store'. Instead, all transactions are executed immediately.  This can help alleviate bugs found in regards to syncing the Store with the backend service.
 
 ## Getting started
 
@@ -119,7 +119,7 @@ RESTless will automatically POST to save a new record, or PUT to update and exis
 var post = App.Post.create();
 post.saveRecord();
 ```
-Update:
+Updating:
 ``` javascript
 post.set('title', 'My Very First Post');
 post.saveRecord();
@@ -131,6 +131,8 @@ Will tell the REST service to delete the record, then destroy the object
 ``` javascript
 post.deleteRecord();
 ```
+
+### Callbacks
 
 Both saveRecord and deleteRecord return Promises, allowing you to do the following:
 ``` javascript
@@ -157,10 +159,11 @@ All model objects have the following properties added:
 
 Additionally, you can subscribe to events that are fired during the lifecycle
 
-* didLoad
-* didCreate
-* didUpdate
-* becameError
+* **didLoad**
+* **didCreate**
+* **didUpdate**
+* **becameError**
+
 ``` javascript
 post.on('didCreate', function() {
   console.log('post created!');
