@@ -1,0 +1,15 @@
+{
+  "name": "ember-restless",
+  "version": "0.1.0",
+  "description": "A lightweight data persistence library for Ember.js",
+  "main": "Gruntfile.js",
+  "repository": "https://github.com/endlessinc/ember-restless.git",
+  "author": "Garth Poitras",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-concat": "~0.1.3",
+    "grunt-contrib-uglify": "~0.2.0",
+    "grunt-contrib-jshint": "~0.3.0"
+  }
+}
