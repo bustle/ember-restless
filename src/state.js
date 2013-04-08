@@ -33,6 +33,7 @@ RESTless.State = Em.Mixin.create( Em.Evented, {
    */
   clearErrors: function() {
     this.setProperties({ 'isError': false, 'errors': null });
+    return this;
   },
 
   /* 

@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.1.0
- * last modifed: 2013-04-03
+ * last modifed: 2013-04-08
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -389,6 +389,7 @@ RESTless.State = Em.Mixin.create( Em.Evented, {
    */
   clearErrors: function() {
     this.setProperties({ 'isError': false, 'errors': null });
+    return this;
   },
 
   /* 
