@@ -198,7 +198,7 @@ RESTless.RESTAdapter = Em.Object.extend({
 
     json[resourceName] = {};
     for(attr in attrMap) {
-      if (attrMap.hasOwnProperty(attr)) {
+      if (attrMap.hasOwnProperty(attr) && attrMap[attr].get('readOnly')) {
         val = this.serializeProperty(resource, attr);
         if(val !== null) {
           json[resourceName][attr.decamelize()] = val;
@@ -325,7 +325,8 @@ Ember.onLoad('Ember.Application', function(Application) {
 RESTless._Attribute = Em.ObjectProxy.extend({
   type: null,
   belongsTo: false,
-  hasMany: false
+  hasMany: false,
+  readOnly: false
 });
 
 /*
@@ -334,6 +335,14 @@ RESTless._Attribute = Em.ObjectProxy.extend({
  */
 RESTless.attr = function(type) {
   return RESTless._Attribute.create({ type: type });
+};
+
+/*
+ * attr
+ * Read only property. Does not get serialized
+ */
+RESTless.attrReader = function(type) {
+  return RESTless._Attribute.create({ type: type, readOnly:true });
 };
 
 /*
