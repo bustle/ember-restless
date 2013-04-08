@@ -1,6 +1,6 @@
 {
   "name": "ember-restless",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A lightweight data persistence library for Ember.js",
   "main": "Gruntfile.js",
   "repository": "https://github.com/endlessinc/ember-restless.git",

@@ -2,7 +2,7 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.1.0
+ * version: 0.1.1
  * last modifed: 2013-04-08
  *
  * Garth Poitras <garth22@gmail.com>
@@ -188,7 +188,7 @@ RESTless.RESTAdapter = Em.Object.extend({
   },
 
   /* 
-   * serialize: turns Em model into json to send to REST API
+   * serialize: turns Ember model into json to send to REST API
    */
   serialize: function(resource) {
     var resourceName = Em.get(resource.constructor, 'resourceName'),
@@ -198,7 +198,8 @@ RESTless.RESTAdapter = Em.Object.extend({
 
     json[resourceName] = {};
     for(attr in attrMap) {
-      if (attrMap.hasOwnProperty(attr)) {
+      //Don't include readOnly properties or to-one relationships
+      if (attrMap.hasOwnProperty(attr) && !attrMap[attr].get('readOnly') && !attrMap[attr].get('belongsTo')) {
         val = this.serializeProperty(resource, attr);
         if(val !== null) {
           json[resourceName][attr.decamelize()] = val;
@@ -217,10 +218,6 @@ RESTless.RESTAdapter = Em.Object.extend({
         attr = attrMap[prop],
         attrType = attr.get('type');
 
-    //Don't include to-one relationships
-    if(attr.get('belongsTo')) {
-      return null;
-    }
     if(attr.get('hasMany')) {
       return this.serializeMany(value.get('content'), attrType);
     }
@@ -325,31 +322,35 @@ Ember.onLoad('Ember.Application', function(Application) {
 RESTless._Attribute = Em.ObjectProxy.extend({
   type: null,
   belongsTo: false,
-  hasMany: false
+  hasMany: false,
+  readOnly: false
 });
 
 /*
  * attr
  * Standard property
  */
-RESTless.attr = function(type) {
-  return RESTless._Attribute.create({ type: type });
+RESTless.attr = function(type, opts) {
+  opts = $.extend({ type: type }, opts);
+  return RESTless._Attribute.create(opts);
 };
 
 /*
  * belongsTo
  * One-to-one relationship between two models
  */
-RESTless.belongsTo = function(type) {
-  return RESTless._Attribute.create({ type: type, belongsTo:true });
+RESTless.belongsTo = function(type, opts) {
+  opts = $.extend({ type: type, belongsTo:true }, opts);
+  return RESTless._Attribute.create(opts);
 };
 
 /*
  * hasMany
  * One-to-many & Many-to-many relationships
  */
-RESTless.hasMany = function(type) {
-  return RESTless._Attribute.create({ type: type, hasMany:true });
+RESTless.hasMany = function(type, opts) {
+  opts = $.extend({ type: type, hasMany:true }, opts);
+  return RESTless._Attribute.create(opts);
 };
 
 })();
