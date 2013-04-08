@@ -193,6 +193,16 @@ App.RESTAdapter.configure("plurals", {
 });
 ```
 
+### Read-only attributes
+Make attributes 'read-only', which will exclude them from being serialized into the json sent to your service when saving.
+``` javascript
+App.Person = RL.Model.extend({
+  firstName: RL.attr('string'),
+  lastName: RL.attr('string'),
+  createdAt: RL.attr('date', { readOnly: true })
+});
+```
+
 ## Building RESTless
 
 Uses node.js and Grunt
