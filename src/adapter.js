@@ -166,7 +166,7 @@ RESTless.RESTAdapter = Em.Object.extend({
 
     json[resourceName] = {};
     for(attr in attrMap) {
-      if (attrMap.hasOwnProperty(attr) && attrMap[attr].get('readOnly')) {
+      if (attrMap.hasOwnProperty(attr) && !attrMap[attr].get('readOnly')) {
         val = this.serializeProperty(resource, attr);
         if(val !== null) {
           json[resourceName][attr.decamelize()] = val;
