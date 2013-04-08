@@ -198,7 +198,7 @@ RESTless.RESTAdapter = Em.Object.extend({
 
     json[resourceName] = {};
     for(attr in attrMap) {
-      if (attrMap.hasOwnProperty(attr) && attrMap[attr].get('readOnly')) {
+      if (attrMap.hasOwnProperty(attr) && !attrMap[attr].get('readOnly')) {
         val = this.serializeProperty(resource, attr);
         if(val !== null) {
           json[resourceName][attr.decamelize()] = val;
@@ -333,16 +333,9 @@ RESTless._Attribute = Em.ObjectProxy.extend({
  * attr
  * Standard property
  */
-RESTless.attr = function(type) {
-  return RESTless._Attribute.create({ type: type });
-};
-
-/*
- * attr
- * Read only property. Does not get serialized
- */
-RESTless.attrReader = function(type) {
-  return RESTless._Attribute.create({ type: type, readOnly:true });
+RESTless.attr = function(type, opts) {
+  opts = $.extend({ type: type }, opts);
+  return RESTless._Attribute.create(opts);
 };
 
 /*
