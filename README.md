@@ -51,7 +51,8 @@ Supported types are string, number, boolean, and date.  With a custom adapter, y
 App.Person = RL.Model.extend({
   firstName: RL.attr('string'),
   lastName: RL.attr('string'),
-  birthday: RL.attr('date')
+  birthday: RL.attr('date'),
+  createdAt: RL.attr('date', readOnly: true); // read-only attributes won't get sent back up to the API.
 });
 ```
 
