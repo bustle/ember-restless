@@ -52,7 +52,7 @@ App.Person = RL.Model.extend({
   firstName: RL.attr('string'),
   lastName: RL.attr('string'),
   birthday: RL.attr('date'),
-  createdAt: RL.attr('date', readOnly: true); // read-only attributes won't get sent back up to the API.
+  createdAt: RL.attr('date', { readOnly: true }); // read-only attributes won't get sent back up to the API.
 });
 ```
 
