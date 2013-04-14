@@ -38,7 +38,7 @@ module.exports = function(grunt) {
           'src/non-observable.js',
           'src/model.js',
           'src/array.js',
-          'src/transforms.js'
+          'src/transforms.js' // optional
         ],
         dest: 'dist/<%= pkg.name %>.js'
       }
