@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.1.1
- * last modifed: 2013-04-08
+ * last modifed: 2013-04-17
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -285,7 +285,19 @@ RESTless.JSONTransforms = {};
 
 RESTless.RESTClient = Em.Object.extend({
   revision: RESTless.CURRENT_API_REVISION,
-  adapter: RESTless.RESTAdapter.create()
+  adapter: function(key, value) {
+    if (arguments.length === 1) {
+      return RESTless.RESTAdapter.create();
+    } else {
+      //Allow the adapter to be set by Class or string
+      if(typeof value === 'string') {
+        var adapterClass = Em.get(window, value);
+        Ember.assert('The adapter of type: "' + value + '" was not found.', adapterClass);
+        return adapterClass;
+      }
+      return value;
+    }
+  }.property()
 });
 
 // Set a default client

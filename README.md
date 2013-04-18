@@ -207,10 +207,15 @@ App.Person = RL.Model.extend({
 ## Building RESTless
 
 Uses node.js and Grunt
+```
+npm install
+```
 
 ## Tests
 
-Coming soon.
+Uses QUnit.
+To run tests, open tests/index.html in a browser
+Tests are currently a WIP.
 
 ## Example App
 

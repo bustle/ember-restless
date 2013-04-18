@@ -16,7 +16,4 @@ npm-debug.log
 node_modules
 
 dist/*.min.js
-
-#local testing
-testing
-.powder
+example
