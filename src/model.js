@@ -8,7 +8,7 @@
 
 RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
   /* 
-   * id: unique id number
+   * id: unique id number, default primary id
    */
   id: RESTless.attr('number'),
 
@@ -23,8 +23,9 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    * isNew: model has not yet been stored to REST service
    */
   isNew: function() {
-    return !this.get('id');
-  }.property('id'),
+    var primaryKey = Em.get(this.constructor, 'primaryKey');
+    return Em.isNone(this.get(primaryKey));
+  }.property(),
 
   /* 
    * init: on instance creation
@@ -125,7 +126,8 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    */
   request: function(params) {
     var resourceName = Em.get(this.constructor, 'resourceNamePlural'),
-        resourceId = this.get('id'),
+        resourceIdKey = Em.get(this.constructor, 'primaryKey'),
+        resourceId = this.get(resourceIdKey),
         self = this,
         request;
 
@@ -200,15 +202,27 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
  * Class level properties and methods
  */
 RESTless.Model.reopenClass({
+  /* 
+   * primaryKey: property name for the primary key.
+   * Configurable. Defaults to 'id'.
+   */
+  primaryKey: function() {
+    var className = this.toString(),
+        modelConfig = Ember.get('RESTless.client.adapter.configurations.models').get(className);
+    if(modelConfig && modelConfig.primaryKey) {
+      return modelConfig.primaryKey;
+    }
+    return 'id';
+  }.property('RESTless.client.adapter.configurations.models'),
+
   /*
    * resourceName: path to the resource endpoint, determined from class name
    * i.e. MyApp.Post = RESTless.Model.extend({ ... })  =>  'post'
    */
   resourceName: function() {
-    var constructorName = this.toString(),
-        parts = constructorName.split('.'),
-        resourceName = parts[parts.length-1].toLowerCase();
-    return resourceName;
+    var className = this.toString(),
+        parts = className.split('.');
+    return parts[parts.length-1].toLowerCase();
   }.property(),
 
   /*

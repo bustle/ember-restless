@@ -194,6 +194,16 @@ App.RESTAdapter.configure("plurals", {
 });
 ```
 
+### Changing the the primary key
+The primary key for all models defaults to 'id'. 
+You can customize it per model class to match your backend:
+``` javascript
+App.RESTAdapter.map("App.Post", {
+  primaryKey: "slug"
+});
+```
+
+
 ### Read-only attributes
 Make attributes 'read-only', which will exclude them from being serialized into the json sent to your service when saving.
 ``` javascript

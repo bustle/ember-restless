@@ -25,21 +25,38 @@ RESTless.RESTAdapter = Em.Object.extend({
   namespace: null,
 
   /*
-   * configurations (not observable): hash of custom options to be used by a custom adapter
+   * configurations: custom options to be used by a custom adapter
    * i.e. plurals - to set the plural resource name of 'person' to 'people'
+   * i.e. models - to set a different primary key for a certain model type
    */
-  configurations: {
-    plurals: {}
-  },
+  configurations: Ember.Object.create({
+    plurals: Ember.Object.create(),
+    models: Ember.Map.create()
+  }),
 
   /*
    * configure: method to set allowed configurations
    */
-  configure: function(type, config) {
-    var configs = this.get('configurations');
-    if(configs[type]) {
-      configs[type] = config;
+  configure: function(type, value) {
+    var configs = this.get('configurations'),
+        configForType = configs.get(type);
+    if(configForType) {
+      configs.set(type, $.extend(configForType, value));
     }
+  },
+
+  /*
+   * map: configure helper to map configurations for model types
+   * i.e :
+      App.RESTAdapter.map('App.Post', {
+        primaryKey: 'slug'
+      });
+   */
+  map: function(key, value) {
+    var modelMap = this.get('configurations.models'),
+        existingValue = modelMap.get('key'),
+        newValue = existingValue ? $.extend(existingValue, value) : value;
+    modelMap.set(key, newValue);
   },
 
   /*
@@ -216,7 +233,7 @@ RESTless.RESTAdapter = Em.Object.extend({
    * registerTransform: adds a custom transform to JSONTransforms
    */
   registerTransform: function(type, transform) {
-    Ember.assert("You are overwritting an existing transform: '" + type + "'", !RESTless.JSONTransforms[type]);
+    Ember.warn("You are overwritting an existing transform: '" + type + "'", !RESTless.JSONTransforms[type]);
     RESTless.JSONTransforms[type] = transform;
   },
 

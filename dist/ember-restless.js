@@ -2,7 +2,7 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.1.1
+ * version: 0.1.2
  * last modifed: 2013-04-24
  *
  * Garth Poitras <garth22@gmail.com>
@@ -57,21 +57,38 @@ RESTless.RESTAdapter = Em.Object.extend({
   namespace: null,
 
   /*
-   * configurations (not observable): hash of custom options to be used by a custom adapter
+   * configurations: custom options to be used by a custom adapter
    * i.e. plurals - to set the plural resource name of 'person' to 'people'
+   * i.e. models - to set a different primary key for a certain model type
    */
-  configurations: {
-    plurals: {}
-  },
+  configurations: Ember.Object.create({
+    plurals: Ember.Object.create(),
+    models: Ember.Map.create()
+  }),
 
   /*
    * configure: method to set allowed configurations
    */
-  configure: function(type, config) {
-    var configs = this.get('configurations');
-    if(configs[type]) {
-      configs[type] = config;
+  configure: function(type, value) {
+    var configs = this.get('configurations'),
+        configForType = configs.get(type);
+    if(configForType) {
+      configs.set(type, $.extend(configForType, value));
     }
+  },
+
+  /*
+   * map: configure helper to map configurations for model types
+   * i.e :
+      App.RESTAdapter.map('App.Post', {
+        primaryKey: 'slug'
+      });
+   */
+  map: function(key, value) {
+    var modelMap = this.get('configurations.models'),
+        existingValue = modelMap.get('key'),
+        newValue = existingValue ? $.extend(existingValue, value) : value;
+    modelMap.set(key, newValue);
   },
 
   /*
@@ -248,7 +265,7 @@ RESTless.RESTAdapter = Em.Object.extend({
    * registerTransform: adds a custom transform to JSONTransforms
    */
   registerTransform: function(type, transform) {
-    Ember.assert("You are overwritting an existing transform: '" + type + "'", !RESTless.JSONTransforms[type]);
+    Ember.warn("You are overwritting an existing transform: '" + type + "'", !RESTless.JSONTransforms[type]);
     RESTless.JSONTransforms[type] = transform;
   },
 
@@ -465,7 +482,7 @@ RESTless.NonObservable = Em.Mixin.create({
 
 RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
   /* 
-   * id: unique id number
+   * id: unique id number, default primary id
    */
   id: RESTless.attr('number'),
 
@@ -480,8 +497,9 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    * isNew: model has not yet been stored to REST service
    */
   isNew: function() {
-    return !this.get('id');
-  }.property('id'),
+    var primaryKey = Em.get(this.constructor, 'primaryKey');
+    return Em.isNone(this.get(primaryKey));
+  }.property(),
 
   /* 
    * init: on instance creation
@@ -582,7 +600,8 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    */
   request: function(params) {
     var resourceName = Em.get(this.constructor, 'resourceNamePlural'),
-        resourceId = this.get('id'),
+        resourceIdKey = Em.get(this.constructor, 'primaryKey'),
+        resourceId = this.get(resourceIdKey),
         self = this,
         request;
 
@@ -657,15 +676,27 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
  * Class level properties and methods
  */
 RESTless.Model.reopenClass({
+  /* 
+   * primaryKey: property name for the primary key.
+   * Configurable. Defaults to 'id'.
+   */
+  primaryKey: function() {
+    var className = this.toString(),
+        modelConfig = Ember.get('RESTless.client.adapter.configurations.models').get(className);
+    if(modelConfig && modelConfig.primaryKey) {
+      return modelConfig.primaryKey;
+    }
+    return 'id';
+  }.property('RESTless.client.adapter.configurations.models'),
+
   /*
    * resourceName: path to the resource endpoint, determined from class name
    * i.e. MyApp.Post = RESTless.Model.extend({ ... })  =>  'post'
    */
   resourceName: function() {
-    var constructorName = this.toString(),
-        parts = constructorName.split('.'),
-        resourceName = parts[parts.length-1].toLowerCase();
-    return resourceName;
+    var className = this.toString(),
+        parts = className.split('.');
+    return parts[parts.length-1].toLowerCase();
   }.property(),
 
   /*
