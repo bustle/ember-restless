@@ -178,7 +178,7 @@ RESTless.RESTAdapter = Em.Object.extend({
     }
 
     for(i=0; i<len; i++) {
-      item = Em.get(window, type).create().deserialize(jsonArr[i]);
+      item = Em.get(window, type).create().deserialize(jsonArr[i]).set('isLoaded', true);
       resourceArr.push(item);
     }
     if(resourceArr.length) {
@@ -715,18 +715,15 @@ RESTless.Model.reopenClass({
     var self = this,
         resourceNamePlural = Em.get(this, 'resourceNamePlural'),
         resourceInstance = this.create(),
-        result = RESTless.RESTArray.createWithContent(),
+        result = RESTless.RESTArray.createWithContent({ type: this.toString() }),
         findRequest = resourceInstance.request({ type: 'GET', data: params });
 
     findRequest.done(function(json){
-      var items = json[resourceNamePlural].map(function(item) {
-        return self.create().deserialize(item).set('isLoaded', true);
-      });
-      result.pushObjects(items);
+      result.deserializeMany(json[resourceNamePlural]);
+      result.clearErrors();
       //call extract metadata hook
       var meta = RESTless.get('client.adapter').extractMeta(json);
       if(meta) { result.set('meta', meta); }
-      result.clearErrors();
     })
     .fail(function(jqxhr) {
       result._onError(jqxhr.responseText);
@@ -787,6 +784,20 @@ RESTless.RESTArray = Em.ArrayProxy.extend( RESTless.State, {
       itemProto = Em.get(window, type) || Em.Object;
     }
     this.pushObject(itemProto.create(opts));
+  },
+
+  /* 
+   * serializeMany: use the current Adapter turn the array into json representation
+   */
+  serializeMany: function() {
+    return RESTless.get('client.adapter').serializeMany(this, this.get('type'));
+  },
+
+  /* 
+   * deserializeMany: use the current Adapter to populate the array from supplied json
+   */
+  deserializeMany: function(json) {
+    return RESTless.get('client.adapter').deserializeMany(this, this.get('type'), json);
   }
 });
 

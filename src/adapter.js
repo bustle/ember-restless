@@ -146,7 +146,7 @@ RESTless.RESTAdapter = Em.Object.extend({
     }
 
     for(i=0; i<len; i++) {
-      item = Em.get(window, type).create().deserialize(jsonArr[i]);
+      item = Em.get(window, type).create().deserialize(jsonArr[i]).set('isLoaded', true);
       resourceArr.push(item);
     }
     if(resourceArr.length) {

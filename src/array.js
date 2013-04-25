@@ -21,6 +21,20 @@ RESTless.RESTArray = Em.ArrayProxy.extend( RESTless.State, {
       itemProto = Em.get(window, type) || Em.Object;
     }
     this.pushObject(itemProto.create(opts));
+  },
+
+  /* 
+   * serializeMany: use the current Adapter turn the array into json representation
+   */
+  serializeMany: function() {
+    return RESTless.get('client.adapter').serializeMany(this, this.get('type'));
+  },
+
+  /* 
+   * deserializeMany: use the current Adapter to populate the array from supplied json
+   */
+  deserializeMany: function(json) {
+    return RESTless.get('client.adapter').deserializeMany(this, this.get('type'), json);
   }
 });
 

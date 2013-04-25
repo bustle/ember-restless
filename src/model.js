@@ -258,18 +258,15 @@ RESTless.Model.reopenClass({
     var self = this,
         resourceNamePlural = Em.get(this, 'resourceNamePlural'),
         resourceInstance = this.create(),
-        result = RESTless.RESTArray.createWithContent(),
+        result = RESTless.RESTArray.createWithContent({ type: this.toString() }),
         findRequest = resourceInstance.request({ type: 'GET', data: params });
 
     findRequest.done(function(json){
-      var items = json[resourceNamePlural].map(function(item) {
-        return self.create().deserialize(item).set('isLoaded', true);
-      });
-      result.pushObjects(items);
+      result.deserializeMany(json[resourceNamePlural]);
+      result.clearErrors();
       //call extract metadata hook
       var meta = RESTless.get('client.adapter').extractMeta(json);
       if(meta) { result.set('meta', meta); }
-      result.clearErrors();
     })
     .fail(function(jqxhr) {
       result._onError(jqxhr.responseText);
