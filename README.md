@@ -216,16 +216,20 @@ App.Person = RL.Model.extend({
 
 ## Building RESTless
 
-Uses node.js and Grunt
-```
-npm install
-```
+If you wish to build ember-restless youself, you will need node.js and Grunt.  
+
+1. Install node: <a href="http://nodejs.org/">http://nodejs.org/</a>
+2. Open a terminal window
+3. Install dependencies: ```npm install```
+4. Build: ```grunt```
+5. Output will be *dist/ember-restless.js* and *dist/ember-restless.min.js*
+
 
 ## Tests
 
 Uses QUnit.
-To run tests, open tests/index.html in a browser
-Tests are currently a WIP.
+To run tests, open tests/index.html in a browser.  
+Tests are currently a work in progress.
 
 ## Example App
 
