@@ -24,6 +24,10 @@ module.exports = function(grunt) {
       }
     },
 
+    qunit: {
+      files: ['tests/index.html']
+    },
+
     concat: {
       options: {
         banner: '<%= projectInfo %>'
@@ -56,7 +60,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-qunit');
 
-  grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
+  // Default task
+  grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
+
+  // Travis CI task
+  grunt.registerTask('travis', ['jshint', 'qunit']);
   
 };
