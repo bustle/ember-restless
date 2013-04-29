@@ -43,6 +43,7 @@ RESTless.RESTAdapter = Em.Object.extend({
     if(configForType) {
       configs.set(type, $.extend(configForType, value));
     }
+    return this;
   },
 
   /*
@@ -51,12 +52,34 @@ RESTless.RESTAdapter = Em.Object.extend({
       App.RESTAdapter.map('App.Post', {
         primaryKey: 'slug'
       });
+      //or
+      App.RESTAdapter.map('App.Person', {
+        lastName: { key: 'lastNameOfPerson' }
+      });
    */
-  map: function(key, value) {
+  map: function(modelKey, config) {
     var modelMap = this.get('configurations.models'),
-        existingValue = modelMap.get('key'),
-        newValue = existingValue ? $.extend(existingValue, value) : value;
-    modelMap.set(key, newValue);
+        modelConfig = modelMap.get(modelKey), 
+        newConfig = {},
+        configKey, propertyKeys, modifiedPropKey;
+
+    for(configKey in config) {
+      if(config.hasOwnProperty(configKey)) {
+        if(config[configKey].hasOwnProperty('key')) {
+          // If trying to set a custom property key
+          // Transform and merge into a custom 'propertyKeys' hash to make lookup faster when deserializing
+          propertyKeys = modelConfig && modelConfig.hasOwnProperty('propertyKeys') ? modelConfig.propertyKeys : {};
+          modifiedPropKey = config[configKey].key;
+          propertyKeys[modifiedPropKey] = configKey;
+          newConfig.propertyKeys = propertyKeys;
+        } else {
+          newConfig[configKey] = config[configKey];
+        }
+        modelConfig = $.extend(modelConfig, newConfig);
+      }
+    }
+    modelMap.set(modelKey, modelConfig);
+    return this;
   },
 
   /*
@@ -77,12 +100,12 @@ RESTless.RESTAdapter = Em.Object.extend({
 
   /*
    * request: a wrapper around jQuery's ajax method
-   * builds the url and dynamically adds the a resource id if specified
+   * builds the url and dynamically adds the a resource key if specified
    */
-  request: function(params, resourceName, resourceId) {
+  request: function(params, resourceName, resourceKey) {
     var urlParts = [this.get('rootPath'), resourceName];
-    if(resourceId) {
-      urlParts.push(resourceId);
+    if(resourceKey) {
+      urlParts.push(resourceKey);
     }
     params.url = urlParts.join('/');
     params.dataType = 'json';
@@ -113,9 +136,14 @@ RESTless.RESTAdapter = Em.Object.extend({
    * deserializeProperty: sets model object properties from json
    */
   deserializeProperty: function(resource, prop, value) {
-    var formattedProp = prop.camelize();
-    // If the json contains a key not defined on the model, don't attempt to set it.
-    if(Em.get(resource, formattedProp) === undefined) {
+    var formattedProp = prop.camelize(),
+          modelConfig = Ember.get('RESTless.client.adapter.configurations.models').get(resource.constructor.toString());
+ 
+    // check if a custom key was configured for this property
+    if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[formattedProp]) {
+      formattedProp = modelConfig.propertyKeys[formattedProp];
+    } else if(Em.get(resource, formattedProp) === undefined) {
+      // If the json contains a key not defined on the model, don't attempt to set it.
       return;
     }
     var attrMap = Em.get(resource.constructor, 'attributeMap'),
@@ -153,6 +181,7 @@ RESTless.RESTAdapter = Em.Object.extend({
    * deserializeMany: deserializes an array of json objects for hasMany relationships
    */
   deserializeMany: function(resource, type, jsonArr) {
+    if(!jsonArr) { return; }
     var result = resource,
         len = jsonArr.length,
         resourceArr = [], item, i;

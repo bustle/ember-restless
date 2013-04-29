@@ -1,6 +1,6 @@
 /*
  * State
- * Mixin for managing REST lifecycle state
+ * Mixin for managing model lifecycle state
  */
 (function() {
 

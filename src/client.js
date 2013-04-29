@@ -11,34 +11,30 @@
 
 RESTless.RESTClient = Em.Object.extend({
   revision: RESTless.CURRENT_API_REVISION,
-  adapter: function(key, value) {
-    if (arguments.length === 1) {
-      return RESTless.RESTAdapter.create();
-    } else {
-      //Allow the adapter to be set by Class or string
-      if(typeof value === 'string') {
-        var adapterClass = Em.get(window, value);
-        Ember.assert('The adapter of type: "' + value + '" was not found.', adapterClass);
-        return adapterClass;
-      }
-      return value;
-    }
-  }.property()
+  adapter: RESTless.RESTAdapter.create(),
+  
+  // Private shortcut aliases:
+  _configs: Ember.computed.alias('adapter.configurations'),
+  _pluralConfigs: Ember.computed.alias('adapter.configurations.plurals'),
+  _modelConfigs: Ember.computed.alias('adapter.configurations.models')
 });
 
-// Set a default client
-RESTless.set('client', RESTless.RESTClient.create());
-
-// Detects 'RESTClient' on the Application implementaion namespace
-// then sets that as the default client if found
-// i.e. App.RESTClient = RESTless.RESTClient.create({ ... });
 Ember.onLoad('Ember.Application', function(Application) {
   Application.initializer({
     name: 'RESTClient',
     initialize: function(container, application) {
+      // On app initialize, if custom RESTClient is present,
+      // set that as the default client
       if(application.RESTClient) {
         RESTless.set('client', application.RESTClient);
+      } else {
+        // Set a default client
+        RESTless.set('client', RESTless.RESTClient.create());
       }
+      // Add an observer so you can set a client at a later date
+      application.addObserver('RESTClient', this, function() {
+        RESTless.set('client', this.RESTClient);
+      });
     }
   });
 });

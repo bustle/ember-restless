@@ -17,9 +17,9 @@ module.exports = function(grunt) {
     jshint: {
       files: ['gruntfile.js', 'src/**/*.js'],
       options: {
+        browser: true,
         globals: {
-          jQuery: true,
-          document: true
+          jQuery: true
         }
       }
     },
@@ -35,9 +35,9 @@ module.exports = function(grunt) {
       dist: {
         src: [
           'src/main.js',
+          'src/attribute.js',
           'src/adapter.js',
           'src/client.js',
-          'src/attribute.js',
           'src/state.js',
           'src/non-observable.js',
           'src/model.js',

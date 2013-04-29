@@ -173,19 +173,6 @@ post.on('didCreate', function() {
 
 ## Advanced
 
-### Custom transforms
-You can use a custom adapter to add custom transforms:
-``` javascript
-App.RESTAdapter.registerTransform('formattedDate', {
-  deserialize: function(serialized) {
-    //return custom date string
-  },
-  serialize: function(deserialized) {
-    //return custom date json format
-  }
-});
-```
-
 ### Custom plurals configuration
 You can use a custom adapter to set irregular plural resource names
 ``` javascript
@@ -194,7 +181,7 @@ App.RESTAdapter.configure("plurals", {
 });
 ```
 
-### Changing the the primary key
+### Changing the the primary key for a model
 The primary key for all models defaults to 'id'. 
 You can customize it per model class to match your backend:
 ``` javascript
@@ -203,14 +190,45 @@ App.RESTAdapter.map("App.Post", {
 });
 ```
 
+### Mapping different property keys
+For example, if your JSON has a key ```lastNameOfPerson``` and the desired attribute name is ```lastName```:
+``` javascript
+App.Person = RL.Model.extend({
+  lastName: RL.attr('string')
+});
+App.RESTAdapter.map('App.Person', {
+  lastName: { key: 'lastNameOfPerson' }
+});
+```
+
 
 ### Read-only attributes
 Make attributes 'read-only', which will exclude them from being serialized into the json sent to your service when saving.
+For example, if you want to let the backend compute the date a record is created:
 ``` javascript
 App.Person = RL.Model.extend({
   firstName: RL.attr('string'),
   lastName: RL.attr('string'),
   createdAt: RL.attr('date', { readOnly: true })
+});
+```
+
+### Custom transforms
+You can use a custom adapter to add custom transforms:
+``` javascript
+App.RESTAdapter.registerTransform('timeAgo', {
+  deserialize: function(serialized) {
+    // return a custom date string, such as: '5 minutes ago'
+  },
+  serialize: function(deserialized) {
+    // return a custom date json format for your backend or 
+    // simply return deserialized
+  }
+});
+```
+``` javascript
+App.Comment = RL.Model.extend({
+  createdAt: RL.attr('timeAgo')
 });
 ```
 
