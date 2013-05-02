@@ -13,14 +13,14 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
   id: RESTless.attr('number'),
 
   /*
-   * currentRequest: stores the last ajax request as a property.
+   * currentRequest: stores the active ajax request as a property.
    * Useful for accessing the promise callbacks.
    * Automatically set to null when request completes
    */
   currentRequest: null,
 
   /* 
-   * isNew: model has not yet been stored to REST service
+   * isNew: model has not yet been saved
    */
   isNew: function() {
     var primaryKey = Em.get(this.constructor, 'primaryKey');
@@ -31,34 +31,51 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    * init: on instance creation
    */
   init: function() {
-    // Pre-fetch the attributeMap. Cached after 1 object of type is created
-    var attributeMap = Em.get(this.constructor, 'attributeMap'),
-        observable = !!!this.get('nonObservable'), attr;
+    this._initProperties();
+    this._addPropertyObservers();
+  },
 
-    // Initialize relationships with proper model types.
-    // Start observing *all* property changes for 'isDirty' functionality
+  /* 
+   * _initProperties: (private)
+   * Any special setup needed for certain property types
+   */
+  _initProperties: function() {
+    var attributeMap = Em.get(this.constructor, 'attributeMap'), attr;
+
+    // Loop through each property and init any relationships
     for(attr in attributeMap) {
       if (attributeMap.hasOwnProperty(attr)) {
         if(attributeMap[attr].get('hasMany')) {
-          // create array of type & observe when contents of array changes
           this.set(attr, RESTless.RESTArray.createWithContent({type: attributeMap[attr].get('type')}));
-          if(observable) { this.addObserver(attr+'.@each', this, this._onPropertyChange); }
-        }
-        else if(attributeMap[attr].get('belongsTo')) {
-          // create model of type and observe when it changes
+        } else if(attributeMap[attr].get('belongsTo')) {
           this.set(attr, Em.get(window, attributeMap[attr].get('type')).create());
-          if(observable) { this.addObserver(attr, this, this._onPropertyChange); }
-        }
-        else {
-          if(observable) { this.addObserver(attr, this, this._onPropertyChange); }
         }
       }
     }
   },
 
   /* 
-   * _onPropertyChange: (internal) called when any property of the model changes
-   * If the model has been loaded from the REST service, or is new, isDirty flag is set to true.
+   * _addPropertyObservers: (private)
+   * adds observers for each property for 'isDirty' functionality
+   */
+  _addPropertyObservers: function() {
+    var attributeMap = Em.get(this.constructor, 'attributeMap'), attr;
+
+    // Start observing *all* property changes for 'isDirty' functionality
+    for(attr in attributeMap) {
+      if (attributeMap.hasOwnProperty(attr)) {
+        if(attributeMap[attr].get('hasMany')) {
+          this.addObserver(attr+'.@each', this, this._onPropertyChange);
+        } else {
+          this.addObserver(attr, this, this._onPropertyChange);
+        }
+      }
+    }
+  },
+
+  /* 
+   * _onPropertyChange: (private) called when any property of the model changes
+   * If the model has been loaded, or is new, isDirty flag is set to true.
    * If the property contains a 'parentObject' (hasMany array items), set the parent isDirty.
    */
   _onPropertyChange: function(sender, key) {
@@ -291,7 +308,7 @@ RESTless.Model.reopenClass({
   },
 
   /*
-   * _findByKey: (internal) fetches object with specified key value
+   * _findByKey: (private) fetches object with specified key value
    * 'find' handles all cases, and reroutes to here if necessary
    */
   _findByKey: function(key) {

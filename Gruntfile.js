@@ -39,8 +39,8 @@ module.exports = function(grunt) {
           'src/adapter.js',
           'src/client.js',
           'src/state.js',
-          'src/non-observable.js',
           'src/model.js',
+          'src/read_only_model.js',
           'src/array.js',
           'src/transforms.js' // optional
         ],

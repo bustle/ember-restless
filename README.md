@@ -213,6 +213,15 @@ App.Person = RL.Model.extend({
 });
 ```
 
+### Read-only models
+If you want the entire model to be read-only and also remove all 'write' methods.
+Also provides a performance increase since each property won't have to be observed for 'isDirty'.
+``` javascript
+App.Post = RL.ReadOnlyModel.extend({
+...
+});
+```
+
 ### Custom transforms
 You can use a custom adapter to add custom transforms:
 ``` javascript
