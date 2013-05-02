@@ -162,7 +162,7 @@ RESTless.RESTAdapter = Ember.Object.extend({
     // If property is a belongsTo relationship, deserialze that model
     else if(attr.get('belongsTo')) {
       var belongsToModel = get(window, attrType).create();
-      this.deserialize(belongsToModel, value);
+      this.deserialize(belongsToModel, value).set('isLoaded', true);
       resource.set(formattedProp, belongsToModel);
       return;
     }
