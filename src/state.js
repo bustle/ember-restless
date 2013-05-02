@@ -2,11 +2,8 @@
  * State
  * Mixin for managing model lifecycle state
  */
-(function() {
 
-'use strict';
-
-RESTless.State = Em.Mixin.create( Em.Evented, {
+RESTless.State = Ember.Mixin.create( Ember.Evented, {
   /* 
    * isLoaded: model has downloaded from REST service
    */
@@ -50,16 +47,16 @@ RESTless.State = Em.Mixin.create( Em.Evented, {
   },
 
   /* 
-   * _triggerEvent: (internal) helper method to trigger lifecycle events
+   * _triggerEvent: (private) helper method to trigger lifecycle events
    */
   _triggerEvent: function(name, data) {
-    Em.run(this, function() {
+    Ember.run(this, function() {
       this.trigger(name, data);
     });
   },
 
   /* 
-   * _onError: (internal) helper method for handling error responses
+   * _onError: (private) helper method for handling error responses
    * Parses error json, sets error properties, and triggers error events
    */
   _onError: function(errorResponse) {
@@ -69,5 +66,3 @@ RESTless.State = Em.Mixin.create( Em.Evented, {
     this._triggerEvent('becameError', this.get('errors'));
   }
 });
-
-})();

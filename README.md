@@ -1,6 +1,6 @@
 # Ember RESTless [![Build Status](https://travis-ci.org/endlessinc/ember-restless.png?branch=master)](https://travis-ci.org/endlessinc/ember-restless)
 
-RESTless is a lightweight data persistence library for Ember.js.
+RESTless is a lightweight data persistence library for Ember.js. (~3KB minified & gzipped)
 
 It is used to communicate with a remote persistence layer (such as a JSON API) and map that data between your client side JavaScript Ember application.
 

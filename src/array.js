@@ -2,11 +2,8 @@
  * RESTArray
  * Base class extention for RESTful arrays
  */
-(function() {
 
-'use strict';
-
-RESTless.RESTArray = Em.ArrayProxy.extend( RESTless.State, {
+RESTless.RESTArray = Ember.ArrayProxy.extend( RESTless.State, {
   /*
    * type: type of model the array contains
    */
@@ -18,7 +15,7 @@ RESTless.RESTArray = Em.ArrayProxy.extend( RESTless.State, {
   createItem:function(opts) {
     var type = this.get('type'), itemProto;
     if(type) {
-      itemProto = Em.get(window, type) || Em.Object;
+      itemProto = get(window, type) || Ember.Object;
     }
     this.pushObject(itemProto.create(opts));
   },
@@ -46,9 +43,7 @@ RESTless.RESTArray.reopenClass({
    * createWithContent: helper to create a RESTArray with the content property initialized
    */
   createWithContent: function(opts) {
-    var mergedOpts = $.extend({ content: Em.A() }, opts);
+    var mergedOpts = $.extend({ content: Ember.A() }, opts);
     return RESTless.RESTArray.create(mergedOpts);
   }
 });
-
-})();

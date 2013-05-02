@@ -1,16 +1,9 @@
 /*
- * Attributes
- * Public interfaces to define model attributes
+ * RESTless._Attribute (private)
+ * Stores metadata about model property types
  */
-(function() {
 
-'use strict';
-
-/*
- * RESTless._Attribute (internal)
- * Stores metadata about the property type for serialization
- */
-RESTless._Attribute = Em.ObjectProxy.extend({
+RESTless._Attribute = Ember.ObjectProxy.extend({
   type: null,
   belongsTo: false,
   hasMany: false,
@@ -18,7 +11,10 @@ RESTless._Attribute = Em.ObjectProxy.extend({
 });
 
 /*
- * attr
+ * Public interfaces to define model properties
+ */
+ 
+/*
  * Standard property
  */
 RESTless.attr = function(type, opts) {
@@ -27,8 +23,7 @@ RESTless.attr = function(type, opts) {
 };
 
 /*
- * belongsTo
- * One-to-one relationship between two models
+ * belongsTo: One-to-one relationship between two models
  */
 RESTless.belongsTo = function(type, opts) {
   opts = $.extend({ type: type, belongsTo:true }, opts);
@@ -36,12 +31,9 @@ RESTless.belongsTo = function(type, opts) {
 };
 
 /*
- * hasMany
- * One-to-many & Many-to-many relationships
+ * hasMany: One-to-many & many-to-many relationships
  */
 RESTless.hasMany = function(type, opts) {
   opts = $.extend({ type: type, hasMany:true }, opts);
   return RESTless._Attribute.create(opts);
 };
-
-})();

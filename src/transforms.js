@@ -7,11 +7,6 @@
  * Courtesy of ember-data
  * https://github.com/emberjs/data/blob/master/packages/ember-data/lib/transforms/json_transforms.js
  */
-(function() {
-
-'use strict';
-
-var none = Ember.isNone, empty = Ember.isEmpty;
 
 RESTless.JSONTransforms = {
   string: {
@@ -103,5 +98,3 @@ RESTless.JSONTransforms = {
     }
   }
 };
-
-})();

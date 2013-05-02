@@ -2,11 +2,8 @@
  * Model
  * Base class for RESTful models
  */
-(function() {
 
-'use strict';
-
-RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
+RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
   /* 
    * id: unique id number, default primary id
    */
@@ -23,8 +20,8 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    * isNew: model has not yet been saved
    */
   isNew: function() {
-    var primaryKey = Em.get(this.constructor, 'primaryKey');
-    return Em.isNone(this.get(primaryKey));
+    var primaryKey = get(this.constructor, 'primaryKey');
+    return none(this.get(primaryKey));
   }.property(),
 
   /* 
@@ -40,7 +37,7 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    * Any special setup needed for certain property types
    */
   _initProperties: function() {
-    var attributeMap = Em.get(this.constructor, 'attributeMap'), attr;
+    var attributeMap = get(this.constructor, 'attributeMap'), attr;
 
     // Loop through each property and init any relationships
     for(attr in attributeMap) {
@@ -48,7 +45,7 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
         if(attributeMap[attr].get('hasMany')) {
           this.set(attr, RESTless.RESTArray.createWithContent({type: attributeMap[attr].get('type')}));
         } else if(attributeMap[attr].get('belongsTo')) {
-          this.set(attr, Em.get(window, attributeMap[attr].get('type')).create());
+          this.set(attr, get(window, attributeMap[attr].get('type')).create());
         }
       }
     }
@@ -59,7 +56,7 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    * adds observers for each property for 'isDirty' functionality
    */
   _addPropertyObservers: function() {
-    var attributeMap = Em.get(this.constructor, 'attributeMap'), attr;
+    var attributeMap = get(this.constructor, 'attributeMap'), attr;
 
     // Start observing *all* property changes for 'isDirty' functionality
     for(attr in attributeMap) {
@@ -78,7 +75,7 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    * If the model has been loaded, or is new, isDirty flag is set to true.
    * If the property contains a 'parentObject' (hasMany array items), set the parent isDirty.
    */
-  _onPropertyChange: function(sender, key) {
+  _onPropertyChange: function() {
     var parent = this.get('parentObject'),
         targetObject = parent || this;
     if(targetObject.get('isLoaded') || targetObject.get('isNew')) {
@@ -92,17 +89,17 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    */
   copy: function(deep) {
     var clone = this.constructor.create(),
-        attributeMap = Em.get(this.constructor, 'attributeMap'),
+        attributeMap = get(this.constructor, 'attributeMap'),
         attr, value;
         
-    Em.beginPropertyChanges(this);
+    Ember.beginPropertyChanges(this);
     for(attr in attributeMap) {
       if(attributeMap.hasOwnProperty(attr)) {
         value = this.get(attr);
         if(value !== null) { clone.set(attr, value); }
       }
     }
-    Em.endPropertyChanges(this);
+    Ember.endPropertyChanges(this);
     return clone;
   },
 
@@ -133,7 +130,7 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    * This is the json format returned from Rails ActiveRecord on create or update
    */
   deserializeResource: function(json) {
-    var resourceName = Em.get(this.constructor, 'resourceName');
+    var resourceName = get(this.constructor, 'resourceName');
     return this.deserialize(json[resourceName]);
   },
 
@@ -142,8 +139,8 @@ RESTless.Model = Em.Object.extend( RESTless.State, Em.Copyable, {
    * Attemps to extract a resource key and keeps state of the currentRequest
    */
   request: function(params, resourceKey) {
-    var resourceName = Em.get(this.constructor, 'resourceNamePlural'),
-        primaryKey = Em.get(this.constructor, 'primaryKey'),
+    var resourceName = get(this.constructor, 'resourceNamePlural'),
+        primaryKey = get(this.constructor, 'primaryKey'),
         key = resourceKey || this.get(primaryKey),
         self = this, request;
 
@@ -242,8 +239,8 @@ RESTless.Model.reopenClass({
    * Define custom plural words in a custom adapter
    */
   resourceNamePlural: function() {
-    var name = Em.get(this, 'resourceName'),
-        plurals = Ember.get('RESTless.client._pluralConfigs');
+    var name = get(this, 'resourceName'),
+        plurals = get(RESTless, 'client._pluralConfigs');
     return (plurals && plurals[name]) || name + 's';
   }.property('resourceName'),
 
@@ -269,7 +266,7 @@ RESTless.Model.reopenClass({
    * Also an alias to findAll objects of this type with specified params
    */
   find: function(params) {
-    var primaryKey = Em.get(this, 'primaryKey'),
+    var primaryKey = get(this, 'primaryKey'),
         singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
                                 (typeof params === 'object' && params.hasOwnProperty(primaryKey)), key;
     if(singleResourceRequest) {
@@ -284,8 +281,7 @@ RESTless.Model.reopenClass({
    * findAll: fetches all objects of this type with specified params
    */
   findAll: function(params) {
-    var self = this,
-        resourceNamePlural = Em.get(this, 'resourceNamePlural'),
+    var resourceNamePlural = get(this, 'resourceNamePlural'),
         resourceInstance = this.create(),
         result = RESTless.RESTArray.createWithContent({ type: this.toString() }),
         findRequest = resourceInstance.request({ type: 'GET', data: params });
@@ -312,8 +308,7 @@ RESTless.Model.reopenClass({
    * 'find' handles all cases, and reroutes to here if necessary
    */
   _findByKey: function(key) {
-    var resourceName = Em.get(this, 'resourceName'),
-        primaryKey = Em.get(this, 'primaryKey'),
+    var resourceName = get(this, 'resourceName'),
         result = this.create(),
         findRequest = result.request({ type: 'GET' }, key);
 
@@ -331,5 +326,3 @@ RESTless.Model.reopenClass({
     return result;
   }
 });
-
-})();

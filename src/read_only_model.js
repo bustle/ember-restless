@@ -4,9 +4,6 @@
  * Removes property change observers and write methods.
  * Helps improve performance when write functionality is not needed.
  */
-(function() {
-
-'use strict';
 
 RESTless.ReadOnlyModel = RESTless.Model.extend({
 
@@ -27,5 +24,3 @@ RESTless.ReadOnlyModel = RESTless.Model.extend({
   deleteRecord: null
 
 });
-
-})();

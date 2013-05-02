@@ -12,14 +12,31 @@ module.exports = function(grunt) {
                   ' *\n' +
                   ' * Garth Poitras <garth22@gmail.com>\n' +
                   ' * Copyright (c) 2013 Endless, Inc.\n' +
-                  ' */\n\n\n',
+                  ' */\n',
+
+    wrapClosure: {
+      header: '(function(window, $, Ember, undefined){\n\n' +
+              '"use strict";\n\n',
+      footer: '\n})(this, jQuery, Ember);'
+    },
 
     jshint: {
-      files: ['gruntfile.js', 'src/**/*.js'],
+      beforeconcat: ['gruntfile.js', 'src/**/*.js'],
+      afterconcat: ['dist/<%= pkg.name %>.js'],
       options: {
+        forin: true,
+        noarg: true,
+        noempty: true,
+        eqeqeq: true,
+        bitwise: true,
+        curly: true,
         browser: true,
+        //undef: true,
+        //unused: true,
+        //strict: true,
         globals: {
-          jQuery: true
+          jQuery: true,
+          Ember: true
         }
       }
     },
@@ -30,7 +47,9 @@ module.exports = function(grunt) {
 
     concat: {
       options: {
-        banner: '<%= projectInfo %>'
+        banner: '<%= projectInfo %>\n' + 
+                '<%= wrapClosure.header %>',
+        footer: '<%= wrapClosure.footer %>'
       },
       dist: {
         src: [
@@ -62,10 +81,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-qunit');
 
-  // Default task
-  grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
+  // Default task: Lint, build, test, build production
+  grunt.registerTask('default', ['jshint:beforeconcat', 'concat', 'jshint:afterconcat', 'qunit', 'uglify']);
 
-  // Travis CI task
-  grunt.registerTask('travis', ['jshint', 'qunit']);
+  // Build task: Lint and build only
+  grunt.registerTask('build', ['jshint:beforeconcat', 'concat', 'jshint:afterconcat']);
+
+  // Travis CI task: Build, lint, test
+  grunt.registerTask('travis', ['concat', 'jshint:afterconcat', 'qunit']);
   
 };

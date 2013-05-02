@@ -7,11 +7,8 @@
  * - serializing ember models to json to send to backend
  * - deserializing json from backend into ember models
  */
-(function() {
 
-'use strict';
-
-RESTless.RESTAdapter = Em.Object.extend({
+RESTless.RESTAdapter = Ember.Object.extend({
   /*
    * url: base url of backend REST service
    * example: 'https://api.example.com'
@@ -121,14 +118,14 @@ RESTless.RESTAdapter = Em.Object.extend({
    * { id:1, name:'post 1' }
    */
   deserialize: function(resource, json) {
-    Em.beginPropertyChanges(resource);
+    Ember.beginPropertyChanges(resource);
     var prop;
     for(prop in json) {
       if (json.hasOwnProperty(prop)) {
         this.deserializeProperty(resource, prop, json[prop]);
       }
     }
-    Em.endPropertyChanges(resource);
+    Ember.endPropertyChanges(resource);
     return resource;
   },
 
@@ -137,16 +134,16 @@ RESTless.RESTAdapter = Em.Object.extend({
    */
   deserializeProperty: function(resource, prop, value) {
     var formattedProp = prop.camelize(),
-          modelConfig = Ember.get('RESTless.client.adapter.configurations.models').get(resource.constructor.toString());
+          modelConfig = get(RESTless, 'client._modelConfigs').get(resource.constructor.toString());
  
     // check if a custom key was configured for this property
     if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[formattedProp]) {
       formattedProp = modelConfig.propertyKeys[formattedProp];
-    } else if(Em.get(resource, formattedProp) === undefined) {
+    } else if(get(resource, formattedProp) === undefined) {
       // If the json contains a key not defined on the model, don't attempt to set it.
       return;
     }
-    var attrMap = Em.get(resource.constructor, 'attributeMap'),
+    var attrMap = get(resource.constructor, 'attributeMap'),
         attr = attrMap[formattedProp],
         attrType = attr.get('type');
 
@@ -164,7 +161,7 @@ RESTless.RESTAdapter = Em.Object.extend({
     } 
     // If property is a belongsTo relationship, deserialze that model
     else if(attr.get('belongsTo')) {
-      var belongsToModel = Em.get(window, attrType).create();
+      var belongsToModel = get(window, attrType).create();
       this.deserialize(belongsToModel, value);
       resource.set(formattedProp, belongsToModel);
       return;
@@ -192,7 +189,7 @@ RESTless.RESTAdapter = Em.Object.extend({
     }
 
     for(i=0; i<len; i++) {
-      item = Em.get(window, type).create().deserialize(jsonArr[i]).set('isLoaded', true);
+      item = get(window, type).create().deserialize(jsonArr[i]).set('isLoaded', true);
       resourceArr.push(item);
     }
     if(resourceArr.length) {
@@ -205,8 +202,8 @@ RESTless.RESTAdapter = Em.Object.extend({
    * serialize: turns Ember model into json to send to REST API
    */
   serialize: function(resource) {
-    var resourceName = Em.get(resource.constructor, 'resourceName'),
-        attrMap = Em.get(resource.constructor, 'attributeMap'),
+    var resourceName = get(resource.constructor, 'resourceName'),
+        attrMap = get(resource.constructor, 'attributeMap'),
         json = {},
         attr, val;
 
@@ -228,7 +225,7 @@ RESTless.RESTAdapter = Em.Object.extend({
    */
   serializeProperty: function(resource, prop) {
     var value = resource.get(prop),
-        attrMap = Em.get(resource.constructor, 'attributeMap'),
+        attrMap = get(resource.constructor, 'attributeMap'),
         attr = attrMap[prop],
         attrType = attr.get('type');
 
@@ -247,7 +244,7 @@ RESTless.RESTAdapter = Em.Object.extend({
    * serializeMany: serializes an array of json objects for hasMany relationships
    */
   serializeMany: function(resourceArr, type) {
-    var resourceName = Em.get(Em.get(window, type), 'resourceName'),
+    var resourceName = get(get(window, type), 'resourceName'),
         result = [],
         len = resourceArr.length,
         i;
@@ -283,5 +280,3 @@ RESTless.RESTAdapter = Em.Object.extend({
  * Bulding with transforms.js is optional, and will overwrite this
  */
 RESTless.JSONTransforms = {};
-
-})();

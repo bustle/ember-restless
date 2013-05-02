@@ -1,20 +1,23 @@
-/*
- * RESTless Namespace
- * Create a new Ember namespace and expose to the global namespace.
- * Track API revision number for future 'breaking changes' feature.
- */
-(function() {
+var get = Ember.get, set = Ember.set,
+    none = Ember.isNone, empty = Ember.isEmpty,
+    RESTless;
 
-'use strict';
+if ('undefined' === typeof RESTless) {
+  /*
+   * RESTless
+   * Create as am Ember Namespace.
+   * Track version and API revision number.
+   */
+  RESTless = Ember.Namespace.create({
+    VERSION: '0.1.3',
+    CURRENT_API_REVISION: 1
+  });
 
-window.RESTless = Ember.Namespace.create({
-  VERSION: '0.1.3',
-  CURRENT_API_REVISION: 1
-});
-
-/*
- * Shorthand namespace: 'RL'
- */
-window.RL = window.RESTless;
-
-})();
+  /*
+   * Expose RESTless to the global window namespace.
+   * Create shortcut alias 'RL'.
+   */
+  if ('undefined' !== typeof window) {
+    window.RL = window.RESTless = RESTless;
+  }
+}
