@@ -1,11 +1,10 @@
 /*
- * RESTArray
- * Base class extention for RESTful arrays
+ * RecordArray
+ * Base class extention for arrays of Models
  */
-
-RESTless.RESTArray = Ember.ArrayProxy.extend( RESTless.State, {
+RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
   /*
-   * type: type of model the array contains
+   * type: type of model class the array contains
    */
   type: null,
 
@@ -13,37 +12,41 @@ RESTless.RESTArray = Ember.ArrayProxy.extend( RESTless.State, {
    * createItem: pushes an new object of type onto array
    */
   createItem:function(opts) {
-    var type = this.get('type'), itemProto;
-    if(type) {
-      itemProto = get(window, type) || Ember.Object;
-    }
-    this.pushObject(itemProto.create(opts));
+    var type = this.get('type'),
+        itemClass = type ? get(window, type) : Ember.Object;
+    this.pushObject(itemClass.create(opts));
   },
 
+  /*
+   * resourceTypeNamePlural: helper to get the plural resource name for array object type
+   */
+  resourceTypeNamePlural: function() {
+    var typeInstance = get(window, this.get('type')).create();
+    return get(typeInstance.constructor, 'resourceNamePlural');
+  }.property('type'),
+
   /* 
-   * serializeMany: use the current Adapter turn the array into json representation
+   * deserializeMany: use the current Serializer to populate the array from supplied data
+   */
+  deserializeMany: function(data) {
+    return RESTless.get('client.adapter.serializer').deserializeMany(this, this.get('type'), data);
+  },
+  /* 
+   * serializeMany: use the current Serializer turn the array into data representation
    */
   serializeMany: function() {
-    return RESTless.get('client.adapter').serializeMany(this, this.get('type'));
-  },
-
-  /* 
-   * deserializeMany: use the current Adapter to populate the array from supplied json
-   */
-  deserializeMany: function(json) {
-    return RESTless.get('client.adapter').deserializeMany(this, this.get('type'), json);
+    return RESTless.get('client.adapter.serializer').serializeMany(this, this.get('type'));
   }
 });
 
 /*
- * RESTArray (static)
+ * RecordArray (static)
  */
-RESTless.RESTArray.reopenClass({
+RESTless.RecordArray.reopenClass({
   /*
-   * createWithContent: helper to create a RESTArray with the content property initialized
+   * createWithContent: helper to create a RecordArray with the content property initialized
    */
   createWithContent: function(opts) {
-    var mergedOpts = $.extend({ content: Ember.A() }, opts);
-    return RESTless.RESTArray.create(mergedOpts);
+    return RESTless.RecordArray.create($.extend({ content: Ember.A() }, opts));
   }
 });

@@ -33,7 +33,6 @@ module.exports = function(grunt) {
         browser: true,
         //undef: true,
         //unused: true,
-        //strict: true,
         globals: {
           jQuery: true,
           Ember: true
@@ -55,13 +54,16 @@ module.exports = function(grunt) {
         src: [
           'src/main.js',
           'src/attribute.js',
+          'src/serializer.js',
+          'src/json_serializer.js',
           'src/adapter.js',
+          'src/rest_adapter.js',
           'src/client.js',
           'src/state.js',
           'src/model.js',
           'src/read_only_model.js',
           'src/array.js',
-          'src/transforms.js' // optional
+          'src/json_transforms.js' // optional
         ],
         dest: 'dist/<%= pkg.name %>.js'
       }

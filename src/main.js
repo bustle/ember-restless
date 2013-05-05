@@ -2,6 +2,12 @@ var get = Ember.get, set = Ember.set,
     none = Ember.isNone, empty = Ember.isEmpty,
     RESTless;
 
+function mustImplement(name) {
+  return function() {
+    throw new Ember.Error(this.toString() + " must implement the required method: " + name);
+  };
+}
+
 if ('undefined' === typeof RESTless) {
   /*
    * RESTless
@@ -9,8 +15,8 @@ if ('undefined' === typeof RESTless) {
    * Track version and API revision number.
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.1.3',
-    CURRENT_API_REVISION: 1
+    VERSION: '0.2',
+    CURRENT_API_REVISION: 2
   });
 
   /*

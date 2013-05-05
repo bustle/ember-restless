@@ -1,7 +1,6 @@
 /*
  * JSONTransforms
  * Base serializers/deserializers for each attribute type
- *
  * This is an add-on, and is not necessary for RESTless to function
  *
  * Courtesy of ember-data
@@ -70,12 +69,11 @@ RESTless.JSONTransforms = {
 
     serialize: function(date) {
       if (date instanceof Date) {
-        var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-        var pad = function(num) {
-          return num < 10 ? "0"+num : ""+num;
-        };
+        var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            pad = function(num) {
+              return num < 10 ? "0"+num : ""+num;
+            };
 
         var utcYear = date.getUTCFullYear(),
             utcMonth = date.getUTCMonth(),
@@ -83,12 +81,10 @@ RESTless.JSONTransforms = {
             utcDay = date.getUTCDay(),
             utcHours = date.getUTCHours(),
             utcMinutes = date.getUTCMinutes(),
-            utcSeconds = date.getUTCSeconds();
-
-
-        var dayOfWeek = days[utcDay];
-        var dayOfMonth = pad(utcDayOfMonth);
-        var month = months[utcMonth];
+            utcSeconds = date.getUTCSeconds(),
+            dayOfWeek = days[utcDay],
+            dayOfMonth = pad(utcDayOfMonth),
+            month = months[utcMonth];
 
         return dayOfWeek + ", " + dayOfMonth + " " + month + " " + utcYear + " " +
                pad(utcHours) + ":" + pad(utcMinutes) + ":" + pad(utcSeconds) + " GMT";

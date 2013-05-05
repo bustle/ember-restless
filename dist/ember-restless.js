@@ -2,8 +2,8 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.1.3
- * last modifed: 2013-05-02
+ * version: 0.2
+ * last modifed: 2013-05-05
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -17,6 +17,12 @@ var get = Ember.get, set = Ember.set,
     none = Ember.isNone, empty = Ember.isEmpty,
     RESTless;
 
+function mustImplement(name) {
+  return function() {
+    throw new Ember.Error(this.toString() + " must implement the required method: " + name);
+  };
+}
+
 if ('undefined' === typeof RESTless) {
   /*
    * RESTless
@@ -24,8 +30,8 @@ if ('undefined' === typeof RESTless) {
    * Track version and API revision number.
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.1.3',
-    CURRENT_API_REVISION: 1
+    VERSION: '0.2',
+    CURRENT_API_REVISION: 2
   });
 
   /*
@@ -41,7 +47,6 @@ if ('undefined' === typeof RESTless) {
  * RESTless._Attribute (private)
  * Stores metadata about model property types
  */
-
 RESTless._Attribute = Ember.ObjectProxy.extend({
   type: null,
   belongsTo: false,
@@ -50,158 +55,96 @@ RESTless._Attribute = Ember.ObjectProxy.extend({
 });
 
 /*
- * Public interfaces to define model properties
+ * Public attribute interfaces to define model properties
  */
- 
-/*
- * Standard property
- */
+// Standard property
 RESTless.attr = function(type, opts) {
   opts = $.extend({ type: type }, opts);
   return RESTless._Attribute.create(opts);
 };
 
-/*
- * belongsTo: One-to-one relationship between two models
- */
+// belongsTo: One-to-one relationship between two models
 RESTless.belongsTo = function(type, opts) {
   opts = $.extend({ type: type, belongsTo:true }, opts);
   return RESTless._Attribute.create(opts);
 };
 
-/*
- * hasMany: One-to-many & many-to-many relationships
- */
+// hasMany: One-to-many & many-to-many relationships
 RESTless.hasMany = function(type, opts) {
   opts = $.extend({ type: type, hasMany:true }, opts);
   return RESTless._Attribute.create(opts);
 };
 
 /*
- * RESTAdapter
- * The base REST adapter
- * Core responsibilities include:
- * - storing the location and custom configurations of the remote REST service
- * - building ajax requests
- * - serializing ember models to json to send to backend
- * - deserializing json from backend into ember models
+ * Serializer
+ * Base serializer to be subclassed.
+ * Handles transforming data before saving to persistence layer
+ * and transforming data into Models when retrieving
  */
-
-RESTless.RESTAdapter = Ember.Object.extend({
+RESTless.Serializer = Ember.Object.extend({
   /*
-   * url: base url of backend REST service
-   * example: 'https://api.example.com'
+   * dataType: i.e. json, jsonp, xml, html
    */
-  url: null,
-
+  dataType: null,
   /*
-   * namespace: endpoint path
-   * example: 'api/v1'
+   * contentType: additional content type headers
    */
-  namespace: null,
+  contentType: null,
 
-  /*
-   * configurations: custom options to be used by a custom adapter
-   * i.e. plurals - to set the plural resource name of 'person' to 'people'
-   * i.e. models - to set a different primary key for a certain model type
+  /* 
+   * Common serializer methods that must be implemented in a subclass
    */
-  configurations: Ember.Object.create({
-    plurals: Ember.Object.create(),
-    models: Ember.Map.create()
-  }),
+  deserialize:         mustImplement('deserialize'),
+  deserializeProperty: mustImplement('deserializeProperty'),
+  deserializeMany:     mustImplement('deserializeMany'),
+  serialize:           mustImplement('serialize'),
+  serializeProperty:   mustImplement('serializeProperty'),
+  serializeMany:       mustImplement('serializeMany'),
 
   /*
-   * configure: method to set allowed configurations
+   * Optional methods to override
    */
-  configure: function(type, value) {
-    var configs = this.get('configurations'),
-        configForType = configs.get(type);
-    if(configForType) {
-      configs.set(type, $.extend(configForType, value));
-    }
-    return this;
+  /*
+   * prepareData: preps data before persisting
+   * i.e. a RESTAdapter with a JSONSerializer may need to JSON.stringify data before POSTing
+   */
+  prepareData: function(data) {
+    return data;
   },
-
   /*
-   * map: configure helper to map configurations for model types
-   * i.e :
-      App.RESTAdapter.map('App.Post', {
-        primaryKey: 'slug'
-      });
-      //or
-      App.RESTAdapter.map('App.Person', {
-        lastName: { key: 'lastNameOfPerson' }
-      });
+   * registerTransform: to add to the serializers transform hash
    */
-  map: function(modelKey, config) {
-    var modelMap = this.get('configurations.models'),
-        modelConfig = modelMap.get(modelKey), 
-        newConfig = {},
-        configKey, propertyKeys, modifiedPropKey;
+  registerTransform: function(type, transform) { }
+});
 
-    for(configKey in config) {
-      if(config.hasOwnProperty(configKey)) {
-        if(config[configKey].hasOwnProperty('key')) {
-          // If trying to set a custom property key
-          // Transform and merge into a custom 'propertyKeys' hash to make lookup faster when deserializing
-          propertyKeys = modelConfig && modelConfig.hasOwnProperty('propertyKeys') ? modelConfig.propertyKeys : {};
-          modifiedPropKey = config[configKey].key;
-          propertyKeys[modifiedPropKey] = configKey;
-          newConfig.propertyKeys = propertyKeys;
-        } else {
-          newConfig[configKey] = config[configKey];
-        }
-        modelConfig = $.extend(modelConfig, newConfig);
-      }
-    }
-    modelMap.set(modelKey, modelConfig);
-    return this;
-  },
+/*
+ * JSONSerializer
+ * Serializes and deserializes data to and from json
+ */
+RESTless.JSONSerializer = RESTless.Serializer.extend({
 
-  /*
-   * rootPath: computed path based on url and namespace
-   */
-  rootPath: function() {
-    var a = document.createElement('a'),
-        url = this.get('url'),
-        ns = this.get('namespace'),
-        rootReset = ns && ns.charAt(0) === '/';
+  dataType: 'json',
+  contentType: 'application/json; charset=utf-8',
 
-    a.href = url ? url : '';
-    if(ns) {
-      a.pathname = rootReset ? ns : (a.pathname + ns);
-    }
-    return a.href;
-  }.property('url', 'namespace'),
-
-  /*
-   * request: a wrapper around jQuery's ajax method
-   * builds the url and dynamically adds the a resource key if specified
-   */
-  request: function(params, resourceName, resourceKey) {
-    var urlParts = [this.get('rootPath'), resourceName];
-    if(resourceKey) {
-      urlParts.push(resourceKey);
-    }
-    params.url = urlParts.join('/');
-    params.dataType = 'json';
-    params.contentType = 'application/json; charset=utf-8';
-    if(params.data && params.type !== 'GET') {
-      params.data = JSON.stringify(params.data);
-    }
-    return $.ajax(params);
+  prepareData: function(data) {
+    return JSON.stringify(data);
   },
 
   /* 
    * deserialize: translates json object into a model. i.e:
    * { id:1, name:'post 1' }
    */
-  deserialize: function(resource, json) {
+  deserialize: function(resource, data) {
+    // Check if data is wrapped (ActiveRecord): { post: { id:1, name:'post 1' } }
+    var resourceName = get(resource.constructor, 'resourceName'), prop;
+    if(data[resourceName]) {
+      data = data[resourceName];
+    }
+
     Ember.beginPropertyChanges(resource);
-    var prop;
-    for(prop in json) {
-      if (json.hasOwnProperty(prop)) {
-        this.deserializeProperty(resource, prop, json[prop]);
+    for(prop in data) {
+      if (data.hasOwnProperty(prop)) {
+        this.deserializeProperty(resource, prop, data[prop]);
       }
     }
     Ember.endPropertyChanges(resource);
@@ -218,7 +161,7 @@ RESTless.RESTAdapter = Ember.Object.extend({
     // check if a custom key was configured for this property
     if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[formattedProp]) {
       formattedProp = modelConfig.propertyKeys[formattedProp];
-    } else if(get(resource, formattedProp) === undefined) {
+    } else if('undefined' === typeof get(resource, formattedProp)) {
       // If the json contains a key not defined on the model, don't attempt to set it.
       return;
     }
@@ -232,7 +175,7 @@ RESTless.RESTAdapter = Ember.Object.extend({
       // store a reference to the parent model on each item
       // when a property on an array item changes, the parent object can then be marked as dirty
       // TODO: find a cleaner way
-      hasManyArr.forEach(function(item, i) {
+      hasManyArr.forEach(function(item) {
         item.set('parentObject', resource);
       });
       resource.set(formattedProp, hasManyArr);
@@ -254,31 +197,41 @@ RESTless.RESTAdapter = Ember.Object.extend({
   },
 
   /* 
-   * deserializeMany: deserializes an array of json objects for hasMany relationships
+   * deserializeMany: deserializes an array of json objects
    */
-  deserializeMany: function(resource, type, jsonArr) {
-    if(!jsonArr) { return; }
-    var result = resource,
-        len = jsonArr.length,
-        resourceArr = [], item, i;
-    if(result) {
-      result.clear();
-    } else {
-      result = RESTless.RESTArray.createWithContent({type: type});
+  deserializeMany: function(resource, type, data) {
+    // extract any meta info
+    var meta = this.extractMeta(data);
+    if(meta) { resource.set('meta', meta); }
+
+    // findAll from ActiveRecord returns { posts: [...] }
+    if(!$.isArray(data)) {
+      data = data[resource.get('resourceTypeNamePlural')];
+    }
+    if(!data) { 
+      return; 
     }
 
+    var len = data.length,
+        resourceArr = [], item, i;
+    if(resource) {
+      resource.clear();
+    } else {
+      resource = RESTless.RecordArray.createWithContent({type: type});
+    }
     for(i=0; i<len; i++) {
-      item = get(window, type).create().deserialize(jsonArr[i]).set('isLoaded', true);
+      item = get(window, type).create().deserialize(data[i]).set('isLoaded', true);
       resourceArr.push(item);
     }
     if(resourceArr.length) {
-      result.pushObjects(resourceArr);
+      resource.pushObjects(resourceArr);
     }
-    return result;
+
+    return resource;
   },
 
   /* 
-   * serialize: turns Ember model into json to send to REST API
+   * serialize: turns model into json
    */
   serialize: function(resource) {
     var resourceName = get(resource.constructor, 'resourceName'),
@@ -320,13 +273,12 @@ RESTless.RESTAdapter = Ember.Object.extend({
   },
 
   /* 
-   * serializeMany: serializes an array of json objects for hasMany relationships
+   * serializeMany: serializes an array of models into json
    */
   serializeMany: function(resourceArr, type) {
     var resourceName = get(get(window, type), 'resourceName'),
         result = [],
-        len = resourceArr.length,
-        i;
+        len = resourceArr.length, i;
     for(i=0; i<len; i++) {
       var item = resourceArr[i].serialize();
       result.push(item[resourceName]);
@@ -335,43 +287,283 @@ RESTless.RESTAdapter = Ember.Object.extend({
   },
 
   /*
-   * registerTransform: adds a custom transform to JSONTransforms
-   */
-  registerTransform: function(type, transform) {
-    Ember.warn("You are overwritting an existing transform: '" + type + "'", !RESTless.JSONTransforms[type]);
-    RESTless.JSONTransforms[type] = transform;
-  },
-
-  /*
-   * extractMeta: hook called on deserializtion
-   * Overwrite this hook in your custom adapter to extract extra metadata from json
+   * extractMeta: attempts to extract metadata on json responses
    */
   extractMeta: function(json) {
     if(json && json.meta) {
       return json.meta;
     }
+  },
+
+  /*
+   * registerTransform: adds a custom tranform to JSONTransforms
+   */
+  registerTransform: function(type, transform) {
+    RESTless.JSONTransforms[type] = transform;
   }
 });
 
 /*
  * JSONTransforms
  * Hash for custom json transforms
- * Bulding with transforms.js is optional, and will overwrite this
+ * Bulding with json_transforms.js is optional, and will overwrite this
  */
 RESTless.JSONTransforms = {};
 
-/* RESTClient
- * Core interface that houses the REST adapter and revision of the API to target.
- * Setting a Client is optional and will automatically use a base client.
- *
- * You can define a custom client on your app like you would DS.Store in ember-data
- * Assign a revision number to be notified of breaking changes to the API
+/*
+ * Adapter
+ * Base adapter to be subclassed.
+ * Handles fetching and saving data to persistence layer
+ * and storing cofiguration options about all models.
  */
+RESTless.Adapter = Ember.Object.extend({
+  /*
+   * serializer: Instance of a Serializer used to transform data
+   * i.e. JSONSerializer or XMLSerializer
+   */
+  serializer: null,
 
-RESTless.RESTClient = Ember.Object.extend({
+  /* 
+   * Common adapter methods that must be implemented in a subclass
+   */
+  saveRecord:   mustImplement('saveRecord'),
+  deleteRecord: mustImplement('deleteRecord'),
+  findAll:      mustImplement('findAll'),
+  findByKey:    mustImplement('findByKey'),
+  find:         mustImplement('find'), //alias to handle both findAll & findByKey
+
+  /*
+   * configurations: stores info about custom configurations
+   * plurals - i.e. to set the plural resource name of 'person' to 'people'
+   * models - to set a different primary key for a certain model type
+   */
+  configurations: Ember.Object.create({
+    plurals: Ember.Object.create(),
+    models: Ember.Map.create()
+  }),
+
+  /*
+   * configure: helper method to set allowed configurations
+   */
+  configure: function(type, value) {
+    var configs = this.get('configurations'),
+        configForType = configs.get(type);
+    if(configForType) {
+      configs.set(type, $.extend(configForType, value));
+    }
+    return this;
+  },
+
+  /*
+   * map: helper to map configurations for model types
+   * examples:
+   * App.RESTAdapter.map('App.Post', { primaryKey: 'slug' });
+   * App.RESTAdapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });
+   */
+  map: function(modelKey, config) {
+    var modelMap = this.get('configurations.models'),
+        modelConfig = modelMap.get(modelKey), 
+        newConfig = {},
+        configKey, propertyKeys, modifiedPropKey;
+
+    for(configKey in config) {
+      if(config.hasOwnProperty(configKey)) {
+        if(config[configKey].hasOwnProperty('key')) {
+          // If trying to set a custom property key
+          // Transform and merge into a custom 'propertyKeys' hash to make lookup faster when deserializing
+          propertyKeys = modelConfig && modelConfig.hasOwnProperty('propertyKeys') ? modelConfig.propertyKeys : {};
+          modifiedPropKey = config[configKey].key;
+          propertyKeys[modifiedPropKey] = configKey;
+          newConfig.propertyKeys = propertyKeys;
+        } else {
+          newConfig[configKey] = config[configKey];
+        }
+        modelConfig = $.extend(modelConfig, newConfig);
+      }
+    }
+    modelMap.set(modelKey, modelConfig);
+    return this;
+  }
+});
+
+/*
+ * RESTAdapter
+ * Builds REST urls to resources
+ * Builds and handles remote ajax requests
+ */
+RESTless.RESTAdapter = RESTless.Adapter.extend({
+  /*
+   * serializer: default to a JSON serializer
+   */
+  serializer: RESTless.JSONSerializer.create(),
+
+  /*
+   * url: base url of backend REST service
+   * example: 'https://api.example.com'
+   */
+  url: null,
+  /*
+   * namespace: endpoint path
+   * example: 'api/v1'
+   */
+  namespace: null,
+  /*
+   * rootPath: computed path based on url and namespace
+   */
+  rootPath: function() {
+    var a = document.createElement('a'),
+        url = this.get('url'),
+        ns = this.get('namespace'),
+        rootReset = ns && ns.charAt(0) === '/';
+
+    a.href = url ? url : '';
+    if(ns) {
+      a.pathname = rootReset ? ns : (a.pathname + ns);
+    }
+    return a.href;
+  }.property('url', 'namespace'),
+
+  /*
+   * request: a wrapper around jQuery's ajax method
+   * builds the url and dynamically adds the a resource key if specified
+   */
+  request: function(model, params, resourceKey) {
+    var resourceName = get(model.constructor, 'resourceNamePlural'),
+        primaryKey = get(model.constructor, 'primaryKey'),
+        urlParts = [this.get('rootPath'), resourceName];
+
+    if(resourceKey) {
+      urlParts.push(resourceKey);
+    } else if(model.get(primaryKey)) {
+      urlParts.push(model.get(primaryKey));
+    }
+    params.url = urlParts.join('/');
+    params.dataType = this.get('serializer.dataType');
+    params.contentType = this.get('serializer.contentType');
+
+    if(params.data && params.type !== 'GET') {
+      params.data = this.get('serializer').prepareData(params.data);
+    }
+
+    var request = $.ajax(params);
+    // Store a reference to the active request and destroy it when finished
+    model.set('currentRequest', request);
+    request.always(function() {
+      model.set('currentRequest', null);
+    });
+    return request;
+  },
+
+  /*
+   * saveRecord: POSTs a new record, or PUTs an updated record to REST service
+   */
+  saveRecord: function(record) {
+    //If an existing model isn't dirty, no need to save.
+    if(!record.get('isNew') && !record.get('isDirty')) {
+      return $.Deferred().resolve();
+    }
+    record.set('isSaving', true);
+
+    var isNew = record.get('isNew'), // purposely cache value for triggering correct event later
+        method = isNew ? 'POST' : 'PUT',
+        saveRequest = this.request(record, { type: method, data: record.serialize() });
+
+    saveRequest.done(function(data){
+      record.deserializeResource(data);
+      record.clearErrors();
+      record.set('isDirty', false);
+      record._triggerEvent(isNew ? 'didCreate' : 'didUpdate');
+    })
+    .fail(function(jqxhr) {
+      record._onError(jqxhr.responseText);
+    })
+    .always(function() {
+      record.set('isSaving', false);
+      record.set('isLoaded', true);
+      record._triggerEvent('didLoad');
+    });
+    return saveRequest;
+  },
+
+  deleteRecord: function(record) {
+    var deleteRequest = this.request(record, { type: 'DELETE', data: record.serialize() });
+
+    deleteRequest.done(function(){
+      record._triggerEvent('didDelete');
+      record.destroy();
+    })
+    .fail(function(jqxhr) {
+      record._onError(jqxhr.responseText);
+    });
+    return deleteRequest;
+  },
+
+  find: function(model, params) {
+    var primaryKey = get(model, 'primaryKey'),
+        singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
+                                (typeof params === 'object' && params.hasOwnProperty(primaryKey)), key;
+    if(singleResourceRequest) {
+      key = params.hasOwnProperty(primaryKey) ? params[primaryKey] : params;
+      return this.findByKey(model, key);
+    } else {
+      return this.findAll(model, params);
+    }
+  },
+
+  findAll: function(model, params) {
+    var resourceInstance = model.create(),
+        result = RESTless.RecordArray.createWithContent({ type: model.toString() }),
+        findRequest = this.request(resourceInstance, { type: 'GET', data: params });
+
+    findRequest.done(function(data){
+      result.deserializeMany(data);
+      result.clearErrors();
+    })
+    .fail(function(jqxhr) {
+      result._onError(jqxhr.responseText);
+    })
+    .always(function() {
+      result.set('isLoaded', true);
+      result._triggerEvent('didLoad');
+    });
+    return result;
+  },
+
+  findByKey: function(model, key) {
+    var result = model.create(),
+        findRequest = this.request(result, { type: 'GET' }, key);
+
+    findRequest.done(function(data){
+      result.deserialize(data);
+      result.clearErrors();
+    })
+    .fail(function(jqxhr) {
+      result._onError(jqxhr.responseText);
+    })
+    .always(function() {
+      result.set('isLoaded', true);
+      result._triggerEvent('didLoad');
+    });
+    return result;
+  },
+
+  /*
+   * registerTransform: fowards custom tranform creation to serializer
+   */
+  registerTransform: function(type, transform) {
+    this.get('serializer').registerTransform(type, transform);
+  }
+});
+
+/* Client
+ * Core interface that houses the current Adapter.
+ * You can define a custom Client on your app like you would DS.Store in ember-data.
+ * The client will be automatically detected and set from your App namespace.
+ * Setting a Client is optional and will automatically use a base Client.
+ */
+RESTless.Client = Ember.Object.extend({
   revision: RESTless.CURRENT_API_REVISION,
   adapter: RESTless.RESTAdapter.create(),
-  
   // Private shortcut aliases:
   _configs: Ember.computed.alias('adapter.configurations'),
   _pluralConfigs: Ember.computed.alias('adapter.configurations.plurals'),
@@ -380,19 +572,19 @@ RESTless.RESTClient = Ember.Object.extend({
 
 Ember.onLoad('Ember.Application', function(Application) {
   Application.initializer({
-    name: 'RESTClient',
+    name: 'Client',
     initialize: function(container, application) {
-      // On app initialize, if custom RESTClient is present,
+      // On app initialize, if custom Client is present,
       // set that as the default client
-      if(application.RESTClient) {
-        RESTless.set('client', application.RESTClient);
+      if(application.Client) {
+        RESTless.set('client', application.Client);
       } else {
         // Set a default client
-        RESTless.set('client', RESTless.RESTClient.create());
+        RESTless.set('client', RESTless.Client.create());
       }
       // Add an observer so you can set a client at a later date
-      application.addObserver('RESTClient', this, function() {
-        RESTless.set('client', this.RESTClient);
+      application.addObserver('Client', this, function() {
+        RESTless.set('client', this.Client);
       });
     }
   });
@@ -402,7 +594,6 @@ Ember.onLoad('Ember.Application', function(Application) {
  * State
  * Mixin for managing model lifecycle state
  */
-
 RESTless.State = Ember.Mixin.create( Ember.Evented, {
   /* 
    * isLoaded: model has downloaded from REST service
@@ -469,21 +660,13 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
 
 /*
  * Model
- * Base class for RESTful models
+ * Base model class
  */
-
 RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
   /* 
    * id: unique id number, default primary id
    */
   id: RESTless.attr('number'),
-
-  /*
-   * currentRequest: stores the active ajax request as a property.
-   * Useful for accessing the promise callbacks.
-   * Automatically set to null when request completes
-   */
-  currentRequest: null,
 
   /* 
    * isNew: model has not yet been saved
@@ -507,12 +690,11 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
    */
   _initProperties: function() {
     var attributeMap = get(this.constructor, 'attributeMap'), attr;
-
     // Loop through each property and init any relationships
     for(attr in attributeMap) {
       if (attributeMap.hasOwnProperty(attr)) {
         if(attributeMap[attr].get('hasMany')) {
-          this.set(attr, RESTless.RESTArray.createWithContent({type: attributeMap[attr].get('type')}));
+          this.set(attr, RESTless.RecordArray.createWithContent({type: attributeMap[attr].get('type')}));
         } else if(attributeMap[attr].get('belongsTo')) {
           this.set(attr, get(window, attributeMap[attr].get('type')).create());
         }
@@ -526,7 +708,6 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
    */
   _addPropertyObservers: function() {
     var attributeMap = get(this.constructor, 'attributeMap'), attr;
-
     // Start observing *all* property changes for 'isDirty' functionality
     for(attr in attributeMap) {
       if (attributeMap.hasOwnProperty(attr)) {
@@ -560,7 +741,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     var clone = this.constructor.create(),
         attributeMap = get(this.constructor, 'attributeMap'),
         attr, value;
-        
+
     Ember.beginPropertyChanges(this);
     for(attr in attributeMap) {
       if(attributeMap.hasOwnProperty(attr)) {
@@ -571,7 +752,6 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     Ember.endPropertyChanges(this);
     return clone;
   },
-
   /* 
    * copyWithState: creates a copy of the object along with the RESTless.State properties
    */
@@ -579,99 +759,29 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     return this.copyState(this.copy(deep));
   },
 
-  /* 
-   * serialize: use the current Adapter turn the model into json representation
-   */
-  serialize: function() {
-    return RESTless.get('client.adapter').serialize(this);
-  },
-
-  /* 
-   * deserialize: use the current Adapter to set the model properties from supplied json
-   */
-  deserialize: function(json) {
-    return RESTless.get('client.adapter').deserialize(this, json);
-  },
-
-  /* 
-   * deserializeResource: (helper) deserializes a single, wrapped resource. i.e:
-   * { post: { id:1, name:'post 1' } }
-   * This is the json format returned from Rails ActiveRecord on create or update
-   */
-  deserializeResource: function(json) {
-    var resourceName = get(this.constructor, 'resourceName');
-    return this.deserialize(json[resourceName]);
-  },
-
   /*
-   * request: returns an ajax request from the current Adapter.
-   * Attemps to extract a resource key and keeps state of the currentRequest
-   */
-  request: function(params, resourceKey) {
-    var resourceName = get(this.constructor, 'resourceNamePlural'),
-        primaryKey = get(this.constructor, 'primaryKey'),
-        key = resourceKey || this.get(primaryKey),
-        self = this, request;
-
-    // Get the ajax request
-    request = RESTless.get('client.adapter').request(params, resourceName, key);
-
-    // Store a reference to the active request and destroy it when finished
-    this.set('currentRequest', request);
-    request.always(function() {
-      self.set('currentRequest', null);
-    });
-    return request;
-  },
-
-  /*
-   * saveRecord: POSTs a new record, or PUTs an updated record to REST service
+   * saveRecord: save record to persistance layer - forward to adapter
    */
   saveRecord: function() {
-    //If an existing model isn't dirty, no need to save.
-    if(!this.get('isNew') && !this.get('isDirty')) {
-      return $.Deferred().resolve();
-    }
-    this.set('isSaving', true);
-
-    var self = this,
-        isNew = this.get('isNew'), // purposely cache value for triggering correct event later
-        method = isNew ? 'POST' : 'PUT',
-        saveRequest = this.request({ type: method, data: this.serialize() });
-
-    saveRequest.done(function(json){
-      self.deserializeResource(json);
-      self.clearErrors();
-      self.set('isDirty', false);
-      self._triggerEvent(isNew ? 'didCreate' : 'didUpdate');
-    })
-    .fail(function(jqxhr) {
-      self._onError(jqxhr.responseText);
-    })
-    .always(function() {
-      self.set('isSaving', false);
-      self.set('isLoaded', true);
-      self._triggerEvent('didLoad');
-    });
-
-    return saveRequest;
+    return RESTless.get('client.adapter').saveRecord(this);
   },
-
   /*
-   * deleteRecord: DELETEs record from REST service
+   * deleteRecord: delete record to persistance layer - forward to adapter
    */
   deleteRecord: function() {
-    var self = this,
-        deleteRequest = this.request({ type: 'DELETE', data: this.serialize() });
-        
-    deleteRequest.done(function(){
-      self._triggerEvent('didDelete');
-      self.destroy();
-    })
-    .fail(function(jqxhr) {
-      self._onError(jqxhr.responseText);
-    });
-    return deleteRequest;
+    return RESTless.get('client.adapter').deleteRecord(this);
+  },
+  /* 
+   * serialize: use the current Serializer to turn the model into data representation
+   */
+  serialize: function() {
+    return RESTless.get('client.adapter.serializer').serialize(this);
+  },
+  /* 
+   * deserialize: use the current Serializer to set the model properties from supplied data
+   */
+  deserialize: function(data) {
+    return RESTless.get('client.adapter.serializer').deserialize(this, data);
   }
 });
 
@@ -686,7 +796,7 @@ RESTless.Model.reopenClass({
    */
   primaryKey: function() {
     var className = this.toString(),
-        modelConfig = Ember.get('RESTless.client._modelConfigs').get(className);
+        modelConfig = get('RESTless.client._modelConfigs').get(className);
     if(modelConfig && modelConfig.primaryKey) {
       return modelConfig.primaryKey;
     }
@@ -715,7 +825,7 @@ RESTless.Model.reopenClass({
 
   /*
    * attributeMap: stores all of the RESTless Attribute definitions.
-   * This should be pre-fetched before attemping to get/set properties on the model object.
+   * This should be pre-fetched before attemping to get/set properties on the model object. (called in init)
    */
   attributeMap: function() {
     var proto = this.prototype,
@@ -731,68 +841,22 @@ RESTless.Model.reopenClass({
   }.property(),
 
   /*
-   * find: fetches a single resource with a key as the param.
-   * Also an alias to findAll objects of this type with specified params
-   */
-  find: function(params) {
-    var primaryKey = get(this, 'primaryKey'),
-        singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
-                                (typeof params === 'object' && params.hasOwnProperty(primaryKey)), key;
-    if(singleResourceRequest) {
-      key = params.hasOwnProperty(primaryKey) ? params[primaryKey] : params;
-      return this._findByKey(key);
-    } else {
-      return this.findAll(params);
-    }
-  },
-
-  /*
    * findAll: fetches all objects of this type with specified params
    */
   findAll: function(params) {
-    var resourceNamePlural = get(this, 'resourceNamePlural'),
-        resourceInstance = this.create(),
-        result = RESTless.RESTArray.createWithContent({ type: this.toString() }),
-        findRequest = resourceInstance.request({ type: 'GET', data: params });
-
-    findRequest.done(function(json){
-      result.deserializeMany(json[resourceNamePlural]);
-      result.clearErrors();
-      //call extract metadata hook
-      var meta = RESTless.get('client.adapter').extractMeta(json);
-      if(meta) { result.set('meta', meta); }
-    })
-    .fail(function(jqxhr) {
-      result._onError(jqxhr.responseText);
-    })
-    .always(function() {
-      result.set('isLoaded', true);
-      result._triggerEvent('didLoad');
-    });
-    return result;
+    return RESTless.get('client.adapter').findAll(this, params);
   },
-
   /*
-   * _findByKey: (private) fetches object with specified key value
-   * 'find' handles all cases, and reroutes to here if necessary
+   * findByKey: fetches object with specified key value
    */
-  _findByKey: function(key) {
-    var resourceName = get(this, 'resourceName'),
-        result = this.create(),
-        findRequest = result.request({ type: 'GET' }, key);
-
-    findRequest.done(function(json){
-      result.deserialize(json[resourceName]);
-      result.clearErrors();
-    })
-    .fail(function(jqxhr) {
-      result._onError(jqxhr.responseText);
-    })
-    .always(function() {
-      result.set('isLoaded', true);
-      result._triggerEvent('didLoad');
-    });
-    return result;
+  findByKey: function(key) {
+    return RESTless.get('client.adapter').findByKey(this, key);
+  },
+  /*
+   * find: alias to handle both findAll & findByKey
+   */
+  find: function(params) {
+    return RESTless.get('client.adapter').find(this, params);
   }
 });
 
@@ -802,35 +866,28 @@ RESTless.Model.reopenClass({
  * Removes property change observers and write methods.
  * Helps improve performance when write functionality is not needed.
  */
-
 RESTless.ReadOnlyModel = RESTless.Model.extend({
-
   /* 
    * init: for read-only models, we don't need to _addPropertyObservers 
    */
   init: function() {
     this._initProperties();
   },
-
   /*
    * Remove functionality associated with writing data
    */
   serialize: null,
-
   saveRecord: null,
-
   deleteRecord: null
-
 });
 
 /*
- * RESTArray
- * Base class extention for RESTful arrays
+ * RecordArray
+ * Base class extention for arrays of Models
  */
-
-RESTless.RESTArray = Ember.ArrayProxy.extend( RESTless.State, {
+RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
   /*
-   * type: type of model the array contains
+   * type: type of model class the array contains
    */
   type: null,
 
@@ -838,45 +895,48 @@ RESTless.RESTArray = Ember.ArrayProxy.extend( RESTless.State, {
    * createItem: pushes an new object of type onto array
    */
   createItem:function(opts) {
-    var type = this.get('type'), itemProto;
-    if(type) {
-      itemProto = get(window, type) || Ember.Object;
-    }
-    this.pushObject(itemProto.create(opts));
+    var type = this.get('type'),
+        itemClass = type ? get(window, type) : Ember.Object;
+    this.pushObject(itemClass.create(opts));
   },
 
+  /*
+   * resourceTypeNamePlural: helper to get the plural resource name for array object type
+   */
+  resourceTypeNamePlural: function() {
+    var typeInstance = get(window, this.get('type')).create();
+    return get(typeInstance.constructor, 'resourceNamePlural');
+  }.property('type'),
+
   /* 
-   * serializeMany: use the current Adapter turn the array into json representation
+   * deserializeMany: use the current Serializer to populate the array from supplied data
+   */
+  deserializeMany: function(data) {
+    return RESTless.get('client.adapter.serializer').deserializeMany(this, this.get('type'), data);
+  },
+  /* 
+   * serializeMany: use the current Serializer turn the array into data representation
    */
   serializeMany: function() {
-    return RESTless.get('client.adapter').serializeMany(this, this.get('type'));
-  },
-
-  /* 
-   * deserializeMany: use the current Adapter to populate the array from supplied json
-   */
-  deserializeMany: function(json) {
-    return RESTless.get('client.adapter').deserializeMany(this, this.get('type'), json);
+    return RESTless.get('client.adapter.serializer').serializeMany(this, this.get('type'));
   }
 });
 
 /*
- * RESTArray (static)
+ * RecordArray (static)
  */
-RESTless.RESTArray.reopenClass({
+RESTless.RecordArray.reopenClass({
   /*
-   * createWithContent: helper to create a RESTArray with the content property initialized
+   * createWithContent: helper to create a RecordArray with the content property initialized
    */
   createWithContent: function(opts) {
-    var mergedOpts = $.extend({ content: Ember.A() }, opts);
-    return RESTless.RESTArray.create(mergedOpts);
+    return RESTless.RecordArray.create($.extend({ content: Ember.A() }, opts));
   }
 });
 
 /*
  * JSONTransforms
  * Base serializers/deserializers for each attribute type
- *
  * This is an add-on, and is not necessary for RESTless to function
  *
  * Courtesy of ember-data
@@ -945,12 +1005,11 @@ RESTless.JSONTransforms = {
 
     serialize: function(date) {
       if (date instanceof Date) {
-        var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-        var pad = function(num) {
-          return num < 10 ? "0"+num : ""+num;
-        };
+        var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            pad = function(num) {
+              return num < 10 ? "0"+num : ""+num;
+            };
 
         var utcYear = date.getUTCFullYear(),
             utcMonth = date.getUTCMonth(),
@@ -958,12 +1017,10 @@ RESTless.JSONTransforms = {
             utcDay = date.getUTCDay(),
             utcHours = date.getUTCHours(),
             utcMinutes = date.getUTCMinutes(),
-            utcSeconds = date.getUTCSeconds();
-
-
-        var dayOfWeek = days[utcDay];
-        var dayOfMonth = pad(utcDayOfMonth);
-        var month = months[utcMonth];
+            utcSeconds = date.getUTCSeconds(),
+            dayOfWeek = days[utcDay],
+            dayOfMonth = pad(utcDayOfMonth),
+            month = months[utcMonth];
 
         return dayOfWeek + ", " + dayOfMonth + " " + month + " " + utcYear + " " +
                pad(utcHours) + ":" + pad(utcMinutes) + ":" + pad(utcSeconds) + " GMT";

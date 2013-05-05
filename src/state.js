@@ -2,7 +2,6 @@
  * State
  * Mixin for managing model lifecycle state
  */
-
 RESTless.State = Ember.Mixin.create( Ember.Evented, {
   /* 
    * isLoaded: model has downloaded from REST service

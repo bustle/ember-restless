@@ -11,11 +11,11 @@ Ember-data is a great project and we look forward to it being production ready. 
 
 ## Getting started
 
-Include ember-restless.js from the dist/ folder in your application
+Include ```ember-restless.js``` from the dist/ folder in your application.
 
 ### Namespace
 
-RESTless can be referenced either with the namespace **RESTless** or the shorthand **RL**.  Similar to **Ember** and **Em**.
+RESTless can be referenced either with the namespace **RESTless** or the shorthand **RL**.  Similar to **Ember** and **Em**
 
 ### Defining a 'Client'
 

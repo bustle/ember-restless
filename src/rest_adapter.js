@@ -1,0 +1,168 @@
+/*
+ * RESTAdapter
+ * Builds REST urls to resources
+ * Builds and handles remote ajax requests
+ */
+RESTless.RESTAdapter = RESTless.Adapter.extend({
+  /*
+   * serializer: default to a JSON serializer
+   */
+  serializer: RESTless.JSONSerializer.create(),
+
+  /*
+   * url: base url of backend REST service
+   * example: 'https://api.example.com'
+   */
+  url: null,
+  /*
+   * namespace: endpoint path
+   * example: 'api/v1'
+   */
+  namespace: null,
+  /*
+   * rootPath: computed path based on url and namespace
+   */
+  rootPath: function() {
+    var a = document.createElement('a'),
+        url = this.get('url'),
+        ns = this.get('namespace'),
+        rootReset = ns && ns.charAt(0) === '/';
+
+    a.href = url ? url : '';
+    if(ns) {
+      a.pathname = rootReset ? ns : (a.pathname + ns);
+    }
+    return a.href;
+  }.property('url', 'namespace'),
+
+  /*
+   * request: a wrapper around jQuery's ajax method
+   * builds the url and dynamically adds the a resource key if specified
+   */
+  request: function(model, params, resourceKey) {
+    var resourceName = get(model.constructor, 'resourceNamePlural'),
+        primaryKey = get(model.constructor, 'primaryKey'),
+        urlParts = [this.get('rootPath'), resourceName];
+
+    if(resourceKey) {
+      urlParts.push(resourceKey);
+    } else if(model.get(primaryKey)) {
+      urlParts.push(model.get(primaryKey));
+    }
+    params.url = urlParts.join('/');
+    params.dataType = this.get('serializer.dataType');
+    params.contentType = this.get('serializer.contentType');
+
+    if(params.data && params.type !== 'GET') {
+      params.data = this.get('serializer').prepareData(params.data);
+    }
+
+    var request = $.ajax(params);
+    // Store a reference to the active request and destroy it when finished
+    model.set('currentRequest', request);
+    request.always(function() {
+      model.set('currentRequest', null);
+    });
+    return request;
+  },
+
+  /*
+   * saveRecord: POSTs a new record, or PUTs an updated record to REST service
+   */
+  saveRecord: function(record) {
+    //If an existing model isn't dirty, no need to save.
+    if(!record.get('isNew') && !record.get('isDirty')) {
+      return $.Deferred().resolve();
+    }
+    record.set('isSaving', true);
+
+    var isNew = record.get('isNew'), // purposely cache value for triggering correct event later
+        method = isNew ? 'POST' : 'PUT',
+        saveRequest = this.request(record, { type: method, data: record.serialize() });
+
+    saveRequest.done(function(data){
+      record.deserializeResource(data);
+      record.clearErrors();
+      record.set('isDirty', false);
+      record._triggerEvent(isNew ? 'didCreate' : 'didUpdate');
+    })
+    .fail(function(jqxhr) {
+      record._onError(jqxhr.responseText);
+    })
+    .always(function() {
+      record.set('isSaving', false);
+      record.set('isLoaded', true);
+      record._triggerEvent('didLoad');
+    });
+    return saveRequest;
+  },
+
+  deleteRecord: function(record) {
+    var deleteRequest = this.request(record, { type: 'DELETE', data: record.serialize() });
+
+    deleteRequest.done(function(){
+      record._triggerEvent('didDelete');
+      record.destroy();
+    })
+    .fail(function(jqxhr) {
+      record._onError(jqxhr.responseText);
+    });
+    return deleteRequest;
+  },
+
+  find: function(model, params) {
+    var primaryKey = get(model, 'primaryKey'),
+        singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
+                                (typeof params === 'object' && params.hasOwnProperty(primaryKey)), key;
+    if(singleResourceRequest) {
+      key = params.hasOwnProperty(primaryKey) ? params[primaryKey] : params;
+      return this.findByKey(model, key);
+    } else {
+      return this.findAll(model, params);
+    }
+  },
+
+  findAll: function(model, params) {
+    var resourceInstance = model.create(),
+        result = RESTless.RecordArray.createWithContent({ type: model.toString() }),
+        findRequest = this.request(resourceInstance, { type: 'GET', data: params });
+
+    findRequest.done(function(data){
+      result.deserializeMany(data);
+      result.clearErrors();
+    })
+    .fail(function(jqxhr) {
+      result._onError(jqxhr.responseText);
+    })
+    .always(function() {
+      result.set('isLoaded', true);
+      result._triggerEvent('didLoad');
+    });
+    return result;
+  },
+
+  findByKey: function(model, key) {
+    var result = model.create(),
+        findRequest = this.request(result, { type: 'GET' }, key);
+
+    findRequest.done(function(data){
+      result.deserialize(data);
+      result.clearErrors();
+    })
+    .fail(function(jqxhr) {
+      result._onError(jqxhr.responseText);
+    })
+    .always(function() {
+      result.set('isLoaded', true);
+      result._triggerEvent('didLoad');
+    });
+    return result;
+  },
+
+  /*
+   * registerTransform: fowards custom tranform creation to serializer
+   */
+  registerTransform: function(type, transform) {
+    this.get('serializer').registerTransform(type, transform);
+  }
+});

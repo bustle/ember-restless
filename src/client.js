@@ -1,15 +1,12 @@
-/* RESTClient
- * Core interface that houses the REST adapter and revision of the API to target.
- * Setting a Client is optional and will automatically use a base client.
- *
- * You can define a custom client on your app like you would DS.Store in ember-data
- * Assign a revision number to be notified of breaking changes to the API
+/* Client
+ * Core interface that houses the current Adapter.
+ * You can define a custom Client on your app like you would DS.Store in ember-data.
+ * The client will be automatically detected and set from your App namespace.
+ * Setting a Client is optional and will automatically use a base Client.
  */
-
-RESTless.RESTClient = Ember.Object.extend({
+RESTless.Client = Ember.Object.extend({
   revision: RESTless.CURRENT_API_REVISION,
   adapter: RESTless.RESTAdapter.create(),
-  
   // Private shortcut aliases:
   _configs: Ember.computed.alias('adapter.configurations'),
   _pluralConfigs: Ember.computed.alias('adapter.configurations.plurals'),
@@ -18,19 +15,19 @@ RESTless.RESTClient = Ember.Object.extend({
 
 Ember.onLoad('Ember.Application', function(Application) {
   Application.initializer({
-    name: 'RESTClient',
+    name: 'Client',
     initialize: function(container, application) {
-      // On app initialize, if custom RESTClient is present,
+      // On app initialize, if custom Client is present,
       // set that as the default client
-      if(application.RESTClient) {
-        RESTless.set('client', application.RESTClient);
+      if(application.Client) {
+        RESTless.set('client', application.Client);
       } else {
         // Set a default client
-        RESTless.set('client', RESTless.RESTClient.create());
+        RESTless.set('client', RESTless.Client.create());
       }
       // Add an observer so you can set a client at a later date
-      application.addObserver('RESTClient', this, function() {
-        RESTless.set('client', this.RESTClient);
+      application.addObserver('Client', this, function() {
+        RESTless.set('client', this.Client);
       });
     }
   });
