@@ -81,7 +81,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         saveRequest = this.request(record, { type: method, data: record.serialize() });
 
     saveRequest.done(function(data){
-      record.deserializeResource(data);
+      record.deserialize(data);
       record.clearErrors();
       record.set('isDirty', false);
       record._triggerEvent(isNew ? 'didCreate' : 'didUpdate');

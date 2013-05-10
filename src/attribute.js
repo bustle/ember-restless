@@ -4,9 +4,10 @@
  */
 RESTless._Attribute = Ember.ObjectProxy.extend({
   type: null,
+  readOnly: false,
   belongsTo: false,
   hasMany: false,
-  readOnly: false
+  isRelationship: false
 });
 
 /*
@@ -20,12 +21,12 @@ RESTless.attr = function(type, opts) {
 
 // belongsTo: One-to-one relationship between two models
 RESTless.belongsTo = function(type, opts) {
-  opts = $.extend({ type: type, belongsTo:true }, opts);
+  opts = $.extend({ type: type, belongsTo:true, isRelationship:true }, opts);
   return RESTless._Attribute.create(opts);
 };
 
 // hasMany: One-to-many & many-to-many relationships
 RESTless.hasMany = function(type, opts) {
-  opts = $.extend({ type: type, hasMany:true }, opts);
+  opts = $.extend({ type: type, hasMany:true, isRelationship:true }, opts);
   return RESTless._Attribute.create(opts);
 };

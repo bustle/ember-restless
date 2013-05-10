@@ -2,16 +2,13 @@ var get = Ember.get, set = Ember.set,
     none = Ember.isNone, empty = Ember.isEmpty,
     RESTless;
 
-function mustImplement(name) {
-  return function() {
-    throw new Ember.Error(this.toString() + " must implement the required method: " + name);
-  };
+function requiredMethod(name) {
+  return function() { throw new Ember.Error(this.constructor.toString() + " must implement the required method: " + name); };
 }
 
-if ('undefined' === typeof RESTless) {
+if (RESTless === undefined) {
   /*
-   * RESTless
-   * Create as am Ember Namespace.
+   * Create RESTless as an Ember Namespace.
    * Track version and API revision number.
    */
   RESTless = Ember.Namespace.create({
@@ -23,7 +20,7 @@ if ('undefined' === typeof RESTless) {
    * Expose RESTless to the global window namespace.
    * Create shortcut alias 'RL'.
    */
-  if ('undefined' !== typeof window) {
+  if (window !== undefined) {
     window.RL = window.RESTless = RESTless;
   }
 }

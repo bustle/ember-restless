@@ -4,19 +4,19 @@
  */
 RESTless.State = Ember.Mixin.create( Ember.Evented, {
   /* 
-   * isLoaded: model has downloaded from REST service
+   * isLoaded: model has retrived
    */
   isLoaded: false,
   /* 
-   * isDirty: model has changes that have not yet been saved to REST service
+   * isDirty: model has changes that have not yet been saved
    */
   isDirty: false,
   /* 
-   * isSaving: model is in the process of saving to REST service
+   * isSaving: model is in the process of saving
    */
   isSaving: false,
   /* 
-   * isError: model has been marked as invalid after response from REST service
+   * isError: model has been marked as invalid after response from adapter
    */
   isError: false,
   /* 
@@ -57,6 +57,7 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
   /* 
    * _onError: (private) helper method for handling error responses
    * Parses error json, sets error properties, and triggers error events
+   * TODO: Move to REST/JSON only implementation
    */
   _onError: function(errorResponse) {
     var errorJson;

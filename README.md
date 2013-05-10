@@ -2,12 +2,12 @@
 
 RESTless is a lightweight data persistence library for Ember.js. (~3KB minified & gzipped)
 
-It is used to communicate with a remote JSON API to map data between a backend and your Ember.js application.
-Eventually, the library can be extended to support various other data persistence layers.
+Out of the box, it is used to communicate with a remote JSON REST API to map data between a server and your Ember.js application.  
 
-One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable.
+RESTless can be extended to support various other data persistence layers. For example, to handle XML data instead of JSON, or store data to localStorage instead of a remote server.
 
-Ember-data is a great project and we look forward to it being production ready.  RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.  The main departure from ember-data is the idea of the 'Store'. Instead, all transactions are executed immediately.
+One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
+
 
 ## Getting started
 
@@ -19,18 +19,17 @@ RESTless can be referenced either with the namespace **RESTless** or the shortha
 
 ### Defining a 'Client'
 
-Similar to defining the 'Store' using ember-data, instead define the REST 'Client' for your application.  RESTless will automatically detect the RESTClient on your application namespace.  Defining a client is currently optional, and only needed if you would like to provide a custom adapter.
+Similar to defining the 'Store' using ember-data, instead define the 'Client' for your application.  RESTless will automatically detect the Client on your application namespace.  Defining a client is currently optional, and only needed if you would like to provide a custom adapter.
 
 ``` javascript
-App.RESTClient = RL.RESTClient.create({
-  revision: 1,
+App.Client = RL.Client.create({
   adapter: App.RESTAdapter
 });
 ```
 
-### Defining a custom Adapter
+### Defining a custom RESTAdapter
 
-Create a custom adapter to set a url to your backend REST service and optionally the namespace.
+Create a custom REST adapter to set the url to a backend service, and optionally a namespace.
 For example, if your REST API is located at http://api.myservice.com/v1
 ``` javascript
 App.RESTAdapter = RL.RESTAdapter.create({
@@ -38,7 +37,7 @@ App.RESTAdapter = RL.RESTAdapter.create({
   namespace: 'v1'
 });
 ```
-See the **Advanced** section below for further use of a custom adapter.
+See the **Advanced** section below for further use of custom adapters.
 
 ### Defining Models
 
@@ -72,20 +71,21 @@ App.Profile = RL.Model.extend({
 });
 ```
 
-One-to-many and many-to-many, use the _hasMany_ helper.
+One-to-many and many-to-many, use the _hasMany_ helper.  
 For example, if a ```Post``` model contains an array of ```Tag``` models:
 ``` javascript
-App.Post = RL.Model.extend({
-  tags: RL.hasMany('App.Tag')
-});
 App.Tag = RL.Model.extend({
   name: RL.attr('string'),
   count: RL.attr('number')
 });
+
+App.Post = RL.Model.extend({
+  tags: RL.hasMany('App.Tag')
+});
 ```
 
-Currently, all relational data should be present in the expected json response. 'Sideloading' this data may be added in a future release.
-For example, all of the 'tags' data should be available in the initial response:
+Currently, all relational data should be embedded in the json response. 'Side-loading' this data may be added in a future release.
+For example, all of the 'tags' data should be available in the response from ```App.Post.find(1)```
 ``` json
 {
   post: {
@@ -121,19 +121,19 @@ var people = App.Person.find({ name: "Peter" });
 
 ### Find all
 
-Use findAll(), or alternatively use find() and omit parameters
+Use find() without parameters, or alternatively, findAll()  
 
 ``` javascript
-var posts = App.Post.findAll();
+var posts = App.Post.find();
 ```
 or
 ``` javascript
-var posts = App.Post.find();
+var posts = App.Post.findAll();
 ```
 
 ### Creating records
 
-Create records like you would a normal Ember Object
+Create records like you would a normal Ember Object.
 
 ``` javascript
 var post = App.Post.create({
@@ -143,8 +143,8 @@ var post = App.Post.create({
 ```
 ### Saving records
 
-To save a record to the REST service call: saveRecord()
-RESTless will automatically POST to save a new record, or PUT to update and existing record
+To save a record call: saveRecord()  
+The RESTAdapter will automatically POST to save a new record, or PUT to update and existing record.
 
 ``` javascript
 var post = App.Post.create();
@@ -158,7 +158,7 @@ post.saveRecord();
 
 ### Deleting records
 
-Will tell the REST service to delete the record, then destroy the object
+The RESTAdapter Will delete the record remotely, then destroy the object when complete:
 ``` javascript
 post.deleteRecord();
 ```
@@ -168,11 +168,11 @@ post.deleteRecord();
 RESTless supports most of the lifecycle states and events of ember-data.
 All model objects have the following properties added:
 
-* **isLoaded**: Record(s) have been retrieved from REST service
-* **isDirty**: The record has local changes that have not yet been saved remotely
-* **isSaving**: Record is in the process of saving to the backend
-* **isNew**: Record has been created but not yet saved remotely
-* **isError**: Record has been attempted to be saved, updated, or deleted but the backend returned an error
+* **isLoaded**: Record(s) have been retrieved
+* **isDirty**: The record has local changes that have not yet been stored
+* **isSaving**: Record is in the process of saving
+* **isNew**: Record has been created but not yet saved
+* **isError**: Record has been attempted to be saved, updated, or deleted but returned an error
 
 Additionally, you can subscribe to events that are fired during the lifecycle
 
@@ -212,7 +212,7 @@ allPosts.on('becameError', function(error) {
 ## Advanced
 
 ### Custom plurals configuration
-You can use a custom adapter to set irregular plural resource names
+You can use a custom rest adapter to set irregular plural resource names
 ``` javascript
 App.RESTAdapter.configure("plurals", {
   person: "people"
@@ -239,9 +239,8 @@ App.RESTAdapter.map('App.Person', {
 });
 ```
 
-
 ### Read-only attributes
-Make attributes 'read-only', which will exclude them from being serialized into the json sent to your service when saving.
+Make attributes 'read-only', which will exclude them from being serialized and transmitted when saving.
 For example, if you want to let the backend compute the date a record is created:
 ``` javascript
 App.Person = RL.Model.extend({
@@ -261,7 +260,7 @@ App.Post = RL.ReadOnlyModel.extend({
 ```
 
 ### Custom transforms
-You can use a custom adapter to add custom transforms:
+You can use a custom rest adapter to add custom transforms:
 ``` javascript
 App.RESTAdapter.registerTransform('timeAgo', {
   deserialize: function(serialized) {
@@ -279,9 +278,25 @@ App.Comment = RL.Model.extend({
 });
 ```
 
+### Custom Adapters & Serializers
+RESTless is abstracted so you can write your own Adapters and Serializers.
+``` javascript
+App.XMLSerializer = RL.Serializer.create({
+  ...
+});
+App.SOAPAdapter = RL.Adapter.create({
+  serializer: App.XMLSerializer
+  ...
+});
+App.Client = RL.Client.create({
+  adapter: App.SOAPAdapter
+});
+```
+
+
 ## Building RESTless
 
-If you wish to build ember-restless youself, you will need node.js and Grunt.  
+If you wish to build ember-restless yourself, you will need node.js and Grunt.  
 
 1. Install node: <a href="http://nodejs.org/">http://nodejs.org/</a>
 2. Open a terminal window
@@ -292,8 +307,9 @@ If you wish to build ember-restless youself, you will need node.js and Grunt.
 
 ## Tests
 
-Uses QUnit.
-To run tests, open tests/index.html in a browser.  
+Uses QUnit.  
+Tests are run during the grunt build process.  
+To run tests manually, you can open tests/index.html in a browser.  
 Tests are currently a work in progress.
 
 ## Example App

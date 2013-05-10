@@ -51,8 +51,9 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     // Start observing *all* property changes for 'isDirty' functionality
     for(attr in attributeMap) {
       if (attributeMap.hasOwnProperty(attr)) {
-        if(attributeMap[attr].get('hasMany')) {
-          this.addObserver(attr+'.@each', this, this._onPropertyChange);
+        if(attributeMap[attr].get('isRelationship')) {
+          // if a relationship property becomes dirty, need to mark its owner as dirty
+          this.addObserver(attr+'.isDirty', this, this._onRelationshipChange);
         } else {
           this.addObserver(attr, this, this._onPropertyChange);
         }
@@ -63,13 +64,19 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
   /* 
    * _onPropertyChange: (private) called when any property of the model changes
    * If the model has been loaded, or is new, isDirty flag is set to true.
-   * If the property contains a 'parentObject' (hasMany array items), set the parent isDirty.
    */
   _onPropertyChange: function() {
-    var parent = this.get('parentObject'),
-        targetObject = parent || this;
-    if(targetObject.get('isLoaded') || targetObject.get('isNew')) {
-      targetObject.set('isDirty', true);
+    if(this.get('isLoaded') || this.get('isNew')) {
+      this.set('isDirty', true);
+    }
+  },
+  /* 
+   * _onRelationshipChange: (private) called when a relationship property's isDirty state changes
+   * Forwards a _onPropertyChange event for the parent object
+   */
+  _onRelationshipChange: function(sender, key) {
+    if(sender.get(key)) { // if isDirty
+      this._onPropertyChange();
     }
   },
 
@@ -136,7 +143,7 @@ RESTless.Model.reopenClass({
    */
   primaryKey: function() {
     var className = this.toString(),
-        modelConfig = get('RESTless.client._modelConfigs').get(className);
+        modelConfig = get(RESTless, 'client._modelConfigs').get(className);
     if(modelConfig && modelConfig.primaryKey) {
       return modelConfig.primaryKey;
     }
@@ -169,8 +176,7 @@ RESTless.Model.reopenClass({
    */
   attributeMap: function() {
     var proto = this.prototype,
-        attributeMap = {},
-        key;
+        attributeMap = {}, key;
     for(key in proto) {
       if(proto[key] instanceof RESTless._Attribute) {
         attributeMap[key] = proto[key];
@@ -181,21 +187,15 @@ RESTless.Model.reopenClass({
   }.property(),
 
   /*
+   * find: get a model with specified param. Optionally also alias to handle findAll
+   */
+  find: function(params) {
+    return RESTless.get('client.adapter').find(this, params);
+  },
+  /*
    * findAll: fetches all objects of this type with specified params
    */
   findAll: function(params) {
     return RESTless.get('client.adapter').findAll(this, params);
-  },
-  /*
-   * findByKey: fetches object with specified key value
-   */
-  findByKey: function(key) {
-    return RESTless.get('client.adapter').findByKey(this, key);
-  },
-  /*
-   * find: alias to handle both findAll & findByKey
-   */
-  find: function(params) {
-    return RESTless.get('client.adapter').find(this, params);
   }
 });

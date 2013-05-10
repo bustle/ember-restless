@@ -42,7 +42,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     // check if a custom key was configured for this property
     if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[formattedProp]) {
       formattedProp = modelConfig.propertyKeys[formattedProp];
-    } else if('undefined' === typeof get(resource, formattedProp)) {
+    } else if(get(resource, formattedProp) === undefined) {
       // If the json contains a key not defined on the model, don't attempt to set it.
       return;
     }
@@ -53,28 +53,24 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     // If property is a hasMany relationship, deserialze the array
     if(attr.get('hasMany')) {
       var hasManyArr = this.deserializeMany(resource.get(formattedProp), attrType, value);
-      // store a reference to the parent model on each item
-      // when a property on an array item changes, the parent object can then be marked as dirty
-      // TODO: find a cleaner way
-      hasManyArr.forEach(function(item) {
-        item.set('parentObject', resource);
-      });
       resource.set(formattedProp, hasManyArr);
-      return;
     } 
     // If property is a belongsTo relationship, deserialze that model
     else if(attr.get('belongsTo')) {
       var belongsToModel = get(window, attrType).create();
-      this.deserialize(belongsToModel, value).set('isLoaded', true);
+      this.deserialize(belongsToModel, value);
       resource.set(formattedProp, belongsToModel);
-      return;
+      Ember.run.next(function() {
+        belongsToModel.set('isLoaded', true);
+      });
     }
-    
-    // Check for a custom transform
-    if(attrType && RESTless.JSONTransforms[attrType]) {
-      value = RESTless.JSONTransforms[attrType].deserialize(value);
+    else {
+      // Check for a custom transform
+      if(attrType && RESTless.JSONTransforms[attrType]) {
+        value = RESTless.JSONTransforms[attrType].deserialize(value);
+      }
+      resource.set(formattedProp, value);
     }
-    resource.set(formattedProp, value);
   },
 
   /* 
@@ -101,13 +97,15 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       resource = RESTless.RecordArray.createWithContent({type: type});
     }
     for(i=0; i<len; i++) {
-      item = get(window, type).create().deserialize(data[i]).set('isLoaded', true);
+      item = get(window, type).create().deserialize(data[i]);
       resourceArr.push(item);
     }
     if(resourceArr.length) {
       resource.pushObjects(resourceArr);
     }
-
+    Ember.run.next(function() {
+      resource.set('isLoaded', true);
+    });
     return resource;
   },
 
@@ -117,8 +115,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   serialize: function(resource) {
     var resourceName = get(resource.constructor, 'resourceName'),
         attrMap = get(resource.constructor, 'attributeMap'),
-        json = {},
-        attr, val;
+        json = {}, attr, val;
 
     json[resourceName] = {};
     for(attr in attrMap) {

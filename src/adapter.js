@@ -1,24 +1,23 @@
 /*
  * Adapter
  * Base adapter to be subclassed.
- * Handles fetching and saving data to persistence layer
+ * Handles fetching and saving data to a persistence layer
  * and storing cofiguration options about all models.
  */
 RESTless.Adapter = Ember.Object.extend({
   /*
    * serializer: Instance of a Serializer used to transform data
-   * i.e. JSONSerializer or XMLSerializer
+   * i.e. JSONSerializer
    */
   serializer: null,
 
   /* 
    * Common adapter methods that must be implemented in a subclass
    */
-  saveRecord:   mustImplement('saveRecord'),
-  deleteRecord: mustImplement('deleteRecord'),
-  findAll:      mustImplement('findAll'),
-  findByKey:    mustImplement('findByKey'),
-  find:         mustImplement('find'), //alias to handle both findAll & findByKey
+  saveRecord:   requiredMethod('saveRecord'),
+  deleteRecord: requiredMethod('deleteRecord'),
+  find:         requiredMethod('find'),
+  findAll:      requiredMethod('findAll'),
 
   /*
    * configurations: stores info about custom configurations
@@ -45,8 +44,8 @@ RESTless.Adapter = Ember.Object.extend({
   /*
    * map: helper to map configurations for model types
    * examples:
-   * App.RESTAdapter.map('App.Post', { primaryKey: 'slug' });
-   * App.RESTAdapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });
+   * App.Adapter.map('App.Post', { primaryKey: 'slug' });
+   * App.Adapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });
    */
   map: function(modelKey, config) {
     var modelMap = this.get('configurations.models'),

@@ -17,25 +17,18 @@ RESTless.Serializer = Ember.Object.extend({
   /* 
    * Common serializer methods that must be implemented in a subclass
    */
-  deserialize:         mustImplement('deserialize'),
-  deserializeProperty: mustImplement('deserializeProperty'),
-  deserializeMany:     mustImplement('deserializeMany'),
-  serialize:           mustImplement('serialize'),
-  serializeProperty:   mustImplement('serializeProperty'),
-  serializeMany:       mustImplement('serializeMany'),
+  deserialize:         requiredMethod('deserialize'),
+  deserializeProperty: requiredMethod('deserializeProperty'),
+  deserializeMany:     requiredMethod('deserializeMany'),
+  serialize:           requiredMethod('serialize'),
+  serializeProperty:   requiredMethod('serializeProperty'),
+  serializeMany:       requiredMethod('serializeMany'),
 
   /*
-   * Optional methods to override
-   */
-  /*
-   * prepareData: preps data before persisting
+   * prepareData: (optional override) preps data before persisting
    * i.e. a RESTAdapter with a JSONSerializer may need to JSON.stringify data before POSTing
    */
   prepareData: function(data) {
     return data;
-  },
-  /*
-   * registerTransform: to add to the serializers transform hash
-   */
-  registerTransform: function(type, transform) { }
+  }
 });

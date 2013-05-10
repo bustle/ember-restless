@@ -12,7 +12,6 @@ RESTless.JSONTransforms = {
     deserialize: function(serialized) {
       return none(serialized) ? null : String(serialized);
     },
-
     serialize: function(deserialized) {
       return none(deserialized) ? null : String(deserialized);
     }
@@ -22,7 +21,6 @@ RESTless.JSONTransforms = {
     deserialize: function(serialized) {
       return empty(serialized) ? null : Number(serialized);
     },
-
     serialize: function(deserialized) {
       return empty(deserialized) ? null : Number(deserialized);
     }
@@ -44,7 +42,6 @@ RESTless.JSONTransforms = {
         return false;
       }
     },
-
     serialize: function(deserialized) {
       return Boolean(deserialized);
     }
@@ -66,7 +63,6 @@ RESTless.JSONTransforms = {
         return null;
       }
     },
-
     serialize: function(date) {
       if (date instanceof Date) {
         var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
