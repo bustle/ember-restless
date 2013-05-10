@@ -2,7 +2,7 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.2
+ * version: 0.2.0
  * last modifed: 2013-05-10
  *
  * Garth Poitras <garth22@gmail.com>
@@ -27,7 +27,7 @@ if (RESTless === undefined) {
    * Track version and API revision number.
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.2',
+    VERSION: '0.2.0',
     CURRENT_API_REVISION: 2
   });
 
