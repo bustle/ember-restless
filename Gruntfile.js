@@ -54,16 +54,16 @@ module.exports = function(grunt) {
         src: [
           'src/main.js',
           'src/attribute.js',
-          'src/serializer.js',
-          'src/json_serializer.js',
-          'src/adapter.js',
-          'src/rest_adapter.js',
+          'src/serializers/serializer.js',
+          'src/serializers/json_serializer.js',
+          'src/adapters/adapter.js',
+          'src/adapters/rest_adapter.js',
           'src/client.js',
           'src/state.js',
           'src/model.js',
           'src/read_only_model.js',
           'src/array.js',
-          'src/json_transforms.js' // optional
+          'src/serializers/json_transforms.js' // optional
         ],
         dest: 'dist/<%= pkg.name %>.js'
       }
