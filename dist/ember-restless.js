@@ -577,6 +577,14 @@ Ember.onLoad('Ember.Application', function(Application) {
   });
 });
 
+/* Deprecate warning for RESTClient, since it is a crucial first step for customization */
+RESTless.RESTClient = RESTless.Client.extend({
+  init: function() {
+    Ember.deprecate("RESTClient is deprecated. Please use Client instead.");
+    this._super();
+  }
+});
+
 /*
  * State
  * Mixin for managing model lifecycle state
