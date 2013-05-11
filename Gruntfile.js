@@ -63,6 +63,7 @@ module.exports = function(grunt) {
           'src/model.js',
           'src/read_only_model.js',
           'src/array.js',
+          'src/ext/date.js',
           'src/serializers/json_transforms.js' // optional
         ],
         dest: 'dist/<%= pkg.name %>.js'
