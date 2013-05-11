@@ -9,7 +9,6 @@ RESTless can be extended to support various other data persistence layers. For e
 One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
 
 ### Current revision: 2
-
 See [BREAKING_CHANGES](BREAKING_CHANGES.md) for the latest API changes.
 
 ## Getting started
@@ -32,7 +31,7 @@ App.Client = RL.Client.create({
 
 ### Defining a custom RESTAdapter
 
-Create a custom REST adapter to set the url to a backend service, and optionally a namespace.
+Create a custom REST adapter to set the url to a backend service, and optionally a namespace.  
 For example, if your REST API is located at http://api.myservice.com/v1
 ``` javascript
 App.RESTAdapter = RL.RESTAdapter.create({
@@ -91,18 +90,18 @@ Currently, all relational data should be embedded in the json response. 'Side-lo
 For example, all of the 'tags' data should be available in the response from ```App.Post.find(1)```
 ``` json
 {
-  post: {
-    id: 1,
-    tags: [
+  "post": {
+    "id": 1,
+    "tags": [
       {
-        id: 1,
-        name: 'tag1',
-        count: 50
+        "id": 1,
+        "name": "tag1",
+        "count": 50
       },
       {
-        id: 2,
-        name: 'tag2',
-        count: 11
+        "id": 2,
+        "name": "tag2",
+        "count": 11
       }
     ]
   }
@@ -164,6 +163,14 @@ post.saveRecord();
 The RESTAdapter Will delete the record remotely, then destroy the object when complete:
 ``` javascript
 post.deleteRecord();
+```
+
+### 'Loading' Records
+
+You can manually populate records using raw data. For example, if you have to side-load data, you can use the ```load``` and ```loadMany``` convenience methods:
+``` javascript
+var comment = App.Comment.load(jsonData);
+var tags = App.Tag.loadMany(jsonData);
 ```
 
 ### Model lifecycle
