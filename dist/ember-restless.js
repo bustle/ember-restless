@@ -855,6 +855,30 @@ RESTless.Model.reopenClass({
    */
   findAll: function(params) {
     return RESTless.get('client.adapter').findAll(this, params);
+  },
+
+  /*
+   * load: Create model directly from data representation.
+   */
+  load: function(data) {
+    var result = this.create();
+
+    result.deserialize(data);
+    result.set('isLoaded', true);
+
+    return result;
+  },
+
+  /*
+   * loadMany: Create collection of records directly from data representation.
+   */
+  loadMany: function(data) {
+    var result = RESTless.RecordArray.createWithContent({ type: this.toString() });
+
+    result.deserializeMany(data);
+    result.set('isLoaded', true);
+
+    return result;
   }
 });
 
