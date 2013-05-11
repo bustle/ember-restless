@@ -859,27 +859,6 @@ RESTless.Model.reopenClass({
 });
 
 /*
- * ReadOnlyModel
- * Subclass for models that are read-only.
- * Removes property change observers and write methods.
- * Helps improve performance when write functionality is not needed.
- */
-RESTless.ReadOnlyModel = RESTless.Model.extend({
-  /* 
-   * init: for read-only models, we don't need to _addPropertyObservers 
-   */
-  init: function() {
-    this._initProperties();
-  },
-  /*
-   * Remove functionality associated with writing data
-   */
-  serialize: null,
-  saveRecord: null,
-  deleteRecord: null
-});
-
-/*
  * RecordArray
  * Base class extention for arrays of Models
  */
@@ -958,6 +937,27 @@ RESTless.RecordArray.reopenClass({
   createWithContent: function(opts) {
     return RESTless.RecordArray.create($.extend({ content: Ember.A() }, opts));
   }
+});
+
+/*
+ * ReadOnlyModel
+ * Subclass for models that are read-only.
+ * Removes property change observers and write methods.
+ * Helps improve performance when write functionality is not needed.
+ */
+RESTless.ReadOnlyModel = RESTless.Model.extend({
+  /* 
+   * init: for read-only models, we don't need to _addPropertyObservers 
+   */
+  init: function() {
+    this._initProperties();
+  },
+  /*
+   * Remove functionality associated with writing data
+   */
+  serialize: null,
+  saveRecord: null,
+  deleteRecord: null
 });
 
 /**
