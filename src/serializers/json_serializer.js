@@ -7,19 +7,15 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   dataType: 'json',
   contentType: 'application/json; charset=utf-8',
 
-  prepareData: function(data) {
-    return JSON.stringify(data);
-  },
-
   /* 
    * deserialize: translates json object into a model. i.e:
-   * { id:1, name:'post 1' }
+   * { id:1, name:'post 1' } => App.Post
    */
   deserialize: function(resource, data) {
     // Check if data is wrapped (ActiveRecord): { post: { id:1, name:'post 1' } }
-    var resourceName = get(resource.constructor, 'resourceName'), prop;
-    if(data[resourceName]) {
-      data = data[resourceName];
+    var key = this.jsonKeyForResource(resource), prop;
+    if(data[key]) {
+      data = data[key];
     }
 
     Ember.beginPropertyChanges(resource);
@@ -81,9 +77,10 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     var meta = this.extractMeta(data);
     if(meta) { resource.set('meta', meta); }
 
-    // findAll from ActiveRecord returns { posts: [...] }
+    // findAll from ActiveRecord returns array wrapped in plural resource name: { posts: [...] }
     if(!$.isArray(data)) {
-      data = data[resource.get('resourceTypeNamePlural')];
+      var keyPlural = get(RESTless, 'client.adapter').pluralize(this.jsonKeyForResourceType(type));
+      data = data[keyPlural];
     }
     if(!data) { 
       return; 
@@ -113,17 +110,17 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    * serialize: turns model into json
    */
   serialize: function(resource) {
-    var resourceName = get(resource.constructor, 'resourceName'),
+    var key = this.jsonKeyForResource(resource),
         attrMap = get(resource.constructor, 'attributeMap'),
         json = {}, attr, val;
 
-    json[resourceName] = {};
+    json[key] = {};
     for(attr in attrMap) {
       //Don't include readOnly properties or to-one relationships
       if (attrMap.hasOwnProperty(attr) && !attrMap[attr].get('readOnly') && !attrMap[attr].get('belongsTo')) {
         val = this.serializeProperty(resource, attr);
         if(val !== null) {
-          json[resourceName][attr.decamelize()] = val;
+          json[key][attr.decamelize()] = val;
         }
       }
     }  
@@ -154,14 +151,36 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    * serializeMany: serializes an array of models into json
    */
   serializeMany: function(resourceArr, type) {
-    var resourceName = get(get(window, type), 'resourceName'),
+    var key = this.jsonKeyForResourceType(type),
         result = [],
-        len = resourceArr.length, i;
+        len = resourceArr.length, i, item;
     for(i=0; i<len; i++) {
-      var item = resourceArr[i].serialize();
-      result.push(item[resourceName]);
+      item = resourceArr[i].serialize();
+      result.push(item[key]);
     }
     return result;
+  },
+
+  /*
+   * jsonKeyForResource: helper to get valid json key from resource
+   * App.Post => 'post', App.PostGroup => 'post_group'
+   */
+  jsonKeyForResource: function(resource) {
+    return get(resource.constructor, 'resourceName').decamelize();
+  },
+  /*
+   * jsonKeyForResourceType: helper to get json key if only class type string is known
+   */
+  jsonKeyForResourceType: function(type) {
+    var instance = get(window, type).create();
+    return this.jsonKeyForResource(instance);
+  },
+
+  /* 
+   * prepareData: json must be stringified before transmitting to most backends
+   */
+  prepareData: function(data) {
+    return JSON.stringify(data);
   },
 
   /*

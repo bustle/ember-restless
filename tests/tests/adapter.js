@@ -45,3 +45,13 @@ test('can set multiple configurations at once and can overwrite configurations',
   equal( get(RESTless, 'client.adapter.configurations.models').get('App.Post').propertyKeys.bodyContent, 'body', 'model property key was changed' );
 });
 
+test('can set custom plurals', function() {
+  RESTless.get('client.adapter').configure("plurals", {
+    person: "people"
+  });
+  RESTless.get('client.adapter').configure("plurals", {
+    nothing: "something",
+    another: "to_test"
+  });
+  equal( get(RESTless, 'client.adapter.configurations.plurals').person, 'people', 'plural set and not overwritten' );
+});

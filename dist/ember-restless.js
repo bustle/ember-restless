@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.0
- * last modifed: 2013-05-10
+ * last modifed: 2013-05-12
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -101,7 +101,6 @@ RESTless.Serializer = Ember.Object.extend({
 
   /*
    * prepareData: (optional override) preps data before persisting
-   * i.e. a RESTAdapter with a JSONSerializer may need to JSON.stringify data before POSTing
    */
   prepareData: function(data) {
     return data;
@@ -117,19 +116,15 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   dataType: 'json',
   contentType: 'application/json; charset=utf-8',
 
-  prepareData: function(data) {
-    return JSON.stringify(data);
-  },
-
   /* 
    * deserialize: translates json object into a model. i.e:
-   * { id:1, name:'post 1' }
+   * { id:1, name:'post 1' } => App.Post
    */
   deserialize: function(resource, data) {
     // Check if data is wrapped (ActiveRecord): { post: { id:1, name:'post 1' } }
-    var resourceName = get(resource.constructor, 'resourceName'), prop;
-    if(data[resourceName]) {
-      data = data[resourceName];
+    var key = this.jsonKeyForResource(resource), prop;
+    if(data[key]) {
+      data = data[key];
     }
 
     Ember.beginPropertyChanges(resource);
@@ -191,9 +186,10 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     var meta = this.extractMeta(data);
     if(meta) { resource.set('meta', meta); }
 
-    // findAll from ActiveRecord returns { posts: [...] }
+    // findAll from ActiveRecord returns array wrapped in plural resource name: { posts: [...] }
     if(!$.isArray(data)) {
-      data = data[resource.get('resourceTypeNamePlural')];
+      var keyPlural = get(RESTless, 'client.adapter').pluralize(this.jsonKeyForResourceType(type));
+      data = data[keyPlural];
     }
     if(!data) { 
       return; 
@@ -223,17 +219,17 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    * serialize: turns model into json
    */
   serialize: function(resource) {
-    var resourceName = get(resource.constructor, 'resourceName'),
+    var key = this.jsonKeyForResource(resource),
         attrMap = get(resource.constructor, 'attributeMap'),
         json = {}, attr, val;
 
-    json[resourceName] = {};
+    json[key] = {};
     for(attr in attrMap) {
       //Don't include readOnly properties or to-one relationships
       if (attrMap.hasOwnProperty(attr) && !attrMap[attr].get('readOnly') && !attrMap[attr].get('belongsTo')) {
         val = this.serializeProperty(resource, attr);
         if(val !== null) {
-          json[resourceName][attr.decamelize()] = val;
+          json[key][attr.decamelize()] = val;
         }
       }
     }  
@@ -264,14 +260,36 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    * serializeMany: serializes an array of models into json
    */
   serializeMany: function(resourceArr, type) {
-    var resourceName = get(get(window, type), 'resourceName'),
+    var key = this.jsonKeyForResourceType(type),
         result = [],
-        len = resourceArr.length, i;
+        len = resourceArr.length, i, item;
     for(i=0; i<len; i++) {
-      var item = resourceArr[i].serialize();
-      result.push(item[resourceName]);
+      item = resourceArr[i].serialize();
+      result.push(item[key]);
     }
     return result;
+  },
+
+  /*
+   * jsonKeyForResource: helper to get valid json key from resource
+   * App.Post => 'post', App.PostGroup => 'post_group'
+   */
+  jsonKeyForResource: function(resource) {
+    return get(resource.constructor, 'resourceName').decamelize();
+  },
+  /*
+   * jsonKeyForResourceType: helper to get json key if only class type string is known
+   */
+  jsonKeyForResourceType: function(type) {
+    var instance = get(window, type).create();
+    return this.jsonKeyForResource(instance);
+  },
+
+  /* 
+   * prepareData: json must be stringified before transmitting to most backends
+   */
+  prepareData: function(data) {
+    return JSON.stringify(data);
   },
 
   /*
@@ -370,6 +388,15 @@ RESTless.Adapter = Ember.Object.extend({
     }
     modelMap.set(modelKey, modelConfig);
     return this;
+  },
+
+  /*
+   * pluralize: helper to pluralize model resource names.
+   * Checks custom configs or simply appends a 's'
+   */
+  pluralize: function(resourceName) {
+    var plurals = this.get('configurations.plurals');
+    return (plurals && plurals[resourceName]) || resourceName + 's';
   }
 });
 
@@ -411,13 +438,21 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   }.property('url', 'namespace'),
 
   /*
+   * resourcePath: helper method creates a valid REST path to a resource
+   * App.Post => 'posts',  App.PostGroup => 'post-groups'
+   */
+  resourcePath: function(resourceName) {
+    return this.pluralize(resourceName).dasherize();
+  },
+
+  /*
    * request: a wrapper around jQuery's ajax method
    * builds the url and dynamically adds the a resource key if specified
    */
   request: function(model, params, resourceKey) {
-    var resourceName = get(model.constructor, 'resourceNamePlural'),
+    var resourcePath = this.resourcePath(get(model.constructor, 'resourceName')),
         primaryKey = get(model.constructor, 'primaryKey'),
-        urlParts = [this.get('rootPath'), resourceName];
+        urlParts = [this.get('rootPath'), resourcePath];
 
     if(resourceKey) {
       urlParts.push(resourceKey);
@@ -809,24 +844,13 @@ RESTless.Model.reopenClass({
   }.property('RESTless.client._modelConfigs'),
 
   /*
-   * resourceName: path to the resource endpoint, determined from class name
-   * i.e. MyApp.Post = RESTless.Model.extend({ ... })  =>  'post'
+   * resourceName: helper to extract name of model subclass
+   * App.Post => 'Post', App.PostGroup => 'PostGroup', App.AnotherNamespace.Post => 'Post'
    */
   resourceName: function() {
-    var className = this.toString(),
-        parts = className.split('.');
-    return parts[parts.length-1].toLowerCase();
+    var classNameParts = this.toString().split('.');
+    return classNameParts[classNameParts.length-1];
   }.property(),
-
-  /*
-   * resourceNamePlural: resourceName pluralized
-   * Define custom plural words in a custom adapter
-   */
-  resourceNamePlural: function() {
-    var name = get(this, 'resourceName'),
-        plurals = get(RESTless, 'client._pluralConfigs');
-    return (plurals && plurals[name]) || name + 's';
-  }.property('resourceName'),
 
   /*
    * attributeMap: stores all of the RESTless Attribute definitions.
@@ -900,14 +924,6 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
         itemClass = type ? get(window, type) : Ember.Object;
     this.pushObject(itemClass.create(opts));
   },
-
-  /*
-   * resourceTypeNamePlural: helper to get the plural resource name for array object type
-   */
-  resourceTypeNamePlural: function() {
-    var typeInstance = get(window, this.get('type')).create();
-    return get(typeInstance.constructor, 'resourceNamePlural');
-  }.property('type'),
 
   /* 
    * deserializeMany: use the current Serializer to populate the array from supplied data

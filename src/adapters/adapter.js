@@ -70,5 +70,14 @@ RESTless.Adapter = Ember.Object.extend({
     }
     modelMap.set(modelKey, modelConfig);
     return this;
+  },
+
+  /*
+   * pluralize: helper to pluralize model resource names.
+   * Checks custom configs or simply appends a 's'
+   */
+  pluralize: function(resourceName) {
+    var plurals = this.get('configurations.plurals');
+    return (plurals && plurals[resourceName]) || resourceName + 's';
   }
 });

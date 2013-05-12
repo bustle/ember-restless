@@ -36,13 +36,21 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   }.property('url', 'namespace'),
 
   /*
+   * resourcePath: helper method creates a valid REST path to a resource
+   * App.Post => 'posts',  App.PostGroup => 'post-groups'
+   */
+  resourcePath: function(resourceName) {
+    return this.pluralize(resourceName).dasherize();
+  },
+
+  /*
    * request: a wrapper around jQuery's ajax method
    * builds the url and dynamically adds the a resource key if specified
    */
   request: function(model, params, resourceKey) {
-    var resourceName = get(model.constructor, 'resourceNamePlural'),
+    var resourcePath = this.resourcePath(get(model.constructor, 'resourceName')),
         primaryKey = get(model.constructor, 'primaryKey'),
-        urlParts = [this.get('rootPath'), resourceName];
+        urlParts = [this.get('rootPath'), resourcePath];
 
     if(resourceKey) {
       urlParts.push(resourceKey);

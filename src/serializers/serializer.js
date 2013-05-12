@@ -26,7 +26,6 @@ RESTless.Serializer = Ember.Object.extend({
 
   /*
    * prepareData: (optional override) preps data before persisting
-   * i.e. a RESTAdapter with a JSONSerializer may need to JSON.stringify data before POSTing
    */
   prepareData: function(data) {
     return data;

@@ -42,3 +42,9 @@ test('various formats of setting namespace with url is resilient', function() {
   });
   equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is resilient' );
 });
+
+test('creates valid path for multi-word model classes', function() {
+  var adapter = RL.RESTAdapter.create(),
+      resourceName = get(App.PostGroup, 'resourceName');
+  equal( adapter.resourcePath(resourceName), 'post-groups', 'resource path is valid' );
+});

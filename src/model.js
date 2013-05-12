@@ -151,24 +151,13 @@ RESTless.Model.reopenClass({
   }.property('RESTless.client._modelConfigs'),
 
   /*
-   * resourceName: path to the resource endpoint, determined from class name
-   * i.e. MyApp.Post = RESTless.Model.extend({ ... })  =>  'post'
+   * resourceName: helper to extract name of model subclass
+   * App.Post => 'Post', App.PostGroup => 'PostGroup', App.AnotherNamespace.Post => 'Post'
    */
   resourceName: function() {
-    var className = this.toString(),
-        parts = className.split('.');
-    return parts[parts.length-1].toLowerCase();
+    var classNameParts = this.toString().split('.');
+    return classNameParts[classNameParts.length-1];
   }.property(),
-
-  /*
-   * resourceNamePlural: resourceName pluralized
-   * Define custom plural words in a custom adapter
-   */
-  resourceNamePlural: function() {
-    var name = get(this, 'resourceName'),
-        plurals = get(RESTless, 'client._pluralConfigs');
-    return (plurals && plurals[name]) || name + 's';
-  }.property('resourceName'),
 
   /*
    * attributeMap: stores all of the RESTless Attribute definitions.

@@ -17,14 +17,6 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
     this.pushObject(itemClass.create(opts));
   },
 
-  /*
-   * resourceTypeNamePlural: helper to get the plural resource name for array object type
-   */
-  resourceTypeNamePlural: function() {
-    var typeInstance = get(window, this.get('type')).create();
-    return get(typeInstance.constructor, 'resourceNamePlural');
-  }.property('type'),
-
   /* 
    * deserializeMany: use the current Serializer to populate the array from supplied data
    */
