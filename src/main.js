@@ -12,7 +12,7 @@ if (RESTless === undefined) {
    * Track version and API revision number.
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.2.0',
+    VERSION: '0.2.1',
     CURRENT_API_REVISION: 2
   });
 

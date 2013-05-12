@@ -8,29 +8,45 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
    */
   id: RESTless.attr('number'),
 
-  /* 
-   * isNew: model has not yet been saved
+  /*
+   * isNew: model has not yet been saved.
+   * Observer watches when a primary key value is set, making isNew false
    */
-  isNew: function() {
-    var primaryKey = get(this.constructor, 'primaryKey');
-    return none(this.get(primaryKey));
-  }.property(),
+  isNew: true,
 
   /* 
    * init: on instance creation
    */
   init: function() {
-    this._initProperties();
+    this._initRelationships();
+    this._observePrimaryKey(true);
     this._addPropertyObservers();
   },
 
-  /* 
-   * _initProperties: (private)
-   * Any special setup needed for certain property types
+  /*
+   * _observePrimaryKey: (private) add or remove the primary key observer
    */
-  _initProperties: function() {
+  _observePrimaryKey: function(add) {
+    var observerMethod = add ? this.addObserver : this.removeObserver,
+        key = get(this.constructor, 'primaryKey');
+    observerMethod.call(this, key, this, this._onPrimaryKeySet);
+  },
+  /* 
+   * _onPrimaryKeySet: (private) primary key observer handler
+   * Sets 'isNew' property to false if a primary value is set
+   */
+  _onPrimaryKeySet: function(sender, key) {
+    if(!none(sender.get(key))) {
+      this.set('isNew', false);
+      this._observePrimaryKey(false);
+    }
+  },
+
+  /* 
+   * _initRelationships: (private) init arrays for hasMany props, or models for belongsTo props
+   */
+  _initRelationships: function() {
     var attributeMap = get(this.constructor, 'attributeMap'), attr;
-    // Loop through each property and init any relationships
     for(attr in attributeMap) {
       if (attributeMap.hasOwnProperty(attr)) {
         if(attributeMap[attr].get('hasMany')) {
