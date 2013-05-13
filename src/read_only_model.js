@@ -5,16 +5,11 @@
  * Helps improve performance when write functionality is not needed.
  */
 RESTless.ReadOnlyModel = RESTless.Model.extend({
-  /* 
-   * init: for read-only models, we don't need to _addPropertyObservers 
-   */
-  init: function() {
-    this._initRelationships();
-  },
   /*
    * Remove functionality associated with writing data
    */
   serialize: null,
   saveRecord: null,
-  deleteRecord: null
+  deleteRecord: null,
+  didDefineProperty: null
 });
