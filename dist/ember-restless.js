@@ -122,7 +122,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    */
   deserialize: function(resource, data) {
     // Check if data is wrapped (ActiveRecord): { post: { id:1, name:'post 1' } }
-    var key = this.jsonKeyForResource(resource), prop;
+    var key = this._keyForResource(resource), prop;
     if(data[key]) {
       data = data[key];
     }
@@ -162,7 +162,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     } 
     // If property is a belongsTo relationship, deserialze that model
     else if(attr.get('belongsTo')) {
-      var belongsToModel = get(window, attrType).create();
+      var belongsToModel = get(Ember.lookup, attrType).create();
       this.deserialize(belongsToModel, value);
       resource.set(formattedProp, belongsToModel);
       Ember.run.next(function() {
@@ -188,7 +188,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
 
     // findAll from ActiveRecord returns array wrapped in plural resource name: { posts: [...] }
     if(!$.isArray(data)) {
-      var keyPlural = get(RESTless, 'client.adapter').pluralize(this.jsonKeyForResourceType(type));
+      var keyPlural = get(RESTless, 'client.adapter').pluralize(this._keyForResourceType(type));
       data = data[keyPlural];
     }
     if(!data) { 
@@ -203,7 +203,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       resource = RESTless.RecordArray.createWithContent({type: type});
     }
     for(i=0; i<len; i++) {
-      item = get(window, type).create().deserialize(data[i]);
+      item = get(Ember.lookup, type).create().deserialize(data[i]);
       resourceArr.push(item);
     }
     if(resourceArr.length) {
@@ -219,7 +219,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    * serialize: turns model into json
    */
   serialize: function(resource) {
-    var key = this.jsonKeyForResource(resource),
+    var key = this._keyForResource(resource),
         attrMap = get(resource.constructor, 'attributeMap'),
         json = {}, attr, val;
 
@@ -229,7 +229,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       if (attrMap.hasOwnProperty(attr) && !attrMap[attr].get('readOnly') && !attrMap[attr].get('belongsTo')) {
         val = this.serializeProperty(resource, attr);
         if(val !== null) {
-          json[key][attr.decamelize()] = val;
+          json[key][this.keyForAttributeName(attr)] = val;
         }
       }
     }  
@@ -260,7 +260,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    * serializeMany: serializes an array of models into json
    */
   serializeMany: function(resourceArr, type) {
-    var key = this.jsonKeyForResourceType(type),
+    var key = this._keyForResourceType(type),
         result = [],
         len = resourceArr.length, i, item;
     for(i=0; i<len; i++) {
@@ -271,27 +271,33 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   },
 
   /*
-   * jsonKeyForResource: helper to get valid json key from resource
-   * App.Post => 'post', App.PostGroup => 'post_group'
+   * _keyForResource, _keyForResourceType (private) shortcut helpers
    */
-  jsonKeyForResource: function(resource) {
-    return get(resource.constructor, 'resourceName').decamelize();
+  _keyForResource: function(resource) {
+    return this.keyForResourceName(get(resource.constructor, 'resourceName'));
   },
-  /*
-   * jsonKeyForResourceType: helper to get json key if only class type string is known
-   */
-  jsonKeyForResourceType: function(type) {
-    var instance = get(window, type).create();
-    return this.jsonKeyForResource(instance);
+  _keyForResourceType: function(type) {
+    return this._keyForResource(get(Ember.lookup, type).create());
   },
 
+  /*
+   * keyForResourceName: helper to transform resource name to valid json key
+   */
+  keyForResourceName: function(name) {
+    return Ember.String.decamelize(name);
+  },
+  /*
+   * keyForAttributeName: helper to transform attribute name to valid json key
+   */
+  keyForAttributeName: function(name) {
+    return Ember.String.decamelize(name);
+  },
   /* 
    * prepareData: json must be stringified before transmitting to most backends
    */
   prepareData: function(data) {
     return JSON.stringify(data);
   },
-
   /*
    * extractMeta: attempts to extract metadata on json responses
    */
@@ -300,7 +306,6 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       return json.meta;
     }
   },
-
   /*
    * registerTransform: adds a custom tranform to JSONTransforms
    */
