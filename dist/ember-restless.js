@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.1
- * last modifed: 2013-05-12
+ * last modifed: 2013-05-14
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -439,10 +439,10 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
 
   /*
    * resourcePath: helper method creates a valid REST path to a resource
-   * App.Post => 'posts',  App.PostGroup => 'post-groups'
+   * App.Post => 'posts',  App.PostGroup => 'post_groups'
    */
   resourcePath: function(resourceName) {
-    return this.pluralize(resourceName).dasherize();
+    return this.pluralize(resourceName).decamelize();
   },
 
   /*

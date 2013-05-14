@@ -46,5 +46,5 @@ test('various formats of setting namespace with url is resilient', function() {
 test('creates valid path for multi-word model classes', function() {
   var adapter = RL.RESTAdapter.create(),
       resourceName = get(App.PostGroup, 'resourceName');
-  equal( adapter.resourcePath(resourceName), 'post-groups', 'resource path is valid' );
+  equal( adapter.resourcePath(resourceName), 'post_groups', 'resource path is valid' );
 });

@@ -37,10 +37,10 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
 
   /*
    * resourcePath: helper method creates a valid REST path to a resource
-   * App.Post => 'posts',  App.PostGroup => 'post-groups'
+   * App.Post => 'posts',  App.PostGroup => 'post_groups'
    */
   resourcePath: function(resourceName) {
-    return this.pluralize(resourceName).dasherize();
+    return this.pluralize(resourceName).decamelize();
   },
 
   /*
