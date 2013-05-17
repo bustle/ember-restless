@@ -133,7 +133,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   },
 
   findAll: function(model, params) {
-    var resourceInstance = model.create(),
+    var resourceInstance = model.create({ isNew: false }),
         result = RESTless.RecordArray.createWithContent({ type: model.toString() }),
         findRequest = this.request(resourceInstance, { type: 'GET', data: params });
 
@@ -152,7 +152,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   },
 
   findByKey: function(model, key) {
-    var result = model.create(),
+    var result = model.create({ isNew: false }),
         findRequest = this.request(result, { type: 'GET' }, key);
 
     findRequest.done(function(data){

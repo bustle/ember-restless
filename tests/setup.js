@@ -16,3 +16,14 @@ App.Person = RL.Model.extend({
   name: RL.attr('string'),
   role: RL.attr('number')
 });
+
+App.Comment = RL.Model.extend({
+  text: RL.attr('string'),
+  post: RL.belongsTo('App.Post'),
+  author: RL.belongsTo('App.Person'),
+  likes: RL.hasMany('App.Like')
+});
+
+App.Like = RL.Model.extend({
+  username: RL.attr('string')
+});

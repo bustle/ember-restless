@@ -31,14 +31,16 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
   },
 
   /*
-   * _onContentChange: (private) observes when items in the array are changed.
-   * Marks the RecordArray as dirty if loaded.
+   * replaceContent: Changes array contents. Overriden to mark RecordArray as
+   * dirty if loaded.
    */
-  _onContentChange: function() {
-    if(this.get('isLoaded')) {
+  replaceContent: function(idx, amt, objects) {
+    get(this, 'content').replace(idx, amt, objects);
+    if (this.get('isLoaded')) {
       this.set('isDirty', true);
     }
-  }.observes('@each'),
+  },
+
   /*
    * _onItemDirtyChange: (private) observes when items become dirty
    */

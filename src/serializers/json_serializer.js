@@ -38,32 +38,30 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     // check if a custom key was configured for this property
     if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[formattedProp]) {
       formattedProp = modelConfig.propertyKeys[formattedProp];
-    } else if(get(resource, formattedProp) === undefined) {
-      // If the json contains a key not defined on the model, don't attempt to set it.
-      return;
     }
-    var attrMap = get(resource.constructor, 'attributeMap'),
-        attr = attrMap[formattedProp],
-        attrType = attr.get('type');
+
+    var fields = get(resource.constructor, 'fields'),
+        field = fields.get(formattedProp);
+
+    // If the json contains a key not defined on the model, don't attempt to set it.
+    if (!field) { return; }
 
     // If property is a hasMany relationship, deserialze the array
-    if(attr.get('hasMany')) {
-      var hasManyArr = this.deserializeMany(resource.get(formattedProp), attrType, value);
+    if (field.hasMany) {
+      var hasManyArr = this.deserializeMany(resource.get(formattedProp), field.type, value);
       resource.set(formattedProp, hasManyArr);
     } 
     // If property is a belongsTo relationship, deserialze that model
-    else if(attr.get('belongsTo')) {
-      var belongsToModel = get(Ember.lookup, attrType).create();
+    else if (field.belongsTo) {
+      var belongsToModel = get(Ember.lookup, field.type).create({ isNew: false });
       this.deserialize(belongsToModel, value);
       resource.set(formattedProp, belongsToModel);
-      Ember.run.next(function() {
-        belongsToModel.set('isLoaded', true);
-      });
+      belongsToModel.set('isLoaded', true);
     }
     else {
       // Check for a custom transform
-      if(attrType && RESTless.JSONTransforms[attrType]) {
-        value = RESTless.JSONTransforms[attrType].deserialize(value);
+      if (field.type && RESTless.JSONTransforms[field.type]) {
+        value = RESTless.JSONTransforms[field.type].deserialize(value);
       }
       resource.set(formattedProp, value);
     }
@@ -94,15 +92,15 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       resource = RESTless.RecordArray.createWithContent({type: type});
     }
     for(i=0; i<len; i++) {
-      item = get(Ember.lookup, type).create().deserialize(data[i]);
+      item = get(Ember.lookup, type).create({ isNew: false }).deserialize(data[i]);
       resourceArr.push(item);
     }
     if(resourceArr.length) {
       resource.pushObjects(resourceArr);
     }
-    Ember.run.next(function() {
-      resource.set('isLoaded', true);
-    });
+
+    resource.set('isLoaded', true);
+
     return resource;
   },
 
@@ -111,38 +109,41 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    */
   serialize: function(resource) {
     var key = this._keyForResource(resource),
-        attrMap = get(resource.constructor, 'attributeMap'),
-        json = {}, attr, val;
+        fields = get(resource.constructor, 'fields'),
+        json = {},
+        self = this;
 
     json[key] = {};
-    for(attr in attrMap) {
+    fields.forEach(function(field, opts) {
       //Don't include readOnly properties or to-one relationships
-      if (attrMap.hasOwnProperty(attr) && !attrMap[attr].get('readOnly') && !attrMap[attr].get('belongsTo')) {
-        val = this.serializeProperty(resource, attr);
+      if (!opts.readOnly && !opts.belongsTo) {
+        var val = self.serializeProperty(resource, field, opts);
         if(val !== null) {
           json[key][this.keyForAttributeName(attr)] = val;
         }
       }
-    }  
+    });
+
     return json;
   },
 
   /* 
    * serializeProperty: transform model property into json
    */
-  serializeProperty: function(resource, prop) {
-    var value = resource.get(prop),
-        attrMap = get(resource.constructor, 'attributeMap'),
-        attr = attrMap[prop],
-        attrType = attr.get('type');
+  serializeProperty: function(resource, prop, opts) {
+    var value = resource.get(prop);
 
-    if(attr.get('hasMany')) {
-      return this.serializeMany(value.get('content'), attrType);
+    if (!opts) {
+      opts = resource.constructor.metaForProperty(prop);
+    }
+
+    if (opts.hasMany) {
+      return this.serializeMany(value.get('content'), opts.type);
     }
 
     //Check for a custom transform
-    if(attrType && RESTless.JSONTransforms[attrType]) {
-      value = RESTless.JSONTransforms[attrType].serialize(value);
+    if(opts.type && RESTless.JSONTransforms[opts.type]) {
+      value = RESTless.JSONTransforms[opts.type].serialize(value);
     }
     return value;
   },

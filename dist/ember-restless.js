@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.1
- * last modifed: 2013-05-14
+ * last modifed: 2013-05-17
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -40,37 +40,64 @@ if (RESTless === undefined) {
   }
 }
 
-/*
- * RESTless._Attribute (private)
- * Stores metadata about model property types
- */
-RESTless._Attribute = Ember.ObjectProxy.extend({
-  type: null,
+var attributeDefaults = {
   readOnly: false,
   belongsTo: false,
   hasMany: false,
+  isAttribute: false,
   isRelationship: false
-});
+};
 
-/*
- * Public attribute interfaces to define model properties
- */
+function makeComputedAttribute(type, opts) {
+  opts = $.extend({}, attributeDefaults, { type: type }, opts);
+
+  return Ember.computed(function(key, value) {
+    var data = this.get('_data');
+
+    if (arguments.length === 1) {       // Getter
+      value = data[key];
+
+      if (value === undefined) {        // Default values
+        if (typeof opts.defaultValue === 'function') {
+          value = opts.defaultValue();
+        } else {
+          value = opts.defaultValue;
+        }
+        data[key] = value;
+      }
+    } else if (value !== data[key]) {   // Setter
+      data[key] = value;
+      if (!opts.readOnly) {
+        this._onPropertyChange(key);
+      }
+    }
+
+    return value;
+  }).property('_data').meta(opts);
+}
+
 // Standard property
 RESTless.attr = function(type, opts) {
-  opts = $.extend({ type: type }, opts);
-  return RESTless._Attribute.create(opts);
+  opts = $.extend({ isAttribute: true }, opts);
+  return makeComputedAttribute(type, opts);
 };
 
 // belongsTo: One-to-one relationship between two models
 RESTless.belongsTo = function(type, opts) {
-  opts = $.extend({ type: type, belongsTo:true, isRelationship:true }, opts);
-  return RESTless._Attribute.create(opts);
+  var defaultRecord = function() {
+    return get(Ember.lookup, type).create();
+  };
+  opts = $.extend({ isRelationship: true, belongsTo: true, defaultValue: defaultRecord }, opts);
+  return makeComputedAttribute(type, opts);
 };
 
 // hasMany: One-to-many & many-to-many relationships
 RESTless.hasMany = function(type, opts) {
-  opts = $.extend({ type: type, hasMany:true, isRelationship:true }, opts);
-  return RESTless._Attribute.create(opts);
+  var defaultArray = function() {
+    return RESTless.RecordArray.createWithContent({type: type});
+  };
+  opts = $.extend({ isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
+  return makeComputedAttribute(type, opts);
 };
 
 /*
@@ -147,32 +174,30 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     // check if a custom key was configured for this property
     if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[formattedProp]) {
       formattedProp = modelConfig.propertyKeys[formattedProp];
-    } else if(get(resource, formattedProp) === undefined) {
-      // If the json contains a key not defined on the model, don't attempt to set it.
-      return;
     }
-    var attrMap = get(resource.constructor, 'attributeMap'),
-        attr = attrMap[formattedProp],
-        attrType = attr.get('type');
+
+    var fields = get(resource.constructor, 'fields'),
+        field = fields.get(formattedProp);
+
+    // If the json contains a key not defined on the model, don't attempt to set it.
+    if (!field) { return; }
 
     // If property is a hasMany relationship, deserialze the array
-    if(attr.get('hasMany')) {
-      var hasManyArr = this.deserializeMany(resource.get(formattedProp), attrType, value);
+    if (field.hasMany) {
+      var hasManyArr = this.deserializeMany(resource.get(formattedProp), field.type, value);
       resource.set(formattedProp, hasManyArr);
     } 
     // If property is a belongsTo relationship, deserialze that model
-    else if(attr.get('belongsTo')) {
-      var belongsToModel = get(Ember.lookup, attrType).create();
+    else if (field.belongsTo) {
+      var belongsToModel = get(Ember.lookup, field.type).create({ isNew: false });
       this.deserialize(belongsToModel, value);
       resource.set(formattedProp, belongsToModel);
-      Ember.run.next(function() {
-        belongsToModel.set('isLoaded', true);
-      });
+      belongsToModel.set('isLoaded', true);
     }
     else {
       // Check for a custom transform
-      if(attrType && RESTless.JSONTransforms[attrType]) {
-        value = RESTless.JSONTransforms[attrType].deserialize(value);
+      if (field.type && RESTless.JSONTransforms[field.type]) {
+        value = RESTless.JSONTransforms[field.type].deserialize(value);
       }
       resource.set(formattedProp, value);
     }
@@ -203,15 +228,15 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       resource = RESTless.RecordArray.createWithContent({type: type});
     }
     for(i=0; i<len; i++) {
-      item = get(Ember.lookup, type).create().deserialize(data[i]);
+      item = get(Ember.lookup, type).create({ isNew: false }).deserialize(data[i]);
       resourceArr.push(item);
     }
     if(resourceArr.length) {
       resource.pushObjects(resourceArr);
     }
-    Ember.run.next(function() {
-      resource.set('isLoaded', true);
-    });
+
+    resource.set('isLoaded', true);
+
     return resource;
   },
 
@@ -220,38 +245,41 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    */
   serialize: function(resource) {
     var key = this._keyForResource(resource),
-        attrMap = get(resource.constructor, 'attributeMap'),
-        json = {}, attr, val;
+        fields = get(resource.constructor, 'fields'),
+        json = {},
+        self = this;
 
     json[key] = {};
-    for(attr in attrMap) {
+    fields.forEach(function(field, opts) {
       //Don't include readOnly properties or to-one relationships
-      if (attrMap.hasOwnProperty(attr) && !attrMap[attr].get('readOnly') && !attrMap[attr].get('belongsTo')) {
-        val = this.serializeProperty(resource, attr);
+      if (!opts.readOnly && !opts.belongsTo) {
+        var val = self.serializeProperty(resource, field, opts);
         if(val !== null) {
           json[key][this.keyForAttributeName(attr)] = val;
         }
       }
-    }  
+    });
+
     return json;
   },
 
   /* 
    * serializeProperty: transform model property into json
    */
-  serializeProperty: function(resource, prop) {
-    var value = resource.get(prop),
-        attrMap = get(resource.constructor, 'attributeMap'),
-        attr = attrMap[prop],
-        attrType = attr.get('type');
+  serializeProperty: function(resource, prop, opts) {
+    var value = resource.get(prop);
 
-    if(attr.get('hasMany')) {
-      return this.serializeMany(value.get('content'), attrType);
+    if (!opts) {
+      opts = resource.constructor.metaForProperty(prop);
+    }
+
+    if (opts.hasMany) {
+      return this.serializeMany(value.get('content'), opts.type);
     }
 
     //Check for a custom transform
-    if(attrType && RESTless.JSONTransforms[attrType]) {
-      value = RESTless.JSONTransforms[attrType].serialize(value);
+    if(opts.type && RESTless.JSONTransforms[opts.type]) {
+      value = RESTless.JSONTransforms[opts.type].serialize(value);
     }
     return value;
   },
@@ -540,7 +568,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   },
 
   findAll: function(model, params) {
-    var resourceInstance = model.create(),
+    var resourceInstance = model.create({ isNew: false }),
         result = RESTless.RecordArray.createWithContent({ type: model.toString() }),
         findRequest = this.request(resourceInstance, { type: 'GET', data: params });
 
@@ -559,7 +587,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   },
 
   findByKey: function(model, key) {
-    var result = model.create(),
+    var result = model.create({ isNew: false }),
         findRequest = this.request(result, { type: 'GET' }, key);
 
     findRequest.done(function(data){
@@ -701,6 +729,59 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
  * Base model class
  */
 RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
+
+  /*
+   * _data: (private) Stores raw model data. Don't use directly; use declared
+   * model attributes.
+   */
+  __data: null,
+  _data: Ember.computed(function() {
+    if (!this.__data) { this.__data = {}; }
+    return this.__data;
+  }),
+
+  /* 
+   * didDefineProperty: (private)
+   * Hook to add observers for each attribute/relationship for 'isDirty' functionality
+   */
+  didDefineProperty: function(proto, key, value) {
+    if (value instanceof Ember.Descriptor) {
+      var meta = value.meta();
+
+      if (meta.isRelationship) {
+        // If a relationship's property becomes dirty, need to mark owner as dirty.
+        Ember.addObserver(proto, key + '.isDirty', null, '_onRelationshipChange');
+      }
+    }
+  },
+
+  /* 
+   * _onPropertyChange: (private) called when any property of the model changes
+   * If the model has been loaded, or is new, isDirty flag is set to true.
+   */
+  _onPropertyChange: function(key) {
+    var isNew = this.get('isNew');
+
+    // No longer a new record once a primary key is assigned.
+    if (isNew && get(this.constructor, 'primaryKey') === key) {
+      this.set('isNew', false);
+      isNew = false;
+    }
+
+    if (isNew || this.get('isLoaded')) {
+      this.set('isDirty', true);
+    }
+  },
+  /* 
+   * _onRelationshipChange: (private) called when a relationship property's isDirty state changes
+   * Forwards a _onPropertyChange event for the parent object
+   */
+  _onRelationshipChange: function(sender, key) {
+    if(sender.get(key)) { // if isDirty
+      this._onPropertyChange(key);
+    }
+  },
+
   /* 
    * id: unique id number, default primary id
    */
@@ -712,105 +793,25 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
    */
   isNew: true,
 
-  /* 
-   * init: on instance creation
-   */
-  init: function() {
-    this._initRelationships();
-    this._observePrimaryKey(true);
-    this._addPropertyObservers();
-  },
-
   /*
-   * _observePrimaryKey: (private) add or remove the primary key observer
-   */
-  _observePrimaryKey: function(add) {
-    var observerMethod = add ? this.addObserver : this.removeObserver,
-        key = get(this.constructor, 'primaryKey');
-    observerMethod.call(this, key, this, this._onPrimaryKeySet);
-  },
-  /* 
-   * _onPrimaryKeySet: (private) primary key observer handler
-   * Sets 'isNew' property to false if a primary value is set
-   */
-  _onPrimaryKeySet: function(sender, key) {
-    if(!none(sender.get(key))) {
-      this.set('isNew', false);
-      this._observePrimaryKey(false);
-    }
-  },
-
-  /* 
-   * _initRelationships: (private) init arrays for hasMany props, or models for belongsTo props
-   */
-  _initRelationships: function() {
-    var attributeMap = get(this.constructor, 'attributeMap'), attr;
-    for(attr in attributeMap) {
-      if (attributeMap.hasOwnProperty(attr)) {
-        if(attributeMap[attr].get('hasMany')) {
-          this.set(attr, RESTless.RecordArray.createWithContent({type: attributeMap[attr].get('type')}));
-        } else if(attributeMap[attr].get('belongsTo')) {
-          this.set(attr, get(window, attributeMap[attr].get('type')).create());
-        }
-      }
-    }
-  },
-
-  /* 
-   * _addPropertyObservers: (private)
-   * adds observers for each property for 'isDirty' functionality
-   */
-  _addPropertyObservers: function() {
-    var attributeMap = get(this.constructor, 'attributeMap'), attr;
-    // Start observing *all* property changes for 'isDirty' functionality
-    for(attr in attributeMap) {
-      if (attributeMap.hasOwnProperty(attr)) {
-        if(attributeMap[attr].get('isRelationship')) {
-          // if a relationship property becomes dirty, need to mark its owner as dirty
-          this.addObserver(attr+'.isDirty', this, this._onRelationshipChange);
-        } else {
-          this.addObserver(attr, this, this._onPropertyChange);
-        }
-      }
-    }
-  },
-
-  /* 
-   * _onPropertyChange: (private) called when any property of the model changes
-   * If the model has been loaded, or is new, isDirty flag is set to true.
-   */
-  _onPropertyChange: function() {
-    if(this.get('isLoaded') || this.get('isNew')) {
-      this.set('isDirty', true);
-    }
-  },
-  /* 
-   * _onRelationshipChange: (private) called when a relationship property's isDirty state changes
-   * Forwards a _onPropertyChange event for the parent object
-   */
-  _onRelationshipChange: function(sender, key) {
-    if(sender.get(key)) { // if isDirty
-      this._onPropertyChange();
-    }
-  },
-
-  /* 
    * copy: creates a copy of the object. Implements Ember.Copyable protocol
    * http://emberjs.com/api/classes/Ember.Copyable.html#method_copy
    */
   copy: function(deep) {
     var clone = this.constructor.create(),
-        attributeMap = get(this.constructor, 'attributeMap'),
-        attr, value;
+        fields = get(this.constructor, 'fields'),
+        self = this;
 
     Ember.beginPropertyChanges(this);
-    for(attr in attributeMap) {
-      if(attributeMap.hasOwnProperty(attr)) {
-        value = this.get(attr);
-        if(value !== null) { clone.set(attr, value); }
+    fields.forEach(function(field, opts) {
+      var value = self.get(field);
+
+      if (value !== null) {
+        clone.set(attr, value);
       }
-    }
+    });
     Ember.endPropertyChanges(this);
+
     return clone;
   },
   /* 
@@ -874,20 +875,19 @@ RESTless.Model.reopenClass({
   }.property(),
 
   /*
-   * attributeMap: stores all of the RESTless Attribute definitions.
-   * This should be pre-fetched before attemping to get/set properties on the model object. (called in init)
+   * fields: meta information for all attributes and relationships
    */
-  attributeMap: function() {
-    var proto = this.prototype,
-        attributeMap = {}, key;
-    for(key in proto) {
-      if(proto[key] instanceof RESTless._Attribute) {
-        attributeMap[key] = proto[key];
-        this.prototype[key] = null; //clear the prototype after collection
+  fields: Ember.computed(function() {
+    var map = Ember.Map.create();
+
+    this.eachComputedProperty(function(name, meta) {
+      if (meta.isAttribute || meta.isRelationship) {
+        map.set(name, meta);
       }
-    }
-    return attributeMap;
-  }.property(),
+    });
+
+    return map;
+  }),
 
   /*
    * find: get a model with specified param. Optionally also alias to handle findAll
@@ -960,14 +960,16 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
   },
 
   /*
-   * _onContentChange: (private) observes when items in the array are changed.
-   * Marks the RecordArray as dirty if loaded.
+   * replaceContent: Changes array contents. Overriden to mark RecordArray as
+   * dirty if loaded.
    */
-  _onContentChange: function() {
-    if(this.get('isLoaded')) {
+  replaceContent: function(idx, amt, objects) {
+    get(this, 'content').replace(idx, amt, objects);
+    if (this.get('isLoaded')) {
       this.set('isDirty', true);
     }
-  }.observes('@each'),
+  },
+
   /*
    * _onItemDirtyChange: (private) observes when items become dirty
    */
@@ -1007,18 +1009,13 @@ RESTless.RecordArray.reopenClass({
  * Helps improve performance when write functionality is not needed.
  */
 RESTless.ReadOnlyModel = RESTless.Model.extend({
-  /* 
-   * init: for read-only models, we don't need to _addPropertyObservers 
-   */
-  init: function() {
-    this._initRelationships();
-  },
   /*
    * Remove functionality associated with writing data
    */
   serialize: null,
   saveRecord: null,
-  deleteRecord: null
+  deleteRecord: null,
+  didDefineProperty: null
 });
 
 /**

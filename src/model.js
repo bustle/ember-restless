@@ -3,6 +3,59 @@
  * Base model class
  */
 RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
+
+  /*
+   * _data: (private) Stores raw model data. Don't use directly; use declared
+   * model attributes.
+   */
+  __data: null,
+  _data: Ember.computed(function() {
+    if (!this.__data) { this.__data = {}; }
+    return this.__data;
+  }),
+
+  /* 
+   * didDefineProperty: (private)
+   * Hook to add observers for each attribute/relationship for 'isDirty' functionality
+   */
+  didDefineProperty: function(proto, key, value) {
+    if (value instanceof Ember.Descriptor) {
+      var meta = value.meta();
+
+      if (meta.isRelationship) {
+        // If a relationship's property becomes dirty, need to mark owner as dirty.
+        Ember.addObserver(proto, key + '.isDirty', null, '_onRelationshipChange');
+      }
+    }
+  },
+
+  /* 
+   * _onPropertyChange: (private) called when any property of the model changes
+   * If the model has been loaded, or is new, isDirty flag is set to true.
+   */
+  _onPropertyChange: function(key) {
+    var isNew = this.get('isNew');
+
+    // No longer a new record once a primary key is assigned.
+    if (isNew && get(this.constructor, 'primaryKey') === key) {
+      this.set('isNew', false);
+      isNew = false;
+    }
+
+    if (isNew || this.get('isLoaded')) {
+      this.set('isDirty', true);
+    }
+  },
+  /* 
+   * _onRelationshipChange: (private) called when a relationship property's isDirty state changes
+   * Forwards a _onPropertyChange event for the parent object
+   */
+  _onRelationshipChange: function(sender, key) {
+    if(sender.get(key)) { // if isDirty
+      this._onPropertyChange(key);
+    }
+  },
+
   /* 
    * id: unique id number, default primary id
    */
@@ -14,105 +67,25 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
    */
   isNew: true,
 
-  /* 
-   * init: on instance creation
-   */
-  init: function() {
-    this._initRelationships();
-    this._observePrimaryKey(true);
-    this._addPropertyObservers();
-  },
-
   /*
-   * _observePrimaryKey: (private) add or remove the primary key observer
-   */
-  _observePrimaryKey: function(add) {
-    var observerMethod = add ? this.addObserver : this.removeObserver,
-        key = get(this.constructor, 'primaryKey');
-    observerMethod.call(this, key, this, this._onPrimaryKeySet);
-  },
-  /* 
-   * _onPrimaryKeySet: (private) primary key observer handler
-   * Sets 'isNew' property to false if a primary value is set
-   */
-  _onPrimaryKeySet: function(sender, key) {
-    if(!none(sender.get(key))) {
-      this.set('isNew', false);
-      this._observePrimaryKey(false);
-    }
-  },
-
-  /* 
-   * _initRelationships: (private) init arrays for hasMany props, or models for belongsTo props
-   */
-  _initRelationships: function() {
-    var attributeMap = get(this.constructor, 'attributeMap'), attr;
-    for(attr in attributeMap) {
-      if (attributeMap.hasOwnProperty(attr)) {
-        if(attributeMap[attr].get('hasMany')) {
-          this.set(attr, RESTless.RecordArray.createWithContent({type: attributeMap[attr].get('type')}));
-        } else if(attributeMap[attr].get('belongsTo')) {
-          this.set(attr, get(window, attributeMap[attr].get('type')).create());
-        }
-      }
-    }
-  },
-
-  /* 
-   * _addPropertyObservers: (private)
-   * adds observers for each property for 'isDirty' functionality
-   */
-  _addPropertyObservers: function() {
-    var attributeMap = get(this.constructor, 'attributeMap'), attr;
-    // Start observing *all* property changes for 'isDirty' functionality
-    for(attr in attributeMap) {
-      if (attributeMap.hasOwnProperty(attr)) {
-        if(attributeMap[attr].get('isRelationship')) {
-          // if a relationship property becomes dirty, need to mark its owner as dirty
-          this.addObserver(attr+'.isDirty', this, this._onRelationshipChange);
-        } else {
-          this.addObserver(attr, this, this._onPropertyChange);
-        }
-      }
-    }
-  },
-
-  /* 
-   * _onPropertyChange: (private) called when any property of the model changes
-   * If the model has been loaded, or is new, isDirty flag is set to true.
-   */
-  _onPropertyChange: function() {
-    if(this.get('isLoaded') || this.get('isNew')) {
-      this.set('isDirty', true);
-    }
-  },
-  /* 
-   * _onRelationshipChange: (private) called when a relationship property's isDirty state changes
-   * Forwards a _onPropertyChange event for the parent object
-   */
-  _onRelationshipChange: function(sender, key) {
-    if(sender.get(key)) { // if isDirty
-      this._onPropertyChange();
-    }
-  },
-
-  /* 
    * copy: creates a copy of the object. Implements Ember.Copyable protocol
    * http://emberjs.com/api/classes/Ember.Copyable.html#method_copy
    */
   copy: function(deep) {
     var clone = this.constructor.create(),
-        attributeMap = get(this.constructor, 'attributeMap'),
-        attr, value;
+        fields = get(this.constructor, 'fields'),
+        self = this;
 
     Ember.beginPropertyChanges(this);
-    for(attr in attributeMap) {
-      if(attributeMap.hasOwnProperty(attr)) {
-        value = this.get(attr);
-        if(value !== null) { clone.set(attr, value); }
+    fields.forEach(function(field, opts) {
+      var value = self.get(field);
+
+      if (value !== null) {
+        clone.set(attr, value);
       }
-    }
+    });
     Ember.endPropertyChanges(this);
+
     return clone;
   },
   /* 
@@ -176,20 +149,19 @@ RESTless.Model.reopenClass({
   }.property(),
 
   /*
-   * attributeMap: stores all of the RESTless Attribute definitions.
-   * This should be pre-fetched before attemping to get/set properties on the model object. (called in init)
+   * fields: meta information for all attributes and relationships
    */
-  attributeMap: function() {
-    var proto = this.prototype,
-        attributeMap = {}, key;
-    for(key in proto) {
-      if(proto[key] instanceof RESTless._Attribute) {
-        attributeMap[key] = proto[key];
-        this.prototype[key] = null; //clear the prototype after collection
+  fields: Ember.computed(function() {
+    var map = Ember.Map.create();
+
+    this.eachComputedProperty(function(name, meta) {
+      if (meta.isAttribute || meta.isRelationship) {
+        map.set(name, meta);
       }
-    }
-    return attributeMap;
-  }.property(),
+    });
+
+    return map;
+  }),
 
   /*
    * find: get a model with specified param. Optionally also alias to handle findAll
