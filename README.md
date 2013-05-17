@@ -325,3 +325,13 @@ Tests are currently a work in progress.
 ## Example App
 
 Coming soon.
+
+
+## Contributors
+
+Thanks to the Ember core team and contributors for creating Ember and Ember Data.  
+Special thanks to the following for creating & contributing to the ember-restless project:
+
+- [Garth Poitras](https://github.com/gdub22) | [twitter](https://twitter.com/papapoitch)
+- [Tyler Love](https://github.com/tylr)
+- [Gopal Patel](https://github.com/nixme)
