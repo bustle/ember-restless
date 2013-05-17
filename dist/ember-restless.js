@@ -2,7 +2,7 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.2.1
+ * version: 0.2.2
  * last modifed: 2013-05-17
  *
  * Garth Poitras <garth22@gmail.com>
@@ -27,7 +27,7 @@ if (RESTless === undefined) {
    * Track version and API revision number.
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.2.1',
+    VERSION: '0.2.2',
     CURRENT_API_REVISION: 2
   });
 
@@ -246,19 +246,18 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   serialize: function(resource) {
     var key = this._keyForResource(resource),
         fields = get(resource.constructor, 'fields'),
-        json = {},
-        self = this;
+        json = {};
 
     json[key] = {};
     fields.forEach(function(field, opts) {
       //Don't include readOnly properties or to-one relationships
       if (!opts.readOnly && !opts.belongsTo) {
-        var val = self.serializeProperty(resource, field, opts);
+        var val = this.serializeProperty(resource, field, opts);
         if(val !== null) {
-          json[key][this.keyForAttributeName(attr)] = val;
+          json[key][this.keyForAttributeName(field)] = val;
         }
       }
-    });
+    }, this);
 
     return json;
   },

@@ -110,19 +110,18 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   serialize: function(resource) {
     var key = this._keyForResource(resource),
         fields = get(resource.constructor, 'fields'),
-        json = {},
-        self = this;
+        json = {};
 
     json[key] = {};
     fields.forEach(function(field, opts) {
       //Don't include readOnly properties or to-one relationships
       if (!opts.readOnly && !opts.belongsTo) {
-        var val = self.serializeProperty(resource, field, opts);
+        var val = this.serializeProperty(resource, field, opts);
         if(val !== null) {
-          json[key][this.keyForAttributeName(attr)] = val;
+          json[key][this.keyForAttributeName(field)] = val;
         }
       }
-    });
+    }, this);
 
     return json;
   },
