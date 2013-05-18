@@ -704,9 +704,9 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
   /* 
    * _triggerEvent: (private) helper method to trigger lifecycle events
    */
-  _triggerEvent: function(name, data) {
+  _triggerEvent: function(name) {
     Ember.run(this, function() {
-      this.trigger(name, data);
+      this.trigger(name, this);
     });
   },
 
