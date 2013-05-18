@@ -52,17 +52,5 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
     Ember.run(this, function() {
       this.trigger(name, this);
     });
-  },
-
-  /* 
-   * _onError: (private) helper method for handling error responses
-   * Parses error json, sets error properties, and triggers error events
-   * TODO: Move to REST/JSON only implementation
-   */
-  _onError: function(errorResponse) {
-    var errorJson;
-    try { errorJson = $.parseJSON(errorResponse); } catch(e){}
-    this.setProperties({ 'isError': true, 'errors': errorJson });
-    this._triggerEvent('becameError', this.get('errors'));
   }
 });

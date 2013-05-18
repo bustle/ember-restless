@@ -86,7 +86,8 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
 
     var isNew = record.get('isNew'), // purposely cache value for triggering correct event later
         method = isNew ? 'POST' : 'PUT',
-        saveRequest = this.request(record, { type: method, data: record.serialize() });
+        saveRequest = this.request(record, { type: method, data: record.serialize() }),
+        self = this;
 
     saveRequest.done(function(data){
       if (data) {    // 204 No Content responses send no body
@@ -97,7 +98,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
       record._triggerEvent(isNew ? 'didCreate' : 'didUpdate');
     })
     .fail(function(jqxhr) {
-      record._onError(jqxhr.responseText);
+      self._onError(record, jqxhr.responseText);
     })
     .always(function() {
       record.set('isSaving', false);
@@ -108,14 +109,15 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   },
 
   deleteRecord: function(record) {
-    var deleteRequest = this.request(record, { type: 'DELETE', data: record.serialize() });
+    var deleteRequest = this.request(record, { type: 'DELETE', data: record.serialize() }),
+        self = this;
 
     deleteRequest.done(function(){
       record._triggerEvent('didDelete');
       record.destroy();
     })
     .fail(function(jqxhr) {
-      record._onError(jqxhr.responseText);
+      self._onError(record, jqxhr.responseText);
     });
     return deleteRequest;
   },
@@ -142,7 +144,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
       result.clearErrors();
     })
     .fail(function(jqxhr) {
-      result._onError(jqxhr.responseText);
+      self._onError(result, jqxhr.responseText);
     })
     .always(function() {
       result.set('isLoaded', true);
@@ -153,14 +155,15 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
 
   findByKey: function(model, key) {
     var result = model.create({ isNew: false }),
-        findRequest = this.request(result, { type: 'GET' }, key);
+        findRequest = this.request(result, { type: 'GET' }, key),
+        self = this;
 
     findRequest.done(function(data){
       result.deserialize(data);
       result.clearErrors();
     })
     .fail(function(jqxhr) {
-      result._onError(jqxhr.responseText);
+      self._onError(result, jqxhr.responseText);
     })
     .always(function() {
       result.set('isLoaded', true);
@@ -174,5 +177,16 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
    */
   registerTransform: function(type, transform) {
     this.get('serializer').registerTransform(type, transform);
+  },
+
+  /* 
+   * _onError: (private) helper method for handling error responses
+   * Parses error json, sets error properties, and triggers error events
+   */
+  _onError: function(model, errorResponse) {
+    var errorData = null;
+    try { errorData = $.parseJSON(errorResponse); } catch(e){}
+    model.setProperties({ 'isError': true, 'errors': errorData });
+    model._triggerEvent('becameError');
   }
 });
