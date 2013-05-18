@@ -13,7 +13,7 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
    */
   createItem:function(opts) {
     var type = this.get('type'),
-        itemClass = type ? get(window, type) : Ember.Object;
+        itemClass = type ? get(Ember.lookup, type) : Ember.Object;
     this.pushObject(itemClass.create(opts));
   },
 
