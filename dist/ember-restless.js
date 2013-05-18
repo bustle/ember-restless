@@ -168,7 +168,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    * deserializeProperty: sets model object properties from json
    */
   deserializeProperty: function(resource, prop, value) {
-    var formattedProp = prop.camelize(),
+    var formattedProp = Ember.String.camelize(prop),
           modelConfig = get(RESTless, 'client._modelConfigs').get(resource.constructor.toString());
  
     // check if a custom key was configured for this property
@@ -456,7 +456,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   /*
    * rootPath: computed path based on url and namespace
    */
-  rootPath: function() {
+  rootPath: Ember.computed(function() {
     var a = document.createElement('a'),
         url = this.get('url'),
         ns = this.get('namespace'),
@@ -467,14 +467,14 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
       a.pathname = rootReset ? ns : (a.pathname + ns);
     }
     return a.href;
-  }.property('url', 'namespace'),
+  }).property('url', 'namespace'),
 
   /*
    * resourcePath: helper method creates a valid REST path to a resource
    * App.Post => 'posts',  App.PostGroup => 'post_groups'
    */
   resourcePath: function(resourceName) {
-    return this.pluralize(resourceName).decamelize();
+    return Ember.String.decamelize(this.pluralize(resourceName));
   },
 
   /*
@@ -855,23 +855,23 @@ RESTless.Model.reopenClass({
    * primaryKey: property name for the primary key.
    * Configurable. Defaults to 'id'.
    */
-  primaryKey: function() {
+  primaryKey: Ember.computed(function() {
     var className = this.toString(),
         modelConfig = get(RESTless, 'client._modelConfigs').get(className);
     if(modelConfig && modelConfig.primaryKey) {
       return modelConfig.primaryKey;
     }
     return 'id';
-  }.property('RESTless.client._modelConfigs'),
+  }).property('RESTless.client._modelConfigs'),
 
   /*
    * resourceName: helper to extract name of model subclass
    * App.Post => 'Post', App.PostGroup => 'PostGroup', App.AnotherNamespace.Post => 'Post'
    */
-  resourceName: function() {
+  resourceName: Ember.computed(function() {
     var classNameParts = this.toString().split('.');
     return classNameParts[classNameParts.length-1];
-  }.property(),
+  }),
 
   /*
    * fields: meta information for all attributes and relationships
@@ -941,7 +941,7 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
    */
   createItem:function(opts) {
     var type = this.get('type'),
-        itemClass = type ? get(window, type) : Ember.Object;
+        itemClass = type ? get(Ember.lookup, type) : Ember.Object;
     this.pushObject(itemClass.create(opts));
   },
 
@@ -972,21 +972,21 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
   /*
    * _onItemDirtyChange: (private) observes when items become dirty
    */
-  _onItemDirtyChange: function() {
+  _onItemDirtyChange: Ember.observer(function() {
     var clean = this.get('content').everyProperty('isDirty', false);
     if(this.get('isLoaded') && !clean) {
       this.set('isDirty', true);
     }
-  }.observes('@each.isDirty'),
+  }, '@each.isDirty'),
   /*
    * _onLoadedChange: (private) observes when the array's isLoaded state changes
    * and updates each item's isLoaded to match
    */
-  _onLoadedChange: function() {
+  _onLoadedChange: Ember.observer(function() {
     if(this.get('isLoaded')) {
       this.setEach('isLoaded', true);
     }
-  }.observes('isLoaded')
+  }, 'isLoaded')
 });
 
 /*

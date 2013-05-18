@@ -32,7 +32,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    * deserializeProperty: sets model object properties from json
    */
   deserializeProperty: function(resource, prop, value) {
-    var formattedProp = prop.camelize(),
+    var formattedProp = Ember.String.camelize(prop),
           modelConfig = get(RESTless, 'client._modelConfigs').get(resource.constructor.toString());
  
     // check if a custom key was configured for this property
