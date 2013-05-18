@@ -22,7 +22,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   /*
    * rootPath: computed path based on url and namespace
    */
-  rootPath: function() {
+  rootPath: Ember.computed(function() {
     var a = document.createElement('a'),
         url = this.get('url'),
         ns = this.get('namespace'),
@@ -33,14 +33,14 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
       a.pathname = rootReset ? ns : (a.pathname + ns);
     }
     return a.href;
-  }.property('url', 'namespace'),
+  }).property('url', 'namespace'),
 
   /*
    * resourcePath: helper method creates a valid REST path to a resource
    * App.Post => 'posts',  App.PostGroup => 'post_groups'
    */
   resourcePath: function(resourceName) {
-    return this.pluralize(resourceName).decamelize();
+    return Ember.String.decamelize(this.pluralize(resourceName));
   },
 
   /*

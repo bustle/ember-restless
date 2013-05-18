@@ -130,23 +130,23 @@ RESTless.Model.reopenClass({
    * primaryKey: property name for the primary key.
    * Configurable. Defaults to 'id'.
    */
-  primaryKey: function() {
+  primaryKey: Ember.computed(function() {
     var className = this.toString(),
         modelConfig = get(RESTless, 'client._modelConfigs').get(className);
     if(modelConfig && modelConfig.primaryKey) {
       return modelConfig.primaryKey;
     }
     return 'id';
-  }.property('RESTless.client._modelConfigs'),
+  }).property('RESTless.client._modelConfigs'),
 
   /*
    * resourceName: helper to extract name of model subclass
    * App.Post => 'Post', App.PostGroup => 'PostGroup', App.AnotherNamespace.Post => 'Post'
    */
-  resourceName: function() {
+  resourceName: Ember.computed(function() {
     var classNameParts = this.toString().split('.');
     return classNameParts[classNameParts.length-1];
-  }.property(),
+  }),
 
   /*
    * fields: meta information for all attributes and relationships

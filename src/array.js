@@ -44,21 +44,21 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
   /*
    * _onItemDirtyChange: (private) observes when items become dirty
    */
-  _onItemDirtyChange: function() {
+  _onItemDirtyChange: Ember.observer(function() {
     var clean = this.get('content').everyProperty('isDirty', false);
     if(this.get('isLoaded') && !clean) {
       this.set('isDirty', true);
     }
-  }.observes('@each.isDirty'),
+  }, '@each.isDirty'),
   /*
    * _onLoadedChange: (private) observes when the array's isLoaded state changes
    * and updates each item's isLoaded to match
    */
-  _onLoadedChange: function() {
+  _onLoadedChange: Ember.observer(function() {
     if(this.get('isLoaded')) {
       this.setEach('isLoaded', true);
     }
-  }.observes('isLoaded')
+  }, 'isLoaded')
 });
 
 /*
