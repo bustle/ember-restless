@@ -137,7 +137,8 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   findAll: function(model, params) {
     var resourceInstance = model.create({ isNew: false }),
         result = RESTless.RecordArray.createWithContent({ type: model.toString() }),
-        findRequest = this.request(resourceInstance, { type: 'GET', data: params });
+        findRequest = this.request(resourceInstance, { type: 'GET', data: params }),
+        self = this;
 
     findRequest.done(function(data){
       result.deserializeMany(data);

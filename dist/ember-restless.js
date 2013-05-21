@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.2
- * last modifed: 2013-05-17
+ * last modifed: 2013-05-21
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -571,7 +571,8 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   findAll: function(model, params) {
     var resourceInstance = model.create({ isNew: false }),
         result = RESTless.RecordArray.createWithContent({ type: model.toString() }),
-        findRequest = this.request(resourceInstance, { type: 'GET', data: params });
+        findRequest = this.request(resourceInstance, { type: 'GET', data: params }),
+        self = this;
 
     findRequest.done(function(data){
       result.deserializeMany(data);
