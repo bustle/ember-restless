@@ -10,6 +10,16 @@ test('no longer new once a primary key is assigned', function() {
   ok( !post.get('isNew'), 'models with a primary key are not new' );
 });
 
+/*
+// Failing test
+test('new models are not dirty', function() {
+  var post = App.Post.create();
+  ok( !post.get('isDirty'), 'new models are not dirty' );
+
+  var post2 = App.Post.create({ title: 'Title' });
+  ok( !post2.get('isDirty'), 'new models with properties are not dirty' );
+});
+*/
 
 test('becomes dirty when changing a value', function() {
   var post = App.Post.create();
