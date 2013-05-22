@@ -40,65 +40,62 @@ if (RESTless === undefined) {
   }
 }
 
-var attributeDefaults = {
-  readOnly: false,
-  belongsTo: false,
-  hasMany: false,
-  isAttribute: false,
-  isRelationship: false
-};
+/*
+ * Attributes
+ * Model property definitions
+ */
 
-function makeComputedAttribute(type, opts) {
-  opts = $.extend({}, attributeDefaults, { type: type }, opts);
-
-  return Ember.computed(function(key, value) {
-    var data = this.get('_data');
-
-    if (arguments.length === 1) {       // Getter
-      value = data[key];
-
-      if (value === undefined) {        // Default values
-        if (typeof opts.defaultValue === 'function') {
-          value = opts.defaultValue();
-        } else {
-          value = opts.defaultValue;
-        }
-        data[key] = value;
-      }
-    } else if (value !== data[key]) {   // Setter
-      data[key] = value;
-      if (!opts.readOnly) {
-        this._onPropertyChange(key);
-      }
-    }
-
-    return value;
-  }).property('_data').meta(opts);
-}
-
-// Standard property
+// Standard attribute
 RESTless.attr = function(type, opts) {
-  opts = $.extend({ isAttribute: true }, opts);
-  return makeComputedAttribute(type, opts);
+  var meta = $.extend({ type: type, isAttribute: true }, opts);
+  return makeComputedAttribute(meta);
 };
 
-// belongsTo: One-to-one relationship between two models
+// belongsTo: One-to-one relationships
 RESTless.belongsTo = function(type, opts) {
   var defaultRecord = function() {
     return get(Ember.lookup, type).create();
-  };
-  opts = $.extend({ isRelationship: true, belongsTo: true, defaultValue: defaultRecord }, opts);
-  return makeComputedAttribute(type, opts);
+  },
+  meta = $.extend({ type: type, isRelationship: true, belongsTo: true, defaultValue: defaultRecord }, opts);
+  return makeComputedAttribute(meta);
 };
 
 // hasMany: One-to-many & many-to-many relationships
 RESTless.hasMany = function(type, opts) {
   var defaultArray = function() {
     return RESTless.RecordArray.createWithContent({type: type});
-  };
-  opts = $.extend({ isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
-  return makeComputedAttribute(type, opts);
+  },
+  meta = $.extend({ type: type, isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
+  return makeComputedAttribute(meta);
 };
+
+function makeComputedAttribute(meta) {
+  return Ember.computed(function(key, value) {
+    var data = this.get('_data');
+    // Getter
+    if (arguments.length === 1) {
+      value = data[key];
+
+      if (value === undefined) { 
+        // Default values
+        if (typeof meta.defaultValue === 'function') {
+          value = meta.defaultValue();
+        } else {
+          value = meta.defaultValue;
+        }
+        data[key] = value;
+      }
+    }
+    // Setter 
+    else if (value !== data[key]) {
+      data[key] = value;
+      if (!meta.readOnly) {
+        this._onPropertyChange(key);
+      }
+    }
+    return value;
+  }).property('_data').meta(meta);
+}
 
 /*
  * Serializer
@@ -637,7 +634,6 @@ RESTless.Client = Ember.Object.extend({
   adapter: RESTless.RESTAdapter.create(),
   // Private shortcut aliases:
   _configs: Ember.computed.alias('adapter.configurations'),
-  _pluralConfigs: Ember.computed.alias('adapter.configurations.plurals'),
   _modelConfigs: Ember.computed.alias('adapter.configurations.models')
 });
 
@@ -908,24 +904,16 @@ RESTless.Model.reopenClass({
    * load: Create model directly from data representation.
    */
   load: function(data) {
-    var result = this.create();
-
-    result.deserialize(data);
-    result.set('isLoaded', true);
-
-    return result;
+    return this.create().deserialize(data).set('isLoaded', true);
   },
 
   /*
    * loadMany: Create collection of records directly from data representation.
    */
   loadMany: function(data) {
-    var result = RESTless.RecordArray.createWithContent({ type: this.toString() });
-
-    result.deserializeMany(data);
-    result.set('isLoaded', true);
-
-    return result;
+    return RESTless.RecordArray.createWithContent({ type: this.toString() })
+            .deserializeMany(data)
+            .set('isLoaded', true);
   }
 });
 

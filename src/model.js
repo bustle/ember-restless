@@ -180,23 +180,15 @@ RESTless.Model.reopenClass({
    * load: Create model directly from data representation.
    */
   load: function(data) {
-    var result = this.create();
-
-    result.deserialize(data);
-    result.set('isLoaded', true);
-
-    return result;
+    return this.create().deserialize(data).set('isLoaded', true);
   },
 
   /*
    * loadMany: Create collection of records directly from data representation.
    */
   loadMany: function(data) {
-    var result = RESTless.RecordArray.createWithContent({ type: this.toString() });
-
-    result.deserializeMany(data);
-    result.set('isLoaded', true);
-
-    return result;
+    return RESTless.RecordArray.createWithContent({ type: this.toString() })
+            .deserializeMany(data)
+            .set('isLoaded', true);
   }
 });

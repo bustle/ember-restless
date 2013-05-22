@@ -9,7 +9,6 @@ RESTless.Client = Ember.Object.extend({
   adapter: RESTless.RESTAdapter.create(),
   // Private shortcut aliases:
   _configs: Ember.computed.alias('adapter.configurations'),
-  _pluralConfigs: Ember.computed.alias('adapter.configurations.plurals'),
   _modelConfigs: Ember.computed.alias('adapter.configurations.models')
 });
 
