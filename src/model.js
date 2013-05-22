@@ -3,6 +3,22 @@
  * Base model class
  */
 RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
+  /* 
+   * id: unique id number, default primary id
+   */
+  id: RESTless.attr('number'),
+
+  /*
+   * isNew: model has not yet been saved.
+   * When a primary key value is set, isNew becomes false
+   */
+  isNew: true,
+
+  /*
+   * _isReady: (private) For internal state management.
+   * Model won't be dirtied when setting initial values on create() or load()
+   */
+  _isReady: false,
 
   /*
    * _data: (private) Stores raw model data. Don't use directly; use declared
@@ -42,7 +58,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
       isNew = false;
     }
 
-    if (isNew || this.get('isLoaded')) {
+    if (this.get('_isReady') && (isNew || this.get('isLoaded'))) {
       this.set('isDirty', true);
     }
   },
@@ -55,17 +71,6 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
       this._onPropertyChange(key);
     }
   },
-
-  /* 
-   * id: unique id number, default primary id
-   */
-  id: RESTless.attr('number'),
-
-  /*
-   * isNew: model has not yet been saved.
-   * Observer watches when a primary key value is set, making isNew false
-   */
-  isNew: true,
 
   /*
    * copy: creates a copy of the object. Implements Ember.Copyable protocol
@@ -124,6 +129,15 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
  * Class level properties and methods
  */
 RESTless.Model.reopenClass({
+  /*
+   * create: standard super class create, then marks _isReady state flag
+   */
+  create: function() {
+    var instance = this._super.apply(this, arguments);
+    instance.set('_isReady', true);
+    return instance;
+  },
+
   /* 
    * primaryKey: property name for the primary key.
    * Configurable. Defaults to 'id'.
@@ -178,7 +192,7 @@ RESTless.Model.reopenClass({
    * load: Create model directly from data representation.
    */
   load: function(data) {
-    return this.create().deserialize(data).set('isLoaded', true);
+    return this.create().set('_isReady', false).deserialize(data).setProperties({ _isReady: true, isLoaded: true });
   },
 
   /*

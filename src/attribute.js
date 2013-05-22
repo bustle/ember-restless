@@ -47,7 +47,7 @@ function makeComputedAttribute(meta) {
     // Setter 
     else if (value !== data[key]) {
       data[key] = value;
-      if (!meta.readOnly) {
+      if (!meta.readOnly && !RESTless.ReadOnlyModel.detectInstance(this)) {
         this._onPropertyChange(key);
       }
     }

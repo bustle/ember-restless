@@ -10,6 +10,25 @@ test('no longer new once a primary key is assigned', function() {
   ok( !post.get('isNew'), 'models with a primary key are not new' );
 });
 
+test('not new when creating with a primary id', function() {
+  var post = App.Post.create({
+    id: 1
+  });
+  ok( !post.get('isNew'), 'models with a primary key are not new' );
+
+  var post2 = App.Post.load({
+    id: 1
+  });
+  ok( !post2.get('isNew'), 'models with a primary key are not new' );
+});
+
+test('new models are not dirty', function() {
+  var post = App.Post.create();
+  ok( !post.get('isDirty'), 'new models are not dirty' );
+
+  var post2 = App.Post.create({ title: 'Title' });
+  ok( !post2.get('isDirty'), 'new models with properties are not dirty' );
+});
 
 test('becomes dirty when changing a value', function() {
   var post = App.Post.create();
@@ -19,6 +38,12 @@ test('becomes dirty when changing a value', function() {
   ok( post.get('isDirty'), 'changed models are dirty' );
 });
 
+test('use load to set data doesn\'t make it dirty', function() {
+  var post = App.Post.load({
+    title: 'Title'
+  });
+  ok( !post.get('isDirty'), 'model is not dirty' );
+});
 
 test('becomes dirty when a relationship becomes dirty', function() {
   var postGroup = App.PostGroup.load({

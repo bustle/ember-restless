@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.2
- * last modifed: 2013-05-21
+ * last modifed: 2013-05-30
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -89,7 +89,7 @@ function makeComputedAttribute(meta) {
     // Setter 
     else if (value !== data[key]) {
       data[key] = value;
-      if (!meta.readOnly) {
+      if (!meta.readOnly && !RESTless.ReadOnlyModel.detectInstance(this)) {
         this._onPropertyChange(key);
       }
     }
@@ -165,12 +165,13 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    * deserializeProperty: sets model object properties from json
    */
   deserializeProperty: function(resource, prop, value) {
-    var formattedProp = Ember.String.camelize(prop),
-          modelConfig = get(RESTless, 'client._modelConfigs').get(resource.constructor.toString());
+    var modelConfig = get(RESTless, 'client._modelConfigs').get(resource.constructor.toString()), formattedProp;
  
     // check if a custom key was configured for this property
-    if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[formattedProp]) {
-      formattedProp = modelConfig.propertyKeys[formattedProp];
+    if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[prop]) {
+      formattedProp = modelConfig.propertyKeys[prop];
+    } else {
+      formattedProp = Ember.String.camelize(prop);
     }
 
     var fields = get(resource.constructor, 'fields'),
@@ -727,6 +728,22 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
  * Base model class
  */
 RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
+  /* 
+   * id: unique id number, default primary id
+   */
+  id: RESTless.attr('number'),
+
+  /*
+   * isNew: model has not yet been saved.
+   * When a primary key value is set, isNew becomes false
+   */
+  isNew: true,
+
+  /*
+   * _isReady: (private) For internal state management.
+   * Model won't be dirtied when setting initial values on create() or load()
+   */
+  _isReady: false,
 
   /*
    * _data: (private) Stores raw model data. Don't use directly; use declared
@@ -766,7 +783,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
       isNew = false;
     }
 
-    if (isNew || this.get('isLoaded')) {
+    if (this.get('_isReady') && (isNew || this.get('isLoaded'))) {
       this.set('isDirty', true);
     }
   },
@@ -779,17 +796,6 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
       this._onPropertyChange(key);
     }
   },
-
-  /* 
-   * id: unique id number, default primary id
-   */
-  id: RESTless.attr('number'),
-
-  /*
-   * isNew: model has not yet been saved.
-   * Observer watches when a primary key value is set, making isNew false
-   */
-  isNew: true,
 
   /*
    * copy: creates a copy of the object. Implements Ember.Copyable protocol
@@ -848,6 +854,15 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
  * Class level properties and methods
  */
 RESTless.Model.reopenClass({
+  /*
+   * create: standard super class create, then marks _isReady state flag
+   */
+  create: function() {
+    var instance = this._super.apply(this, arguments);
+    instance.set('_isReady', true);
+    return instance;
+  },
+
   /* 
    * primaryKey: property name for the primary key.
    * Configurable. Defaults to 'id'.
@@ -902,7 +917,7 @@ RESTless.Model.reopenClass({
    * load: Create model directly from data representation.
    */
   load: function(data) {
-    return this.create().deserialize(data).set('isLoaded', true);
+    return this.create().set('_isReady', false).deserialize(data).setProperties({ _isReady: true, isLoaded: true });
   },
 
   /*
@@ -998,12 +1013,13 @@ RESTless.RecordArray.reopenClass({
  */
 RESTless.ReadOnlyModel = RESTless.Model.extend({
   /*
-   * Remove functionality associated with writing data
+   * Remove functionality associated with writing data and keeping state
    */
   serialize: null,
   saveRecord: null,
   deleteRecord: null,
-  didDefineProperty: null
+  didDefineProperty: null,
+  _onPropertyChange: Ember.K
 });
 
 /**
