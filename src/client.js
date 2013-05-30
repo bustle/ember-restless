@@ -1,8 +1,12 @@
-/* Client
- * Core interface that houses the current Adapter.
+/**
+ * Client
  * You can define a custom Client on your app like you would DS.Store in ember-data.
  * The client will be automatically detected and set from your App namespace.
  * Setting a Client is optional and will automatically use a base Client.
+ *
+ * @class Client
+ * @namespace RESTless
+ * @extends Ember.Object
  */
 RESTless.Client = Ember.Object.extend({
   revision: RESTless.CURRENT_API_REVISION,

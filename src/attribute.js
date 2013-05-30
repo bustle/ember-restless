@@ -1,4 +1,4 @@
-/*
+/**
  * Attributes
  * Model property definitions
  */

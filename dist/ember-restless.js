@@ -1,4 +1,4 @@
-/*!
+/**
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
@@ -22,16 +22,19 @@ function requiredMethod(name) {
 }
 
 if (RESTless === undefined) {
-  /*
+  /**
    * Create RESTless as an Ember Namespace.
    * Track version and API revision number.
+   *
+   * @class RESTless
+   * @static 
    */
   RESTless = Ember.Namespace.create({
     VERSION: '0.2.2',
     CURRENT_API_REVISION: 2
   });
 
-  /*
+  /**
    * Expose RESTless to the global window namespace.
    * Create shortcut alias 'RL'.
    */
@@ -40,7 +43,7 @@ if (RESTless === undefined) {
   }
 }
 
-/*
+/**
  * Attributes
  * Model property definitions
  */
@@ -624,11 +627,15 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   }
 });
 
-/* Client
- * Core interface that houses the current Adapter.
+/**
+ * Client
  * You can define a custom Client on your app like you would DS.Store in ember-data.
  * The client will be automatically detected and set from your App namespace.
  * Setting a Client is optional and will automatically use a base Client.
+ *
+ * @class Client
+ * @namespace RESTless
+ * @extends Ember.Object
  */
 RESTless.Client = Ember.Object.extend({
   revision: RESTless.CURRENT_API_REVISION,
@@ -723,31 +730,45 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
   }
 });
 
-/*
+/**
  * Model
- * Base model class
+ * Base model class for all records
+ *
+ * @class Model
+ * @namespace RESTless
+ * @extends Ember.Object
+ * @constructor
  */
 RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
-  /* 
+  /** 
    * id: unique id number, default primary id
+   *
+   * @property {RESTless.attr}
    */
   id: RESTless.attr('number'),
 
-  /*
+  /**
    * isNew: model has not yet been saved.
    * When a primary key value is set, isNew becomes false
+   *
+   * @property {Boolean}
    */
   isNew: true,
 
-  /*
-   * _isReady: (private) For internal state management.
+  /**
+   * _isReady: For internal state management.
    * Model won't be dirtied when setting initial values on create() or load()
+   *
+   * @private
+   * @property {Boolean}
    */
   _isReady: false,
 
-  /*
-   * _data: (private) Stores raw model data. Don't use directly; use declared
-   * model attributes.
+  /**
+   * _data: Stores raw model data. Don't use directly; use declared model attributes.
+   *
+   * @private
+   * @property {Object}
    */
   __data: null,
   _data: Ember.computed(function() {
@@ -755,9 +776,8 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     return this.__data;
   }),
 
-  /* 
-   * didDefineProperty: (private)
-   * Hook to add observers for each attribute/relationship for 'isDirty' functionality
+  /** 
+   * didDefineProperty: Hook to add observers for each attribute/relationship for 'isDirty' functionality
    */
   didDefineProperty: function(proto, key, value) {
     if (value instanceof Ember.Descriptor) {
@@ -770,9 +790,10 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     }
   },
 
-  /* 
-   * _onPropertyChange: (private) called when any property of the model changes
+  /**
+   * _onPropertyChange: called when any property of the model changes
    * If the model has been loaded, or is new, isDirty flag is set to true.
+   * @private
    */
   _onPropertyChange: function(key) {
     var isNew = this.get('isNew');
@@ -787,9 +808,10 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
       this.set('isDirty', true);
     }
   },
-  /* 
-   * _onRelationshipChange: (private) called when a relationship property's isDirty state changes
+  /**
+   * _onRelationshipChange: called when a relationship property's isDirty state changes
    * Forwards a _onPropertyChange event for the parent object
+   * @private
    */
   _onRelationshipChange: function(sender, key) {
     if(sender.get(key)) { // if isDirty
@@ -797,7 +819,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     }
   },
 
-  /*
+  /**
    * copy: creates a copy of the object. Implements Ember.Copyable protocol
    * http://emberjs.com/api/classes/Ember.Copyable.html#method_copy
    */

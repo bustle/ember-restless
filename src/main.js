@@ -7,16 +7,19 @@ function requiredMethod(name) {
 }
 
 if (RESTless === undefined) {
-  /*
+  /**
    * Create RESTless as an Ember Namespace.
    * Track version and API revision number.
+   *
+   * @class RESTless
+   * @static 
    */
   RESTless = Ember.Namespace.create({
     VERSION: '0.2.2',
     CURRENT_API_REVISION: 2
   });
 
-  /*
+  /**
    * Expose RESTless to the global window namespace.
    * Create shortcut alias 'RL'.
    */
