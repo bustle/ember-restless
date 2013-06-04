@@ -65,7 +65,7 @@ module.exports = function(grunt) {
           // optional files: group can be excluded to reduce filesize
           'src/read_only_model.js',
           'src/ext/date.js',
-          'src/serializers/json_transforms.js'
+          'src/ext/json_transforms.js'
           // end: optional
         ],
         dest: 'dist/<%= pkg.name %>.js'

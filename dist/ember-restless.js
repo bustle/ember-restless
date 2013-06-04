@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.2
- * last modifed: 2013-05-30
+ * last modifed: 2013-06-04
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -1094,31 +1094,36 @@ if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.Date) {
   Date.parse = Ember.Date.parse;
 }
 
-/*
- * JSONTransforms
- * Base serializers/deserializers for each attribute type
- * This is an add-on, and is not necessary for RESTless to function
- *
- * Courtesy of ember-data
+/**
+ * From ember-data:
  * https://github.com/emberjs/data/blob/master/packages/ember-data/lib/transforms/json_transforms.js
  */
 
+var isNone = Ember.isNone, isEmpty = Ember.isEmpty;
+
+/**
+  @class JSONTransforms
+  @static
+  @namespace RESTless
+*/
 RESTless.JSONTransforms = {
   string: {
     deserialize: function(serialized) {
-      return none(serialized) ? null : String(serialized);
+      return isNone(serialized) ? null : String(serialized);
     },
+
     serialize: function(deserialized) {
-      return none(deserialized) ? null : String(deserialized);
+      return isNone(deserialized) ? null : String(deserialized);
     }
   },
 
   number: {
     deserialize: function(serialized) {
-      return empty(serialized) ? null : Number(serialized);
+      return isEmpty(serialized) ? null : Number(serialized);
     },
+
     serialize: function(deserialized) {
-      return empty(deserialized) ? null : Number(deserialized);
+      return isEmpty(deserialized) ? null : Number(deserialized);
     }
   },
 
@@ -1138,6 +1143,7 @@ RESTless.JSONTransforms = {
         return false;
       }
     },
+
     serialize: function(deserialized) {
       return Boolean(deserialized);
     }
@@ -1159,13 +1165,15 @@ RESTless.JSONTransforms = {
         return null;
       }
     },
+
     serialize: function(date) {
       if (date instanceof Date) {
-        var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-            months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            pad = function(num) {
-              return num < 10 ? "0"+num : ""+num;
-            };
+        var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        var pad = function(num) {
+          return num < 10 ? "0"+num : ""+num;
+        };
 
         var utcYear = date.getUTCFullYear(),
             utcMonth = date.getUTCMonth(),
@@ -1173,10 +1181,12 @@ RESTless.JSONTransforms = {
             utcDay = date.getUTCDay(),
             utcHours = date.getUTCHours(),
             utcMinutes = date.getUTCMinutes(),
-            utcSeconds = date.getUTCSeconds(),
-            dayOfWeek = days[utcDay],
-            dayOfMonth = pad(utcDayOfMonth),
-            month = months[utcMonth];
+            utcSeconds = date.getUTCSeconds();
+
+
+        var dayOfWeek = days[utcDay];
+        var dayOfMonth = pad(utcDayOfMonth);
+        var month = months[utcMonth];
 
         return dayOfWeek + ", " + dayOfMonth + " " + month + " " + utcYear + " " +
                pad(utcHours) + ":" + pad(utcMinutes) + ":" + pad(utcSeconds) + " GMT";
