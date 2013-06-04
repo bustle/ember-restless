@@ -19,19 +19,10 @@ Include ```ember-restless.js``` from the dist/ folder in your application.
 
 RESTless can be referenced either with the namespace **RESTless** or the shorthand **RL**.  Similar to **Ember** and **Em**
 
-### Defining a 'Client'
-
-Similar to defining the 'Store' using ember-data, instead define the 'Client' for your application.  RESTless will automatically detect the Client on your application namespace.  Defining a client is currently optional, and only needed if you would like to provide a custom adapter.
-
-``` javascript
-App.Client = RL.Client.create({
-  adapter: App.RESTAdapter
-});
-```
-
 ### Defining a custom RESTAdapter
 
-Create a custom REST adapter to set the url to a backend service, and optionally a namespace.  
+The REST adapter is responsible for communicating with your backend REST service.
+Here, you can set the url, and optionally a namespace.  
 For example, if your REST API is located at http://api.myservice.com/v1
 ``` javascript
 App.RESTAdapter = RL.RESTAdapter.create({
@@ -39,7 +30,16 @@ App.RESTAdapter = RL.RESTAdapter.create({
   namespace: 'v1'
 });
 ```
-See the **Advanced** section below for further use of custom adapters.
+
+### Defining a 'Client'
+
+Similar to defining the 'Store' using ember-data, instead define the 'Client' for your application.  RESTless will automatically detect the Client on your application namespace.
+
+``` javascript
+App.Client = RL.Client.create({
+  adapter: App.RESTAdapter
+});
+```
 
 ### Defining Models
 
@@ -143,6 +143,7 @@ var post = App.Post.create({
   body: 'Lorem ipsum...'
 });
 ```
+
 ### Saving records
 
 To save a record call: saveRecord()  
@@ -246,6 +247,15 @@ App.Person = RL.Model.extend({
 });
 App.RESTAdapter.map('App.Person', {
   lastName: { key: 'lastNameOfPerson' }
+});
+```
+
+### Default attribute values
+You can define default values to assign to newly created instances of a model:
+``` javascript
+App.User = RL.Model.extend({
+  name: RL.attr('string'),
+  role: RL.attr('number', { defaultValue: 3 })
 });
 ```
 
