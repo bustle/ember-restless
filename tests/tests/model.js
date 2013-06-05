@@ -58,6 +58,19 @@ test('becomes dirty when a relationship becomes dirty', function() {
   ok( postGroup.get('isDirty'), 'dirtying a relationship dirties the parent' );
 });
 
+test('becomes dirty when a nested relationship becomes dirty', function() {
+  var postGroup = App.PostGroup.load({
+    id: 2,
+    featured: [ { id: 1, title: 'hello', tags: [ { name: 'tag1' }, { name: 'tag2' } ] } ]
+  });
+
+  ok( !postGroup.get('isDirty'), 'freshly loaded model is not dirty' );
+
+  postGroup.get('featured').objectAt(0).get('tags').objectAt(0).set('name', 'tagA');
+
+  ok( postGroup.get('isDirty'), 'dirtying a nested relationship dirties the root object' );
+});
+
 
 test('attributes can have default values', function() {
   var model = RL.Model.extend({

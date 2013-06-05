@@ -4,7 +4,12 @@ App.Post = RL.Model.extend({
   slug: RL.attr('number'),
   title: RL.attr('string'),
   body: RL.attr('string'),
+  tags: RL.hasMany('App.Tag'),
   created: RL.attr('date')
+});
+
+App.Tag = RL.Model.extend({
+  name: RL.attr('string')
 });
 
 App.PostGroup = RL.Model.extend({
