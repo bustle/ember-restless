@@ -40,7 +40,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
    * App.Post => 'posts',  App.PostGroup => 'post_groups'
    */
   resourcePath: function(resourceName) {
-    return Ember.String.decamelize(this.pluralize(resourceName));
+    return this.pluralize(Ember.String.decamelize(resourceName));
   },
 
   /*
