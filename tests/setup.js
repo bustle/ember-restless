@@ -1,7 +1,7 @@
 App = Ember.Application.create();
 
 App.Post = RL.Model.extend({
-  slug: RL.attr('number'),
+  slug: RL.attr('string'),
   title: RL.attr('string'),
   body: RL.attr('string'),
   tags: RL.hasMany('App.Tag'),
@@ -18,6 +18,7 @@ App.PostGroup = RL.Model.extend({
 });
 
 App.Person = RL.Model.extend({
+  slug: RL.attr('string'),
   name: RL.attr('string'),
   role: RL.attr('number')
 });

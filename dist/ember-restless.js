@@ -501,11 +501,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     }
 
     var request = $.ajax(params);
-    // Store a reference to the active request and destroy it when finished
     model.set('currentRequest', request);
-    request.always(function() {
-      model.set('currentRequest', null);
-    });
     return request;
   },
 
