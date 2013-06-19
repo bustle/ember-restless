@@ -556,15 +556,15 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   find: function(model, params) {
     var primaryKey = get(model, 'primaryKey'),
         singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
-                                (typeof params === 'object' && params.hasOwnProperty(primaryKey)), key;
+                                (typeof params === 'object' && params.hasOwnProperty(primaryKey));
     if(singleResourceRequest) {
       if(params.hasOwnProperty(primaryKey)) {
-        key = params[primaryKey];  
+        var key = params[primaryKey];  
         delete params[primaryKey];
+        return this.findByKey(model, key, params);
       } else {
-        key = params;
+        return this.findByKey(model, params);
       }
-      return this.findByKey(model, key, params);
     } else {
       return this.findAll(model, params);
     }
