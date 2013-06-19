@@ -566,7 +566,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         key = params[primaryKey];  
         delete params[primaryKey];
       } else {
-        key = params
+        key = params;
       }
       return this.findByKey(model, key, params);
     } else {
