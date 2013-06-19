@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.2
- * last modifed: 2013-06-10
+ * last modifed: 2013-06-19
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -501,11 +501,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     }
 
     var request = $.ajax(params);
-    // Store a reference to the active request and destroy it when finished
     model.set('currentRequest', request);
-    request.always(function() {
-      model.set('currentRequest', null);
-    });
     return request;
   },
 
@@ -562,8 +558,13 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
                                 (typeof params === 'object' && params.hasOwnProperty(primaryKey)), key;
     if(singleResourceRequest) {
-      key = params.hasOwnProperty(primaryKey) ? params[primaryKey] : params;
-      return this.findByKey(model, key);
+      if(params.hasOwnProperty(primaryKey)) {
+        key = params[primaryKey];  
+        delete params[primaryKey];
+      } else {
+        key = params;
+      }
+      return this.findByKey(model, key, params);
     } else {
       return this.findAll(model, params);
     }
@@ -589,9 +590,9 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return result;
   },
 
-  findByKey: function(model, key) {
+  findByKey: function(model, key, params) {
     var result = model.create({ isNew: false }),
-        findRequest = this.request(result, { type: 'GET' }, key),
+        findRequest = this.request(result, { type: 'GET', data: params }, key),
         self = this;
 
     findRequest.done(function(data){
