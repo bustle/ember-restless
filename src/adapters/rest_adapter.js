@@ -127,8 +127,13 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
                                 (typeof params === 'object' && params.hasOwnProperty(primaryKey)), key;
     if(singleResourceRequest) {
-      key = params.hasOwnProperty(primaryKey) ? params[primaryKey] : params;
-      return this.findByKey(model, key);
+      if(params.hasOwnProperty(primaryKey)) {
+        key = params[primaryKey];  
+        delete params[primaryKey];
+      } else {
+        key = params
+      }
+      return this.findByKey(model, key, params);
     } else {
       return this.findAll(model, params);
     }
@@ -154,9 +159,9 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return result;
   },
 
-  findByKey: function(model, key) {
+  findByKey: function(model, key, params) {
     var result = model.create({ isNew: false }),
-        findRequest = this.request(result, { type: 'GET' }, key),
+        findRequest = this.request(result, { type: 'GET', data: params }, key),
         self = this;
 
     findRequest.done(function(data){
