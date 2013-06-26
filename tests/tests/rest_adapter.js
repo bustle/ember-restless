@@ -8,6 +8,13 @@ test('can set a url', function() {
   });
   ok( adapter.get('rootPath').length, 'url applied to root path' );
   equal( adapter.get('rootPath'), adapter.get('url'), 'root path is valid' );
+
+
+  var adapter = RL.RESTAdapter.create({
+    url: 'http://api.com'
+  });
+  equal( adapter.get('rootPath'), adapter.get('url'), 'root path is valid without an / after the url' );
+
 });
 
 test('can set a namespace', function() {
