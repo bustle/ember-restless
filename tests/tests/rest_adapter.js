@@ -14,7 +14,7 @@ test('can set a url', function() {
   var adapter = RL.RESTAdapter.create({
     url: 'http://api.com'
   });
-  equal( adapter.get('rootPath'), adapter.get('url'), 'root path is valid without an / suffix' );
+  equal( adapter.get('rootPath'), adapter.get('url'), 'root path is valid without an / after the url' );
 
 });
 
