@@ -3,7 +3,6 @@ var get = Ember.get, set = Ember.set;
 module('RESTAdapter');
 
 test('can set a url', function() {
-  debugger
   var adapter = RL.RESTAdapter.create({
     url: 'http://api.com/'
   });
@@ -17,7 +16,6 @@ test('can set a url', function() {
   equal( adapter.get('rootPath'), adapter.get('url'), 'root path is valid without an / after the url' );
 
 });
-
 
 test('can set a namespace', function() {
   var adapter = RL.RESTAdapter.create({
