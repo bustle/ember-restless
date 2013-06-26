@@ -33,13 +33,11 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     if(ns) {
       a.pathname = rootReset ? ns : (a.pathname + ns);
     }
-
     href = a.href;
 
     if (href.charAt(href.length-1) === '/' && url.charAt(url.length-1) !== '/') {
       href = href.substring(0, href.length - 1);
     }
-
     return href;
   }).property('url', 'namespace'),
 
