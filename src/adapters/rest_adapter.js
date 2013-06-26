@@ -26,13 +26,21 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     var a = document.createElement('a'),
         url = this.get('url'),
         ns = this.get('namespace'),
-        rootReset = ns && ns.charAt(0) === '/';
+        rootReset = ns && ns.charAt(0) === '/',
+        href = null;
 
     a.href = url ? url : '';
     if(ns) {
       a.pathname = rootReset ? ns : (a.pathname + ns);
     }
-    return a.href;
+
+    href = a.href;
+
+    if (href.charAt(href.length-1) === '/' && url.charAt(url.length-1) !== '/') {
+      href = href.substring(0, href.length - 1);
+    }
+
+    return href;
   }).property('url', 'namespace'),
 
   /*
