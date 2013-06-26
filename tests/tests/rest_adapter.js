@@ -4,10 +4,10 @@ module('RESTAdapter');
 
 test('can set a url', function() {
   var adapter = RL.RESTAdapter.create({
-    url: 'http://api.com/'
+    url: 'http://api.com'
   });
   ok( adapter.get('rootPath').length, 'url applied to root path' );
-  equal( adapter.get('rootPath'), adapter.get('url'), 'root path is valid' );
+  equal( adapter.get('rootPath'), 'http://api.com', 'root path is valid' );
 });
 
 test('can set a namespace', function() {
@@ -25,22 +25,35 @@ test('can set a namespace with url', function() {
   equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
 });
 
-test('various formats of setting namespace with url is resilient', function() {
+test('various combinations of setting a namespace and/or url is resilient', function() {
   var adapter = RL.RESTAdapter.create({
+    url: 'http://api.com/'
+  });
+  equal( adapter.get('rootPath'), 'http://api.com', 'root path is valid' );
+  adapter = RL.RESTAdapter.create({
+    url: 'http://api.com'
+  });
+  equal( adapter.get('rootPath'), 'http://api.com', 'root path is valid' );
+  adapter = RL.RESTAdapter.create({
     url: 'http://api.com',
     namespace: 'v1'
   });
-  equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is resilient' );
+  equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
   adapter = RL.RESTAdapter.create({
     url: 'http://api.com/',
     namespace: 'v1'
   });
-  equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is resilient' );
+  equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
   adapter = RL.RESTAdapter.create({
     url: 'http://api.com',
     namespace: '/v1'
   });
-  equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is resilient' );
+  equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
+  adapter = RL.RESTAdapter.create({
+    url: 'http://api.com/',
+    namespace: '/v1'
+  });
+  equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
 });
 
 test('creates valid path for multi-word model classes', function() {

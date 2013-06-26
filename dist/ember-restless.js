@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.2
- * last modifed: 2013-06-19
+ * last modifed: 2013-06-26
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -467,7 +467,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     if(ns) {
       a.pathname = rootReset ? ns : (a.pathname + ns);
     }
-    return a.href;
+    return a.href.replace(/\/+$/, '');
   }).property('url', 'namespace'),
 
   /*

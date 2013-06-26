@@ -32,7 +32,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     if(ns) {
       a.pathname = rootReset ? ns : (a.pathname + ns);
     }
-    return a.href;
+    return a.href.replace(/\/+$/, '');
   }).property('url', 'namespace'),
 
   /*
