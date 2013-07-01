@@ -20,6 +20,14 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
    */
   namespace: null,
   /*
+   * useContentTypeExtension: forces content type extensions on resource requests
+   * i.e. /posts.json vs /posts | /posts/115.json vs /posts/115
+   * Useful for conforming to 3rd party apis
+   * or returning correct content-type headers with Rails caching
+   */
+  useContentTypeExtension: false,
+
+  /*
    * rootPath: computed path based on url and namespace
    */
   rootPath: Ember.computed(function() {
@@ -44,20 +52,10 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   },
 
   /*
-   * request: a wrapper around jQuery's ajax method
-   * builds the url and dynamically adds the a resource key if specified
+   * request: configures and returns an ajax request
    */
   request: function(model, params, resourceKey) {
-    var resourcePath = this.resourcePath(get(model.constructor, 'resourceName')),
-        primaryKey = get(model.constructor, 'primaryKey'),
-        urlParts = [this.get('rootPath'), resourcePath];
-
-    if(resourceKey) {
-      urlParts.push(resourceKey);
-    } else if(model.get(primaryKey)) {
-      urlParts.push(model.get(primaryKey));
-    }
-    params.url = urlParts.join('/');
+    params.url = this.buildUrl(model, resourceKey);
     params.dataType = this.get('serializer.dataType');
     params.contentType = this.get('serializer.contentType');
 
@@ -68,6 +66,28 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     var request = $.ajax(params);
     model.set('currentRequest', request);
     return request;
+  },
+
+  /*
+   * buildUrl (private): constructs request url and dynamically adds the a resource key if specified
+   */
+  buildUrl: function(model, resourceKey) {
+    var resourcePath = this.resourcePath(get(model.constructor, 'resourceName')),
+        primaryKey = get(model.constructor, 'primaryKey'),
+        urlParts = [this.get('rootPath'), resourcePath],
+        dataType = this.get('serializer.dataType'), url;
+
+    if(resourceKey) {
+      urlParts.push(resourceKey);
+    } else if(model.get(primaryKey)) {
+      urlParts.push(model.get(primaryKey));
+    }
+
+    url = urlParts.join('/');
+    if(this.get('useContentTypeExtension') && dataType) {
+      url += '.' + dataType;
+    }
+    return url;
   },
 
   /*

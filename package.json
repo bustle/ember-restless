@@ -2,7 +2,7 @@
   "name": "ember-restless",
   "title": "Ember RESTless",
   "description": "A lightweight data persistence library for Ember.js",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "main": "Gruntfile.js",
   "repository": "https://github.com/endlessinc/ember-restless.git",
   "author": "Garth Poitras",

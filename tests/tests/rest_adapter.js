@@ -64,10 +64,33 @@ test('creates valid path for multi-word model classes', function() {
 
 asyncTest('can optionally add query params to a findByKey request', 1, function() {
   var person = App.Person.find({ id: 1, some_param: 'test' });
+
   person.get('currentRequest').always(function() {
     var urlParts = this.url.split('/');
     var path = urlParts[urlParts.length-1];
     equal( path, '1?some_param=test', 'findByKey with parameters requests expected url' );
     start();
   });
+});
+
+test('allows using content type extension', function() {
+  var adapter = RL.RESTAdapter.create({
+    useContentTypeExtension: true
+  });
+  App.set('Client', RL.Client.create({
+    adapter: adapter
+  }));
+
+  var model = App.Post.create(),
+      url = adapter.buildUrl(model),
+      urlParts = url.split('/'),
+      path = urlParts[urlParts.length-1];
+
+  equal( path, 'posts.json', 'extension added' );
+
+  url = adapter.buildUrl(model, 5);
+  urlParts = url.split('/');
+  path = [urlParts[urlParts.length-2], urlParts[urlParts.length-1]].join('/');
+
+  equal( path, 'posts/5.json', 'extension added to key' );
 });
