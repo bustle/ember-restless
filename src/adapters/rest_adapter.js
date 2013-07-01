@@ -118,27 +118,14 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return deleteRequest;
   },
 
-  find: function(model, params) {
-    var primaryKey = get(model, 'primaryKey'),
-        singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
-                                (typeof params === 'object' && params.hasOwnProperty(primaryKey));
-    if(singleResourceRequest) {
-      if(params.hasOwnProperty(primaryKey)) {
-        var key = params[primaryKey];  
-        delete params[primaryKey];
-        return this.findByKey(model, key, params);
-      } else {
-        return this.findByKey(model, params);
-      }
-    } else {
-      return this.findAll(model, params);
-    }
+  findAll: function(model) {
+    return this.findQuery(model, null);
   },
 
-  findAll: function(model, params) {
+  findQuery: function(model, queryParams) {
     var resourceInstance = model.create({ isNew: false }),
         result = RESTless.RecordArray.createWithContent({ type: model.toString() }),
-        findRequest = this.request(resourceInstance, { type: 'GET', data: params }),
+        findRequest = this.request(resourceInstance, { type: 'GET', data: queryParams }),
         self = this;
 
     findRequest.done(function(data){
@@ -155,9 +142,9 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return result;
   },
 
-  findByKey: function(model, key, params) {
+  findByKey: function(model, key, queryParams) {
     var result = model.create({ isNew: false }),
-        findRequest = this.request(result, { type: 'GET', data: params }, key),
+        findRequest = this.request(result, { type: 'GET', data: queryParams }, key),
         self = this;
 
     findRequest.done(function(data){

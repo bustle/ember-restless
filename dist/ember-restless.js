@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.2
- * last modifed: 2013-06-26
+ * last modifed: 2013-06-30
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -367,8 +367,9 @@ RESTless.Adapter = Ember.Object.extend({
    */
   saveRecord:   requiredMethod('saveRecord'),
   deleteRecord: requiredMethod('deleteRecord'),
-  find:         requiredMethod('find'),
   findAll:      requiredMethod('findAll'),
+  findQuery:    requiredMethod('findQuery'),
+  findByKey:    requiredMethod('findByKey'),
 
   /*
    * configurations: stores info about custom configurations
@@ -553,27 +554,14 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return deleteRequest;
   },
 
-  find: function(model, params) {
-    var primaryKey = get(model, 'primaryKey'),
-        singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
-                                (typeof params === 'object' && params.hasOwnProperty(primaryKey));
-    if(singleResourceRequest) {
-      if(params.hasOwnProperty(primaryKey)) {
-        var key = params[primaryKey];  
-        delete params[primaryKey];
-        return this.findByKey(model, key, params);
-      } else {
-        return this.findByKey(model, params);
-      }
-    } else {
-      return this.findAll(model, params);
-    }
+  findAll: function(model) {
+    return this.findQuery(model, null);
   },
 
-  findAll: function(model, params) {
+  findQuery: function(model, queryParams) {
     var resourceInstance = model.create({ isNew: false }),
         result = RESTless.RecordArray.createWithContent({ type: model.toString() }),
-        findRequest = this.request(resourceInstance, { type: 'GET', data: params }),
+        findRequest = this.request(resourceInstance, { type: 'GET', data: queryParams }),
         self = this;
 
     findRequest.done(function(data){
@@ -590,9 +578,9 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return result;
   },
 
-  findByKey: function(model, key, params) {
+  findByKey: function(model, key, queryParams) {
     var result = model.create({ isNew: false }),
-        findRequest = this.request(result, { type: 'GET', data: params }, key),
+        findRequest = this.request(result, { type: 'GET', data: queryParams }, key),
         self = this;
 
     findRequest.done(function(data){
@@ -847,26 +835,23 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
   },
 
   /*
-   * saveRecord: save record to persistance layer - forward to adapter
+   * create/update/delete methods
+   * Forward to the current adapter to perform operations on persistance layer
    */
   saveRecord: function() {
     return RESTless.get('client.adapter').saveRecord(this);
   },
-  /*
-   * deleteRecord: delete record to persistance layer - forward to adapter
-   */
   deleteRecord: function() {
     return RESTless.get('client.adapter').deleteRecord(this);
   },
+
   /* 
-   * serialize: use the current Serializer to turn the model into data representation
+   * serialization methods: Transforms model to and from its data representation.
+   * Forward to the current serializer to perform appropriate parsing
    */
   serialize: function() {
     return RESTless.get('client.adapter.serializer').serialize(this);
   },
-  /* 
-   * deserialize: use the current Serializer to set the model properties from supplied data
-   */
   deserialize: function(data) {
     return RESTless.get('client.adapter.serializer').deserialize(this, data);
   }
@@ -913,27 +898,51 @@ RESTless.Model.reopenClass({
    */
   fields: Ember.computed(function() {
     var map = Ember.Map.create();
-
     this.eachComputedProperty(function(name, meta) {
       if (meta.isAttribute || meta.isRelationship) {
         map.set(name, meta);
       }
     });
-
     return map;
   }),
 
   /*
-   * find: get a model with specified param. Optionally also alias to handle findAll
+   * find methods: fetch model(s) with specified params
+   * Forwards to the current adapter to fetch from the appropriate data layer
    */
-  find: function(params) {
-    return RESTless.get('client.adapter').find(this, params);
+  findAll: function() {
+    return RESTless.get('client.adapter').findAll(this);
+  },
+  findQuery: function(params) {
+    return RESTless.get('client.adapter').findQuery(this, params);
+  },
+  findByKey: function(key, params) {
+    return RESTless.get('client.adapter').findByKey(this, key, params);
   },
   /*
-   * findAll: fetches all objects of this type with specified params
+   * findById: alias to findByKey method
+   * Keeps api inline with ember-data.
+   * A model's primary key can be customized so findById is not always semantically correct.
    */
-  findAll: function(params) {
-    return RESTless.get('client.adapter').findAll(this, params);
+  findById: Ember.aliasMethod('findByKey'),
+  /*
+   * find: a convenience method that can be used
+   * to intelligently route to findAll/findQuery/findByKey based on its params
+   */
+  find: function(params) {
+    var primaryKey = get(this, 'primaryKey'),
+        singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
+                                (typeof params === 'object' && params.hasOwnProperty(primaryKey));
+    if(singleResourceRequest) {
+      if(!params.hasOwnProperty(primaryKey)) {
+        return this.findByKey(params);
+      }
+      var key = params[primaryKey];  
+      delete params[primaryKey];
+      return this.findByKey(key, params);
+    } else {
+      return this.findQuery(params);
+    }
   },
 
   /*
@@ -942,7 +951,6 @@ RESTless.Model.reopenClass({
   load: function(data) {
     return this.create().set('_isReady', false).deserialize(data).setProperties({ _isReady: true, isLoaded: true });
   },
-
   /*
    * loadMany: Create collection of records directly from data representation.
    */

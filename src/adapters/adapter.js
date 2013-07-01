@@ -16,8 +16,9 @@ RESTless.Adapter = Ember.Object.extend({
    */
   saveRecord:   requiredMethod('saveRecord'),
   deleteRecord: requiredMethod('deleteRecord'),
-  find:         requiredMethod('find'),
   findAll:      requiredMethod('findAll'),
+  findQuery:    requiredMethod('findQuery'),
+  findByKey:    requiredMethod('findByKey'),
 
   /*
    * configurations: stores info about custom configurations
