@@ -4,7 +4,7 @@
  */
 RESTless.State = Ember.Mixin.create( Ember.Evented, {
   /* 
-   * isLoaded: model has retrived
+   * isLoaded: model has been retrieved
    */
   isLoaded: false,
   /* 
@@ -20,9 +20,49 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
    */
   isError: false,
   /* 
-   * errors: error message json returned from REST service
+   * errors: error data returned from adapter
    */
   errors: null,
+
+  /*
+   * Internal state change handlers, called by adapter
+   */
+  onSaved: function(wasNew) {
+    this.setProperties({
+      isDirty: false,
+      isSaving: false,
+      isLoaded: true,
+      isError: false,
+      errors: null
+    });
+    this._triggerEvent(wasNew ? 'didCreate' : 'didUpdate');
+    this._triggerEvent('didLoad');
+  },
+
+  onDeleted: function() {
+    this._triggerEvent('didDelete');
+    Ember.run.next(this, function() {
+      this.destroy();
+    });
+  },
+
+  onLoaded: function() {
+    this.setProperties({
+      isLoaded: true,
+      isError: false,
+      errors: null
+    });
+    this._triggerEvent('didLoad');
+  },
+
+  onError: function(errors) {
+    this.setProperties({
+      isSaving: false,
+      isError: true,
+      errors: errors
+    });
+    this._triggerEvent('becameError');
+  },
 
   /* 
    * clearErrors: (helper) reset isError flag, clear error messages

@@ -190,6 +190,14 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   prepareData: function(data) {
     return JSON.stringify(data);
   },
+  /* 
+   * parseError: transform error response text into json
+   */
+  parseError: function(error) {
+    var errorData = null;
+    try { errorData = $.parseJSON(error); } catch(e){}
+    return errorData;
+  },
   /*
    * extractMeta: attempts to extract metadata on json responses
    */

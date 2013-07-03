@@ -29,5 +29,11 @@ RESTless.Serializer = Ember.Object.extend({
    */
   prepareData: function(data) {
     return data;
+  },
+  /*
+   * parseError: (optional override) deserialize error messages
+   */
+  parseError: function(error) {
+    return error;
   }
 });
