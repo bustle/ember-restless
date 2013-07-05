@@ -94,10 +94,12 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
    * saveRecord: POSTs a new record, or PUTs an updated record to REST service
    */
   saveRecord: function(record) {
-    var isNew = record.get('isNew');
+    var deferred = Ember.RSVP.defer(),
+        isNew = record.get('isNew');
     //If an existing model isn't dirty, no need to save.
     if(!isNew && !record.get('isDirty')) {
-      return $.Deferred().resolve();
+      deferred.resolve(record);
+      return deferred;
     }
 
     record.set('isSaving', true);
@@ -111,26 +113,31 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         record.deserialize(data);
       }
       record.onSaved(isNew);
+      deferred.resolve(record);
     })
     .fail(function(xhr) {
       record.onError(self.onXhrError(xhr));
+      deferred.reject(record.get('errors'));
     });
 
-    return ajaxRequest;
+    return deferred.promise;
   },
 
   deleteRecord: function(record) {
-    var ajaxRequest = this.request(record, { type: 'DELETE', data: record.serialize() }),
+    var deferred = Ember.RSVP.defer(),
+        ajaxRequest = this.request(record, { type: 'DELETE', data: record.serialize() }),
         self = this;
 
     ajaxRequest.done(function() {
       record.onDeleted();
+      deferred.resolve();
     })
     .fail(function(xhr) {
       record.onError(self.onXhrError(xhr));
+      deferred.reject(record.get('errors'));
     });
 
-    return ajaxRequest;
+    return deferred.promise;
   },
 
   findAll: function(model) {
