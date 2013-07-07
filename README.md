@@ -8,11 +8,11 @@ RESTless can be extended to support various other data persistence layers. For e
 
 One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
 
-See the [ChangeLog](CHANGELOG.md) for the latest features and API changes.
+See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
 ## Getting started
 
-Include ```ember-restless.js``` from the dist/ folder in your application.
+Include ```ember-restless.js``` in your application. (found in the ```dist/``` folder)
 
 ### Namespace
 
@@ -32,7 +32,7 @@ App.RESTAdapter = RL.RESTAdapter.create({
 
 ### Defining a 'Client'
 
-Similar to defining the 'Store' using ember-data, instead define the 'Client' for your application.  RESTless will automatically detect the Client on your application namespace.
+Similar to defining the 'Store' using ember-data, instead define the 'Client' for your application.  RESTless will automatically detect the Client on your application namespace and initialize RESTless to work with you app.
 
 ``` javascript
 App.Client = RL.Client.create({
@@ -42,26 +42,23 @@ App.Client = RL.Client.create({
 
 ### Defining Models
 
-Each model you create should extend RL.Model
-``` javascript
-App.User = RL.Model.extend();
-```
+Each model you create should extend RL.Model  
+Supported attribute types are string, number, boolean, and date.
 
-### Attributes
-
-Supported types are string, number, boolean, and date.  With a custom adapter, you can register custom types and transformations.
 ``` javascript
-App.User = RL.Model.extend({
-  name: RL.attr('string'),
-  isActive: RL.attr('boolean'),
-  followerCount: RL.attr('number'),
-  createdAt: RL.attr('date')
+App.Post = RL.Model.extend({
+  title:       RL.attr('string'),
+  isPublished: RL.attr('boolean'),
+  readCount:   RL.attr('number'),
+  createdAt:   RL.attr('date')
 });
 ```
+You can define custom attribute types in your adapter.  See the advanced section below.
+
 
 ### Relationships
 
-For one-to-one properties use the _belongsTo_ attribute helper.
+For one-to-one relationships use the _belongsTo_ attribute helper.
 
 ``` javascript
 App.User = RL.Model.extend({
@@ -109,6 +106,8 @@ For example, all of the 'tags' data should be available in the response from ```
 
 ### Finding records
 
+Use the ```find()``` method to fetch records
+
 To find a Post with an id of 1:
 
 ``` javascript
@@ -117,36 +116,33 @@ var post = App.Post.find(1);
 
 To use a query to find:
 ``` javascript
-var people = App.Person.find({ name: "Peter" });
+var posts = App.Post.find({ isPublished: true });
 ```
 
-### Find all
-
-Use find() without parameters, or alternatively, findAll()  
+To find all records:
 
 ``` javascript
 var posts = App.Post.find();
 ```
-or
-``` javascript
-var posts = App.Post.findAll();
-```
+
+The find method supports all query types, however, explicit methods are also available:  
+```findAll()```, ```findQuery()```, ```findByKey()``` / ```findById()```
+
 
 ### Creating records
 
-Create records like you would a normal Ember Object.
+Create records like you would a normal Ember Object:
 
 ``` javascript
 var post = App.Post.create({
-  title: 'My First Post',
-  body: 'Lorem ipsum...'
+  title: 'My First Post'
 });
 ```
 
 ### Saving records
 
-To save a record call: saveRecord()  
-The RESTAdapter will automatically POST to save a new record, or PUT to update and existing record.
+To save a record call: ```saveRecord()```
+The Adapter will automatically POST to save a new record, or PUT to update and existing record.
 
 ``` javascript
 var post = App.Post.create();
@@ -160,14 +156,16 @@ post.saveRecord();
 
 ### Deleting records
 
-The RESTAdapter Will delete the record remotely, then destroy the object when complete:
+The Adapter will delete the record remotely, then destroy the object when complete:
 ``` javascript
 post.deleteRecord();
 ```
 
 ### 'Loading' Records
 
-You can manually populate records using raw data. For example, if you have to side-load data, you can use the ```load``` and ```loadMany``` convenience methods:
+You can manually populate records using raw data (side-loading).  
+Use the ```load``` and ```loadMany``` convenience methods:
+
 ``` javascript
 var comment = App.Comment.load(jsonData);
 var tags = App.Tag.loadMany(jsonData);
@@ -175,8 +173,7 @@ var tags = App.Tag.loadMany(jsonData);
 
 ### Model lifecycle
 
-RESTless supports most of the lifecycle states and events of ember-data.
-All model objects have the following properties added:
+All models have the following state properties added:
 
 * **isLoaded**: Record(s) have been retrieved
 * **isDirty**: The record has local changes that have not yet been stored
@@ -191,11 +188,11 @@ Additionally, you can subscribe to events that are fired during the lifecycle
 * **didUpdate**
 * **becameError**
 
-Event Examples:
+
+**Event Examples:**
 ``` javascript
 var post = App.Post.create({
-  title: 'My First Post',
-  body: 'Lorem ipsum...'
+  title: 'My First Post'
 });
 
 post.on('didCreate', function() {
@@ -204,7 +201,6 @@ post.on('didCreate', function() {
 post.on('becameError', function(error) {
   console.log('error saving post!');
 });
-
 post.saveRecord();
 ```
 
@@ -219,10 +215,26 @@ allPosts.on('becameError', function(error) {
 });
 ```
 
+**Using Promises:**  
+```saveRecord()``` and ```deleteRecord()``` return promises, also allowing you to do the following:
+``` javascript
+var post = App.Post.create({
+  title: 'My First Post'
+});
+
+post.saveRecord().then(function(record) {
+  // Success!
+}, function(errors) {
+  // Error!
+});
+```
+
+- - -  
+
 ## Advanced
 
 ### Custom plurals configuration
-You can use a custom rest adapter to set irregular plural resource names
+You can use a custom adapter to set irregular plural resource names
 ``` javascript
 App.RESTAdapter.configure("plurals", {
   person: "people"
@@ -259,7 +271,7 @@ App.User = RL.Model.extend({
 ```
 
 ### Read-only attributes
-Make attributes 'read-only', which will exclude them from being serialized and transmitted when saving.
+You can make attributes 'read-only', which will exclude them from being serialized and transmitted when saving.
 For example, if you want to let the backend compute the date a record is created:
 ``` javascript
 App.Person = RL.Model.extend({
@@ -270,8 +282,7 @@ App.Person = RL.Model.extend({
 ```
 
 ### Read-only models
-If you want the entire model to be read-only and also remove all 'write' methods.
-Also provides a performance increase since each property won't have to be observed for 'isDirty'.
+You can make an entire model to read-only. This removes all 'write' methods and provides a slight performance increase since each property won't have to be observed for 'isDirty'.
 ``` javascript
 App.Post = RL.ReadOnlyModel.extend({
 ...
@@ -279,7 +290,7 @@ App.Post = RL.ReadOnlyModel.extend({
 ```
 
 ### Custom transforms
-You can use a custom rest adapter to add custom transforms:
+You can add custom transforms to your adapter:
 ``` javascript
 App.RESTAdapter.registerTransform('timeAgo', {
   deserialize: function(serialized) {
