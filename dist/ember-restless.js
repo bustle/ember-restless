@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.4
- * last modifed: 2013-07-05
+ * last modifed: 2013-07-07
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -28,9 +28,7 @@ if (RESTless === undefined) {
    * @class RESTless
    * @static 
    */
-  RESTless = Ember.Namespace.create({
-    CURRENT_API_REVISION: 2
-  });
+  RESTless = Ember.Namespace.create();
 
   /**
    * Expose RESTless to the global window namespace.
@@ -651,10 +649,8 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
  * @extends Ember.Object
  */
 RESTless.Client = Ember.Object.extend({
-  revision: RESTless.CURRENT_API_REVISION,
   adapter: RESTless.RESTAdapter.create(),
   // Private shortcut aliases:
-  _configs: Ember.computed.alias('adapter.configurations'),
   _modelConfigs: Ember.computed.alias('adapter.configurations.models')
 });
 
@@ -676,14 +672,6 @@ Ember.onLoad('Ember.Application', function(Application) {
       });
     }
   });
-});
-
-/* Deprecate warning for RESTClient, since it is a crucial first step for customization */
-RESTless.RESTClient = RESTless.Client.extend({
-  init: function() {
-    Ember.deprecate("RESTClient is deprecated. Please use Client instead.");
-    this._super();
-  }
 });
 
 /*

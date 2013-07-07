@@ -13,9 +13,7 @@ if (RESTless === undefined) {
    * @class RESTless
    * @static 
    */
-  RESTless = Ember.Namespace.create({
-    CURRENT_API_REVISION: 2
-  });
+  RESTless = Ember.Namespace.create();
 
   /**
    * Expose RESTless to the global window namespace.

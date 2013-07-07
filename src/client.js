@@ -9,10 +9,8 @@
  * @extends Ember.Object
  */
 RESTless.Client = Ember.Object.extend({
-  revision: RESTless.CURRENT_API_REVISION,
   adapter: RESTless.RESTAdapter.create(),
   // Private shortcut aliases:
-  _configs: Ember.computed.alias('adapter.configurations'),
   _modelConfigs: Ember.computed.alias('adapter.configurations.models')
 });
 
@@ -34,12 +32,4 @@ Ember.onLoad('Ember.Application', function(Application) {
       });
     }
   });
-});
-
-/* Deprecate warning for RESTClient, since it is a crucial first step for customization */
-RESTless.RESTClient = RESTless.Client.extend({
-  init: function() {
-    Ember.deprecate("RESTClient is deprecated. Please use Client instead.");
-    this._super();
-  }
 });
