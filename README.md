@@ -323,13 +323,19 @@ If you wish to build ember-restless yourself, you will need node.js and Grunt.
 4. Build: ```grunt```
 5. Output will be *dist/ember-restless.js* and *dist/ember-restless.min.js*
 
+### Custom Builds
+
+You can create custom builds, that exclude optional packages and further reduce filesize.  
+For example, to exclude the json transforms and date parsing libs:
+```
+grunt custom:-transforms
+```
 
 ## Tests
 
 Uses QUnit.  
 Tests are run during the grunt build process.  
 To run tests manually, you can open tests/index.html in a browser.  
-Tests are currently a work in progress.
 
 ## Example App
 
