@@ -61,6 +61,10 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     params.dataType = this.get('serializer.dataType');
     params.contentType = this.get('serializer.contentType');
 
+    if (this.filterRequest) {
+      params = this.filterRequest(params);
+    }
+
     if(params.data && params.type !== 'GET') {
       params.data = this.get('serializer').prepareData(params.data);
     }
