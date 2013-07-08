@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.2
- * last modifed: 2013-06-26
+ * last modifed: 2013-07-08
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -495,6 +495,10 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     params.url = urlParts.join('/');
     params.dataType = this.get('serializer.dataType');
     params.contentType = this.get('serializer.contentType');
+
+    if (this.filterRequest) {
+      params = this.filterRequest(params);
+    }
 
     if(params.data && params.type !== 'GET') {
       params.data = this.get('serializer').prepareData(params.data);
