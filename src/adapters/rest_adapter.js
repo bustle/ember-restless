@@ -140,6 +140,34 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return deferred.promise;
   },
 
+  reloadRecord: function(record) {
+    var deferred = Ember.RSVP.defer(),
+        primaryKey = get(record.constructor, 'primaryKey'),
+        key = record.get(primaryKey),
+        self = this, ajaxRequest;
+
+    if(Ember.isNone(key)) {
+      deferred.reject(null);
+      return deferred.promise;
+    }
+
+    record.set('isLoading', true);
+    ajaxRequest = this.request(record, { type: 'GET' }, key);
+    ajaxRequest.done(function(data){
+      if (data) {
+        record.deserialize(data);
+      }
+      record.onLoaded();
+      deferred.resolve(record);
+    })
+    .fail(function(xhr) {
+      record.onError(self.onXhrError(xhr));
+      deferred.reject(record.get('errors'));
+    });
+
+    return deferred.promise;
+  },
+
   findAll: function(model) {
     return this.findQuery(model, null);
   },

@@ -16,6 +16,7 @@ RESTless.Adapter = Ember.Object.extend({
    */
   saveRecord:   Ember.K,
   deleteRecord: Ember.K,
+  reloadRecord: Ember.K,
   findAll:      Ember.K,
   findQuery:    Ember.K,
   findByKey:    Ember.K,

@@ -145,7 +145,7 @@ To save a record call: ```saveRecord()```
 The Adapter will automatically POST to save a new record, or PUT to update and existing record.
 
 ``` javascript
-var post = App.Post.create();
+var post = App.Post.create({ title: 'My First Post' });
 post.saveRecord();
 ```
 Updating:
@@ -161,7 +161,17 @@ The Adapter will delete the record remotely, then destroy the object when comple
 post.deleteRecord();
 ```
 
-### 'Loading' Records
+### Reloading records
+
+To refresh an existing record from the data store: ```reloadRecord()```
+
+``` javascript
+var post = App.Post.find(1);
+// ...
+post.reloadRecord();
+```
+
+### Side-loading Records
 
 You can manually populate records using raw data (side-loading).  
 Use the ```load``` and ```loadMany``` convenience methods:
@@ -191,9 +201,7 @@ Additionally, you can subscribe to events that are fired during the lifecycle
 
 **Event Examples:**
 ``` javascript
-var post = App.Post.create({
-  title: 'My First Post'
-});
+var post = App.Post.create({ title: 'My First Post' });
 
 post.on('didCreate', function() {
   console.log('post created!');
@@ -216,7 +224,7 @@ allPosts.on('becameError', function(error) {
 ```
 
 **Using Promises:**  
-```saveRecord()``` and ```deleteRecord()``` return promises, also allowing you to do the following:
+```saveRecord()```, ```deleteRecord()``` and ```reloadRecord()``` return promises, also allowing you to do the following:
 ``` javascript
 var post = App.Post.create({
   title: 'My First Post'

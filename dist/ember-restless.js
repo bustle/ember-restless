@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.2.4
- * last modifed: 2013-07-07
+ * last modifed: 2013-07-16
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -16,10 +16,6 @@
 var get = Ember.get, set = Ember.set,
     none = Ember.isNone, empty = Ember.isEmpty,
     RESTless;
-
-function requiredMethod(name) {
-  return function() { throw new Ember.Error(this.constructor.toString() + " must implement the required method: " + name); };
-}
 
 if (RESTless === undefined) {
   /**
@@ -113,14 +109,14 @@ RESTless.Serializer = Ember.Object.extend({
   contentType: null,
 
   /* 
-   * Common serializer methods that must be implemented in a subclass
+   * Common serializer methods to be implemented in a subclass
    */
-  deserialize:         requiredMethod('deserialize'),
-  deserializeProperty: requiredMethod('deserializeProperty'),
-  deserializeMany:     requiredMethod('deserializeMany'),
-  serialize:           requiredMethod('serialize'),
-  serializeProperty:   requiredMethod('serializeProperty'),
-  serializeMany:       requiredMethod('serializeMany'),
+  deserialize:         Ember.K,
+  deserializeProperty: Ember.K,
+  deserializeMany:     Ember.K,
+  serialize:           Ember.K,
+  serializeProperty:   Ember.K,
+  serializeMany:       Ember.K,
 
   /*
    * prepareData: (optional override) preps data before persisting
@@ -373,13 +369,14 @@ RESTless.Adapter = Ember.Object.extend({
   serializer: null,
 
   /* 
-   * Common adapter methods that must be implemented in a subclass
+   * Common adapter methods to be implemented in a subclass
    */
-  saveRecord:   requiredMethod('saveRecord'),
-  deleteRecord: requiredMethod('deleteRecord'),
-  findAll:      requiredMethod('findAll'),
-  findQuery:    requiredMethod('findQuery'),
-  findByKey:    requiredMethod('findByKey'),
+  saveRecord:   Ember.K,
+  deleteRecord: Ember.K,
+  reloadRecord: Ember.K,
+  findAll:      Ember.K,
+  findQuery:    Ember.K,
+  findByKey:    Ember.K,
 
   /*
    * configurations: stores info about custom configurations
@@ -545,7 +542,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     //If an existing model isn't dirty, no need to save.
     if(!isNew && !record.get('isDirty')) {
       deferred.resolve(record);
-      return deferred;
+      return deferred.promise;
     }
 
     record.set('isSaving', true);
@@ -577,6 +574,34 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     ajaxRequest.done(function() {
       record.onDeleted();
       deferred.resolve();
+    })
+    .fail(function(xhr) {
+      record.onError(self.onXhrError(xhr));
+      deferred.reject(record.get('errors'));
+    });
+
+    return deferred.promise;
+  },
+
+  reloadRecord: function(record) {
+    var deferred = Ember.RSVP.defer(),
+        primaryKey = get(record.constructor, 'primaryKey'),
+        key = record.get(primaryKey),
+        self = this, ajaxRequest;
+
+    if(Ember.isNone(key)) {
+      deferred.reject(null);
+      return deferred.promise;
+    }
+
+    record.set('isLoading', true);
+    ajaxRequest = this.request(record, { type: 'GET' }, key);
+    ajaxRequest.done(function(data){
+      if (data) {
+        record.deserialize(data);
+      }
+      record.onLoaded();
+      deferred.resolve(record);
     })
     .fail(function(xhr) {
       record.onError(self.onXhrError(xhr));
@@ -896,6 +921,9 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
   deleteRecord: function() {
     return RESTless.get('client.adapter').deleteRecord(this);
   },
+  reloadRecord: function() {
+    return RESTless.get('client.adapter').reloadRecord(this);
+  },
 
   /* 
    * serialization methods: Transforms model to and from its data representation.
@@ -1014,6 +1042,23 @@ RESTless.Model.reopenClass({
 });
 
 /*
+ * ReadOnlyModel
+ * Subclass for models that are read-only.
+ * Removes property change observers and write methods.
+ * Helps improve performance when write functionality is not needed.
+ */
+RESTless.ReadOnlyModel = RESTless.Model.extend({
+  /*
+   * Remove functionality associated with writing data and keeping state
+   */
+  serialize: null,
+  saveRecord: null,
+  deleteRecord: null,
+  didDefineProperty: null,
+  _onPropertyChange: Ember.K
+});
+
+/*
  * RecordArray
  * Base class extention for arrays of Models
  */
@@ -1086,23 +1131,6 @@ RESTless.RecordArray.reopenClass({
   createWithContent: function(opts) {
     return RESTless.RecordArray.create($.extend({ content: Ember.A() }, opts));
   }
-});
-
-/*
- * ReadOnlyModel
- * Subclass for models that are read-only.
- * Removes property change observers and write methods.
- * Helps improve performance when write functionality is not needed.
- */
-RESTless.ReadOnlyModel = RESTless.Model.extend({
-  /*
-   * Remove functionality associated with writing data and keeping state
-   */
-  serialize: null,
-  saveRecord: null,
-  deleteRecord: null,
-  didDefineProperty: null,
-  _onPropertyChange: Ember.K
 });
 
 /**

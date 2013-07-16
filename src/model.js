@@ -123,6 +123,9 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
   deleteRecord: function() {
     return RESTless.get('client.adapter').deleteRecord(this);
   },
+  reloadRecord: function() {
+    return RESTless.get('client.adapter').reloadRecord(this);
+  },
 
   /* 
    * serialization methods: Transforms model to and from its data representation.
