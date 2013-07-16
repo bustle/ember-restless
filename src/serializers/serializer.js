@@ -15,14 +15,14 @@ RESTless.Serializer = Ember.Object.extend({
   contentType: null,
 
   /* 
-   * Common serializer methods that must be implemented in a subclass
+   * Common serializer methods to be implemented in a subclass
    */
-  deserialize:         requiredMethod('deserialize'),
-  deserializeProperty: requiredMethod('deserializeProperty'),
-  deserializeMany:     requiredMethod('deserializeMany'),
-  serialize:           requiredMethod('serialize'),
-  serializeProperty:   requiredMethod('serializeProperty'),
-  serializeMany:       requiredMethod('serializeMany'),
+  deserialize:         Ember.K,
+  deserializeProperty: Ember.K,
+  deserializeMany:     Ember.K,
+  serialize:           Ember.K,
+  serializeProperty:   Ember.K,
+  serializeMany:       Ember.K,
 
   /*
    * prepareData: (optional override) preps data before persisting

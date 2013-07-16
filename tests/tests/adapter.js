@@ -7,15 +7,6 @@ test('an adapter can be created', function() {
   ok( adapter, 'an adapter exists' );
 });
 
-test('a custom adapter throws error if required methods not implemented', function() {
-  var adapter = RL.Adapter.create();
-  throws( function() { adapter.saveRecord() }, Ember.Error, 'required error thrown' );
-  throws( function() { adapter.deleteRecord() }, Ember.Error, 'required error thrown' );
-  throws( function() { adapter.findAll() }, Ember.Error, 'required error thrown' );
-  throws( function() { adapter.findQuery() }, Ember.Error, 'required error thrown' );
-  throws( function() { adapter.findByKey() }, Ember.Error, 'required error thrown' );
-});
-
 test('an adapter is optional with a custom client', function() {
   var client = RL.Client.create();
   ok( client.get('adapter'), 'falls back to base adapter' );

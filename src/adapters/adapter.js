@@ -12,13 +12,13 @@ RESTless.Adapter = Ember.Object.extend({
   serializer: null,
 
   /* 
-   * Common adapter methods that must be implemented in a subclass
+   * Common adapter methods to be implemented in a subclass
    */
-  saveRecord:   requiredMethod('saveRecord'),
-  deleteRecord: requiredMethod('deleteRecord'),
-  findAll:      requiredMethod('findAll'),
-  findQuery:    requiredMethod('findQuery'),
-  findByKey:    requiredMethod('findByKey'),
+  saveRecord:   Ember.K,
+  deleteRecord: Ember.K,
+  findAll:      Ember.K,
+  findQuery:    Ember.K,
+  findByKey:    Ember.K,
 
   /*
    * configurations: stores info about custom configurations
