@@ -99,7 +99,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     //If an existing model isn't dirty, no need to save.
     if(!isNew && !record.get('isDirty')) {
       deferred.resolve(record);
-      return deferred;
+      return deferred.promise;
     }
 
     record.set('isSaving', true);
