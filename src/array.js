@@ -14,7 +14,9 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
   createItem:function(opts) {
     var type = this.get('type'),
         itemClass = type ? get(Ember.lookup, type) : Ember.Object;
-    this.pushObject(itemClass.create(opts));
+        item = itemClass.create(opts);
+    this.pushObject(item);
+    return item;
   },
 
   /* 
@@ -56,7 +58,9 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
    */
   _onLoadedChange: Ember.observer(function() {
     if(this.get('isLoaded')) {
-      this.setEach('isLoaded', true);
+      this.forEach(function(item) {
+        item.onLoaded();
+      });
     }
   }, 'isLoaded')
 });
@@ -66,9 +70,19 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
  */
 RESTless.RecordArray.reopenClass({
   /*
+   * create: override state property defaults not implemented or applicable to arrays
+   */
+  create: function() {
+    var arr = this._super.apply(this, arguments);
+    arr.setProperties({ _isReady: true, isNew: false });
+    return arr;
+  },
+  /*
    * createWithContent: helper to create a RecordArray with the content property initialized
    */
-  createWithContent: function(opts) {
-    return RESTless.RecordArray.create($.extend({ content: Ember.A() }, opts));
+  createWithContent: function() {
+    var arr = this.create.apply(this, arguments);
+    if(!arr.content) { arr.set('content', Ember.A()); }
+    return arr;
   }
 });

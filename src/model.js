@@ -16,23 +16,6 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
   id: RESTless.attr('number'),
 
   /**
-   * isNew: model has not yet been saved.
-   * When a primary key value is set, isNew becomes false
-   *
-   * @property {Boolean}
-   */
-  isNew: true,
-
-  /**
-   * _isReady: For internal state management.
-   * Model won't be dirtied when setting initial values on create() or load()
-   *
-   * @private
-   * @property {Boolean}
-   */
-  _isReady: false,
-
-  /**
    * _data: Stores raw model data. Don't use directly; use declared model attributes.
    *
    * @private
@@ -231,14 +214,16 @@ RESTless.Model.reopenClass({
    * load: Create model directly from data representation.
    */
   load: function(data) {
-    return this.create().set('_isReady', false).deserialize(data).setProperties({ _isReady: true, isLoaded: true });
+    var model = this.create().set('_isReady', false).deserialize(data).set('_isReady', true);
+    model.onLoaded();
+    return model;
   },
   /*
    * loadMany: Create collection of records directly from data representation.
    */
   loadMany: function(data) {
-    return RESTless.RecordArray.createWithContent({ type: this.toString() })
-            .deserializeMany(data)
-            .set('isLoaded', true);
+    var array = RESTless.RecordArray.createWithContent({ type: this.toString() }).deserializeMany(data);
+    array.onLoaded();
+    return array;
   }
 });

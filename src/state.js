@@ -3,6 +3,10 @@
  * Mixin for managing model lifecycle state
  */
 RESTless.State = Ember.Mixin.create( Ember.Evented, {
+  /*
+   * isNew: model has not yet been saved.
+   */
+  isNew: true,
   /* 
    * isLoaded: model has been retrieved
    */
@@ -19,6 +23,11 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
    * isError: model has been marked as invalid after response from adapter
    */
   isError: false,
+  /*
+   * _isReady (private)
+   * Flag for deferring dirty state when setting initial values on create() or load()
+   */
+  _isReady: false,
   /* 
    * errors: error data returned from adapter
    */
@@ -68,7 +77,7 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
    * clearErrors: (helper) reset isError flag, clear error messages
    */
   clearErrors: function() {
-    this.setProperties({ 'isError': false, 'errors': null });
+    this.setProperties({ isError: false, errors: null });
     return this;
   },
 
@@ -76,13 +85,16 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
    * copyState: copies the current state to a cloned object
    */
   copyState: function(clone) {
-    return clone.setProperties({
-      isLoaded: this.get('isLoaded'),
-      isDirty:  this.get('isDirty'),
-      isSaving: this.get('isSaving'),
-      isError:  this.get('isError'),
-      errors:   this.get('errors')
-    });
+    var mi = RESTless.State.mixins,
+        props = mi[mi.length-1].properties;
+    Ember.beginPropertyChanges(clone);
+    for(var p in props) { 
+      if(props.hasOwnProperty(p) && typeof props[p] !== 'function') {
+        clone.set(p, this.get(p));
+      }
+    }
+    Ember.endPropertyChanges(clone);
+    return clone;
   },
 
   /* 
