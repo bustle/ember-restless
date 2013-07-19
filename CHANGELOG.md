@@ -4,6 +4,17 @@ The change log documents features and breaking changes for each version.
 While RESTless reaches a 1.0 release and more feedback and testing continues, the API is subject to change.  
 To keep the library small, API depreciation warnings may not be added.
 
+### 0.3
+
+- Added ```fetch()``` to find records returning Promises
+- Added ```reloadRecord()``` method
+- Added more robust error messages from remote requests
+- Cleaned up State mixin
+
+### 0.2.5
+
+- Added ```useContentTypeExtension``` option to RESTAdapter
+
 ### 0.2.4
 
 - Support for custom Grunt builds
@@ -25,7 +36,6 @@ To keep the library small, API depreciation warnings may not be added.
 - Add external date parsing lib
 - Add load and loadMany methods on Model
 - Multi-word model support
-
 
 ### 0.2.0
 

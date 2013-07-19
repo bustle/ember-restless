@@ -57,7 +57,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       var belongsToModel = get(Ember.lookup, field.type).create({ isNew: false });
       this.deserialize(belongsToModel, value);
       resource.set(formattedProp, belongsToModel);
-      belongsToModel.set('isLoaded', true);
+      belongsToModel.onLoaded();
     }
     else {
       // Check for a custom transform
@@ -100,7 +100,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       resource.pushObjects(resourceArr);
     }
 
-    resource.set('isLoaded', true);
+    resource.onLoaded();
 
     return resource;
   },
@@ -195,7 +195,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    */
   parseError: function(error) {
     var errorData = null;
-    try { errorData = $.parseJSON(error); } catch(e){}
+    try { errorData = JSON.parse(error); } catch(e){}
     return errorData;
   },
   /*

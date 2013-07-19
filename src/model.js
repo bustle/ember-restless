@@ -172,9 +172,15 @@ RESTless.Model.reopenClass({
   }),
 
   /*
-   * find methods: fetch model(s) with specified params
-   * Forwards to the current adapter to fetch from the appropriate data layer
+   * find methods: retrieve model(s) with specified params
+   * Forwards to the current adapter to retrieve from the appropriate data layer
    */
+  find: function(params) {
+    return RESTless.get('client.adapter').find(this, params);
+  },
+  fetch: function(params) {
+    return RESTless.get('client.adapter').fetch(this, params);
+  },
   findAll: function() {
     return RESTless.get('client.adapter').findAll(this);
   },
@@ -190,25 +196,6 @@ RESTless.Model.reopenClass({
    * A model's primary key can be customized so findById is not always semantically correct.
    */
   findById: Ember.aliasMethod('findByKey'),
-  /*
-   * find: a convenience method that can be used
-   * to intelligently route to findAll/findQuery/findByKey based on its params
-   */
-  find: function(params) {
-    var primaryKey = get(this, 'primaryKey'),
-        singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
-                                (typeof params === 'object' && params.hasOwnProperty(primaryKey));
-    if(singleResourceRequest) {
-      if(!params.hasOwnProperty(primaryKey)) {
-        return this.findByKey(params);
-      }
-      var key = params[primaryKey];  
-      delete params[primaryKey];
-      return this.findByKey(key, params);
-    } else {
-      return this.findQuery(params);
-    }
-  },
 
   /*
    * load: Create model directly from data representation.

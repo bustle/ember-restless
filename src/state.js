@@ -44,12 +44,16 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
       isError: false,
       errors: null
     });
-    this._triggerEvent(wasNew ? 'didCreate' : 'didUpdate');
-    this._triggerEvent('didLoad');
+    Ember.run(this, function() {
+      this.trigger(wasNew ? 'didCreate' : 'didUpdate', this);
+      this.trigger('didLoad', this);
+    });
   },
 
   onDeleted: function() {
-    this._triggerEvent('didDelete');
+    Ember.run(this, function() {
+      this.trigger('didDelete', this);
+    });
     Ember.run.next(this, function() {
       this.destroy();
     });
@@ -61,7 +65,9 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
       isError: false,
       errors: null
     });
-    this._triggerEvent('didLoad');
+    Ember.run(this, function() {
+      this.trigger('didLoad', this);
+    });
   },
 
   onError: function(errors) {
@@ -70,7 +76,9 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
       isError: true,
       errors: errors
     });
-    this._triggerEvent('becameError');
+    Ember.run(this, function() {
+      this.trigger('becameError', errors);
+    });
   },
 
   /* 
@@ -95,14 +103,6 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
     }
     Ember.endPropertyChanges(clone);
     return clone;
-  },
-
-  /* 
-   * _triggerEvent: (private) helper method to trigger lifecycle events
-   */
-  _triggerEvent: function(name) {
-    Ember.run(this, function() {
-      this.trigger(name, this);
-    });
   }
+
 });

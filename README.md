@@ -8,17 +8,18 @@ RESTless can be extended to support various other data persistence layers. For e
 
 One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
 
+Current version: **0.3**  
 See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
 ## Getting started
 
 Include ```ember-restless.js``` in your application. (found in the ```dist/``` folder)
 
-### Namespace
+** Namespace **
 
 RESTless can be referenced either with the namespace **RESTless** or the shorthand **RL**.  Similar to **Ember** and **Em**
 
-### Defining a custom RESTAdapter
+### Defining a RESTAdapter
 
 The REST adapter is responsible for communicating with your backend REST service.
 Here, you can set the url, and optionally a namespace.  
@@ -40,7 +41,7 @@ App.Client = RL.Client.create({
 });
 ```
 
-### Defining Models
+### Models
 
 Each model you create should extend RL.Model  
 Supported attribute types are string, number, boolean, and date.
@@ -81,28 +82,8 @@ App.Post = RL.Model.extend({
   tags: RL.hasMany('App.Tag')
 });
 ```
+_Currently, all relational data should be embedded in the json response. Also, see "side-loading records" below._
 
-Currently, all relational data should be embedded in the json response. 'Side-loading' this data may be added in a future release.
-For example, all of the 'tags' data should be available in the response from ```App.Post.find(1)```
-``` json
-{
-  "post": {
-    "id": 1,
-    "tags": [
-      {
-        "id": 1,
-        "name": "tag1",
-        "count": 50
-      },
-      {
-        "id": 2,
-        "name": "tag2",
-        "count": 11
-      }
-    ]
-  }
-}
-```
 
 ### Finding records
 
@@ -171,24 +152,36 @@ var post = App.Post.find(1);
 post.reloadRecord();
 ```
 
-### Side-loading Records
+### Side-loading records
 
 You can manually populate records using raw data (side-loading).  
 Use the ```load``` and ```loadMany``` convenience methods:
 
 ``` javascript
-var comment = App.Comment.load(jsonData);
-var tags = App.Tag.loadMany(jsonData);
+var post = App.Post.create();
+
+// The following could have been retrieved from a separate ajax request
+
+var commentData = { comment: { "id": 101, message: "Some comment" } };
+var comment = App.Comment.load(commentData);
+post.set('comment', comment);
+
+var postTagData = [
+  { "id": 1, "name": "technology", "count": 50 },
+  { "id": 2, "name": "entertainment", "count": 11 }
+];
+var tags = App.Tag.loadMany(postTagData);
+post.set('tags', tags);
 ```
 
 ### Model lifecycle
 
 All models have the following state properties added:
 
+* **isNew**: Record has been created but not yet saved
 * **isLoaded**: Record(s) have been retrieved
 * **isDirty**: The record has local changes that have not yet been stored
 * **isSaving**: Record is in the process of saving
-* **isNew**: Record has been created but not yet saved
 * **isError**: Record has been attempted to be saved, updated, or deleted but returned an error
 
 Additionally, you can subscribe to events that are fired during the lifecycle
@@ -197,7 +190,6 @@ Additionally, you can subscribe to events that are fired during the lifecycle
 * **didCreate**
 * **didUpdate**
 * **becameError**
-
 
 **Event Examples:**
 ``` javascript
@@ -223,8 +215,9 @@ allPosts.on('becameError', function(error) {
 });
 ```
 
-**Using Promises:**  
-```saveRecord()```, ```deleteRecord()``` and ```reloadRecord()``` return promises, also allowing you to do the following:
+### Promises
+
+CRUD actions return promises (```saveRecord()```, ```deleteRecord()``` and ```reloadRecord()```), allowing you to do the following:
 ``` javascript
 var post = App.Post.create({
   title: 'My First Post'
@@ -233,6 +226,17 @@ var post = App.Post.create({
 post.saveRecord().then(function(record) {
   // Success!
 }, function(errors) {
+  // Error!
+});
+```
+
+** To take advantage of promises when finding records, use ```fetch()``` instead of ```find()``` **  
+fetch returns a promise, while find will return entities that will update when retrieved.  
+_Promises allows you to take advantage of the new Ember Router hooks introduced in RC6._
+``` javascript
+var posts = App.Post.fetch().then(function(records) {
+  // Success!
+}, function(error) {
   // Error!
 });
 ```
@@ -246,6 +250,25 @@ You can use a custom adapter to set irregular plural resource names
 ``` javascript
 App.RESTAdapter.configure("plurals", {
   person: "people"
+});
+```
+
+### Changing resource endpoints
+Sometimes the name of your Ember model is different than the API endpoint.  
+For example if a CurrentUser model needs the point to ```/users``` and ```/user/1```  
+``` javascript
+App.CurrentUser = RL.Model.extend();
+App.CurrentUser.reopenClass({
+  resourceName: 'user'
+});
+```
+
+### Forcing content type extentions
+If you want the RESTAdapter to add extentions to requests:
+For example ```/users.json``` and ```/user/1.json```  
+``` javascript
+App.RESTAdapter = RESTless.RESTAdapter.create({
+  useContentTypeExtension: true
 });
 ```
 
@@ -356,7 +379,7 @@ Uses QUnit.
 Tests are run during the grunt build process.  
 To run tests manually, you can open tests/index.html in a browser.  
 
-## Example App
+## Example Apps
 
 Coming soon.
 

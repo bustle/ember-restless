@@ -52,33 +52,47 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   },
 
   /*
-   * request: configures and returns an ajax request
+   * request: creates and executes an ajax request wrapped in a promise
    */
-  request: function(model, params, resourceKey) {
-    params.url = this.buildUrl(model, resourceKey);
-    params.dataType = this.get('serializer.dataType');
-    params.contentType = this.get('serializer.contentType');
+  request: function(model, params, key) {
+    var adapter = this, serializer = this.serializer;
 
-    if(params.data && params.type !== 'GET') {
-      params.data = this.get('serializer').prepareData(params.data);
-    }
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      params = params || {};
+      params.url = adapter.buildUrl(model, key);
+      params.dataType = serializer.dataType;
+      params.contentType = serializer.contentType;
 
-    var request = $.ajax(params);
-    model.set('currentRequest', request);
-    return request;
+      if(params.data && params.type !== 'GET') {
+        params.data = serializer.prepareData(params.data);
+      }
+
+      params.success = function(data, textStatus, jqXHR) {
+        Ember.run(null, resolve, data);
+      };
+      params.error = function(jqXHR, textStatus, errorThrown) {
+        var errors = adapter.parseAjaxErrors(jqXHR, textStatus, errorThrown);
+        Ember.run(null, reject, errors);
+      };
+
+      var ajax = Ember.$.ajax(params);
+
+      // (private) store current ajax request on the model.
+      model.set('currentRequest', ajax);
+    });
   },
 
   /*
    * buildUrl (private): constructs request url and dynamically adds the a resource key if specified
    */
-  buildUrl: function(model, resourceKey) {
+  buildUrl: function(model, key) {
     var resourcePath = this.resourcePath(get(model.constructor, 'resourceName')),
         primaryKey = get(model.constructor, 'primaryKey'),
         urlParts = [this.get('rootPath'), resourcePath],
         dataType = this.get('serializer.dataType'), url;
 
-    if(resourceKey) {
-      urlParts.push(resourceKey);
+    if(key) {
+      urlParts.push(key);
     } else if(model.get(primaryKey)) {
       urlParts.push(model.get(primaryKey));
     }
@@ -94,122 +108,126 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
    * saveRecord: POSTs a new record, or PUTs an updated record to REST service
    */
   saveRecord: function(record) {
-    var deferred = Ember.RSVP.defer(),
-        isNew = record.get('isNew');
+   var isNew = record.get('isNew'), method, ajaxPromise;
     //If an existing model isn't dirty, no need to save.
     if(!isNew && !record.get('isDirty')) {
-      deferred.resolve(record);
-      return deferred.promise;
+      return new Ember.RSVP.Promise(function(resolve, reject){
+        resolve(record);
+      });
     }
 
     record.set('isSaving', true);
+    method = isNew ? 'POST' : 'PUT';
+    ajaxPromise = this.request(record, { type: method, data: record.serialize() });
 
-    var method = isNew ? 'POST' : 'PUT',
-        ajaxRequest = this.request(record, { type: method, data: record.serialize() }),
-        self = this;
-
-    ajaxRequest.done(function(data){
-      if (data) {
+    ajaxPromise.then(function(data){
+      if(data) {
         record.deserialize(data);
       }
       record.onSaved(isNew);
-      deferred.resolve(record);
-    })
-    .fail(function(xhr) {
-      record.onError(self.onXhrError(xhr));
-      deferred.reject(record.get('errors'));
+      return record;
+    }, function(error) {
+      record.onError(error);
+      return error;
     });
 
-    return deferred.promise;
+    return ajaxPromise;
   },
 
   deleteRecord: function(record) {
-    var deferred = Ember.RSVP.defer(),
-        ajaxRequest = this.request(record, { type: 'DELETE', data: record.serialize() }),
-        self = this;
+    var ajaxPromise = this.request(record, { type: 'DELETE', data: record.serialize() });
 
-    ajaxRequest.done(function() {
+    ajaxPromise.then(function() {
       record.onDeleted();
-      deferred.resolve();
-    })
-    .fail(function(xhr) {
-      record.onError(self.onXhrError(xhr));
-      deferred.reject(record.get('errors'));
+      return null;
+    }, function(error) {
+      record.onError(error);
+      return error;
     });
 
-    return deferred.promise;
+    return ajaxPromise;
   },
 
   reloadRecord: function(record) {
-    var deferred = Ember.RSVP.defer(),
-        primaryKey = get(record.constructor, 'primaryKey'),
-        key = record.get(primaryKey),
-        self = this, ajaxRequest;
+    var klass = record.constructor,
+        primaryKey = get(klass, 'primaryKey'),
+        key = record.get(primaryKey), ajaxPromise;
 
+    // Can't reload a record that hasn't been stored yet (no primary key)
     if(Ember.isNone(key)) {
-      deferred.reject(null);
-      return deferred.promise;
+      return new Ember.RSVP.Promise(function(resolve, reject){
+        reject(null);
+      });
     }
 
     record.set('isLoading', true);
-    ajaxRequest = this.request(record, { type: 'GET' }, key);
-    ajaxRequest.done(function(data){
-      if (data) {
-        record.deserialize(data);
-      }
-      record.onLoaded();
-      deferred.resolve(record);
-    })
-    .fail(function(xhr) {
-      record.onError(self.onXhrError(xhr));
-      deferred.reject(record.get('errors'));
-    });
-
-    return deferred.promise;
+    return this.fetch(klass, key);
   },
 
-  findAll: function(model) {
-    return this.findQuery(model, null);
+  findAll: function(klass) {
+    return this.findQuery(klass);
   },
 
-  findQuery: function(model, queryParams) {
-    var resourceInstance = model.create({ isNew: false }),
-        result = RESTless.RecordArray.createWithContent({ type: model.toString() }),
-        ajaxRequest = this.request(resourceInstance, { type: 'GET', data: queryParams }),
-        self = this;
+  findQuery: function(klass, queryParams) {
+    var resourceInstance = klass.create({ isNew: false }),
+        result = RESTless.RecordArray.createWithContent({ type: klass.toString() }),
+        ajaxPromise = this.request(resourceInstance, { type: 'GET', data: queryParams });
 
-    ajaxRequest.done(function(data){
+    ajaxPromise.then(function(data){
       result.deserializeMany(data);
       result.onLoaded();
-    })
-    .fail(function(xhr) {
-      result.onError(self.onXhrError(xhr));
+    }, function(error) {
+      result.onError(error);
     });
 
     return result;
   },
 
-  findByKey: function(model, key, queryParams) {
-    var result = model.create({ isNew: false }),
-        ajaxRequest = this.request(result, { type: 'GET', data: queryParams }, key),
-        self = this;
+  findByKey: function(klass, key, queryParams) {
+    var result = klass.create({ isNew: false }),
+        ajaxPromise = this.request(result, { type: 'GET', data: queryParams }, key);
 
-    ajaxRequest.done(function(data){
+    ajaxPromise.then(function(data){
       result.deserialize(data);
       result.onLoaded();
-    })
-    .fail(function(xhr) {
-      result.onError(self.onXhrError(xhr));
+    }, function(error) {
+      result.onError(error);
     });
 
     return result;
   },
 
   /*
-   * onXhrError: use serializer to parse ajax errors
+   * fetch: wraps find method in a promise for async find support
    */
-  onXhrError: function(xhr) {
-    return this.get('serializer').parseError(xhr.responseText);
+  fetch: function(klass, params) {
+    var adapter = this, find, promise;
+    promise = new Ember.RSVP.Promise(function(resolve, reject) {
+      find = adapter.find(klass, params);
+      find.one('didLoad', function(model) {
+        resolve(model);
+      });
+      find.one('becameError', function(error) {
+        reject(error);
+      });
+    });
+    // private: store the ajax request for aborting, etc.
+    promise._currentRequest = find.get('currentRequest');
+    return promise;
+  },
+
+  /*
+   * parseAjaxErrors: builds a robust error object using the serializer and xhr data
+   */
+  parseAjaxErrors: function(jqXHR, textStatus, errorThrown) {
+    // use serializer to parse error messages from server
+    var errors = this.get('serializer').parseError(jqXHR.responseText) || {};
+    // add additional xhr error info
+    errors.status = jqXHR.status;
+    errors.state = jqXHR.state();
+    errors.textStatus = textStatus;
+    errors.errorThrown = errorThrown;
+    return errors;
   },
 
   /*

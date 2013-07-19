@@ -20,6 +20,27 @@ RESTless.Adapter = Ember.Object.extend({
   findAll:      Ember.K,
   findQuery:    Ember.K,
   findByKey:    Ember.K,
+  fetch:        Ember.K,
+
+  /*
+   * find: a convenience method that can be used
+   * to intelligently route to findAll/findQuery/findByKey based on its params
+   */
+  find: function(klass, params) {
+    var primaryKey = get(klass, 'primaryKey'),
+        singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
+                                (typeof params === 'object' && params.hasOwnProperty(primaryKey));
+    if(singleResourceRequest) {
+      if(!params.hasOwnProperty(primaryKey)) {
+        return this.findByKey(klass, params);
+      }
+      var key = params[primaryKey];  
+      delete params[primaryKey];
+      return this.findByKey(klass, key, params);
+    } else {
+      return this.findQuery(klass, params);
+    }
+  },
 
   /*
    * configurations: stores info about custom configurations
