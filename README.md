@@ -11,11 +11,29 @@ One of its main goals is to reproduce much of the simple, useful features of [em
 Current version: **0.3**  
 See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
+### Table of Contents
+- [Getting started](#getting-started)
+- [Defining a RESTAdapter](#defining-a-restadapter)
+- [Defining a 'Client'](#defining-a-client)
+- [Models](#models)
+    - [Relationships](#relationships)
+    - [Finding records](#finding-records)
+    - [Creating records](#creating-records)
+    - [Saving records](#saving-records)
+    - [Deleting records](#deleting-records)
+    - [Reloading records](#reloading-records)
+    - [Side-loading records](#side-loading-records)
+    - [Model lifecycle](#model-lifecycle)
+- [Promises](#promises)
+- [Advanced](#advanced)
+- [Building RESTless](#building-restless)
+- [Tests](#tests)
+
 ## Getting started
 
 Include ```ember-restless.js``` in your application. (found in the ```dist/``` folder)
 
-** Namespace **
+**Namespace**
 
 RESTless can be referenced either with the namespace **RESTless** or the shorthand **RL**.  Similar to **Ember** and **Em**
 
@@ -82,12 +100,12 @@ App.Post = RL.Model.extend({
   tags: RL.hasMany('App.Tag')
 });
 ```
-_Currently, all relational data should be embedded in the json response. Also, see "side-loading records" below._
+_Currently, all relational data should be embedded in the response. Also, see "side-loading records" below._
 
 
 ### Finding records
 
-Use the ```find()``` method to fetch records
+Use the ```find()``` method to retrieve records.
 
 To find a Post with an id of 1:
 
@@ -122,8 +140,8 @@ var post = App.Post.create({
 
 ### Saving records
 
-To save a record call: ```saveRecord()```
-The Adapter will automatically POST to save a new record, or PUT to update and existing record.
+Simply call: ```saveRecord()```  
+The Adapter will automatically POST to save a new record, or PUT to update an existing record.
 
 ``` javascript
 var post = App.Post.create({ title: 'My First Post' });
@@ -161,7 +179,6 @@ Use the ```load``` and ```loadMany``` convenience methods:
 var post = App.Post.create();
 
 // The following could have been retrieved from a separate ajax request
-
 var commentData = { comment: { "id": 101, message: "Some comment" } };
 var comment = App.Comment.load(commentData);
 post.set('comment', comment);
@@ -174,7 +191,7 @@ var tags = App.Tag.loadMany(postTagData);
 post.set('tags', tags);
 ```
 
-### Model lifecycle
+### Model lifecycle and state
 
 All models have the following state properties added:
 
@@ -182,9 +199,9 @@ All models have the following state properties added:
 * **isLoaded**: Record(s) have been retrieved
 * **isDirty**: The record has local changes that have not yet been stored
 * **isSaving**: Record is in the process of saving
-* **isError**: Record has been attempted to be saved, updated, or deleted but returned an error
+* **isError**: Record has been attempted to be saved, updated, or deleted but returned an error. Error messages are store in the **errors** property.
 
-Additionally, you can subscribe to events that are fired during the lifecycle
+You can subscribe to events that are fired during the lifecycle:
 
 * **didLoad**
 * **didCreate**
@@ -230,8 +247,8 @@ post.saveRecord().then(function(record) {
 });
 ```
 
-** To take advantage of promises when finding records, use ```fetch()``` instead of ```find()``` **  
-fetch returns a promise, while find will return entities that will update when retrieved.  
+**To take advantage of promises when finding records, use ```fetch()``` instead of ```find()```**  
+```fetch()``` returns a promise, while ```find()``` will return entities that will update when resolved.  
 _Promises allows you to take advantage of the new Ember Router hooks introduced in RC6._
 ``` javascript
 var posts = App.Post.fetch().then(function(records) {
@@ -274,7 +291,7 @@ App.RESTAdapter = RESTless.RESTAdapter.create({
 
 ### Changing the the primary key for a model
 The primary key for all models defaults to 'id'. 
-You can customize it per model class to match your backend:
+You can customize it per model class to match your API:
 ``` javascript
 App.RESTAdapter.map("App.Post", {
   primaryKey: "slug"
