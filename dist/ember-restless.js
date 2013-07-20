@@ -2,8 +2,8 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.3
- * last modifed: 2013-07-19
+ * version: 0.3.0
+ * last modifed: 2013-07-20
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
