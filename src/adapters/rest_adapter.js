@@ -160,7 +160,6 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
       });
     }
 
-    record.set('isLoading', true);
     return this.fetch(klass, key);
   },
 

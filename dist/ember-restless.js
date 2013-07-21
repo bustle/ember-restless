@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.3.0
- * last modifed: 2013-07-20
+ * last modifed: 2013-07-21
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -624,7 +624,6 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
       });
     }
 
-    record.set('isLoading', true);
     return this.fetch(klass, key);
   },
 
