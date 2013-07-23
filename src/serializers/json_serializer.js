@@ -76,9 +76,9 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     var meta = this.extractMeta(data);
     if(meta) { resource.set('meta', meta); }
 
-    // findAll from ActiveRecord returns array wrapped in plural resource name: { posts: [...] }
-    if(!$.isArray(data)) {
-      var keyPlural = get(RESTless, 'client.adapter').pluralize(this._keyForResourceType(type));
+    // ActiveRecord returns array wrapped in plural resource name: { posts: [...] }
+    if(!Ember.isArray(data)) {
+      var keyPlural = get(resource, 'adapter').pluralize(this._keyForResourceType(type));
       data = data[keyPlural];
     }
     if(!data) { 

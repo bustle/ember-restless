@@ -129,3 +129,20 @@ test('loading raw representation', function() {
   ok( comment.get('likes.isLoaded'), 'hasMany child is loaded' );
   ok( comment.get('post.isLoaded'),  'belongsTo is loaded' );
 });
+
+
+test('can set a different adapter per model', function() {
+  equal( get(App.Comment, 'adapter'), get(RESTless, 'client.adapter'), 'defaults to client adapter' );
+
+  var testAdapter = RL.Adapter.create({
+    someProp: 'hi'
+  });
+
+  App.Comment.reopenClass({
+    adapter: Ember.computed(function() {
+      return testAdapter;
+    }).property()
+  });
+
+  equal( get(App.Comment, 'adapter'), testAdapter, 'adapter for model class changed' );
+});

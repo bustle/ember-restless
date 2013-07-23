@@ -8,28 +8,42 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
    */
   type: null,
 
+  getTypeClass: function() {
+    var type = this.get('type');
+    return type ? get(Ember.lookup, type) : null;
+  },
+
   /*
    * createItem: pushes an new object of type onto array
    */
-  createItem:function(opts) {
-    var type = this.get('type'),
-        itemClass = type ? get(Ember.lookup, type) : Ember.Object;
-        item = itemClass.create(opts);
-    this.pushObject(item);
-    return item;
+  createItem:function() {
+    var typeClass = this.getTypeClass() || Ember.Object,
+        item = typeClass.create.apply(typeClass, arguments);
+    return this.pushObject(item);
   },
+
+  /*
+   * adapter: Uses the adapter instance of the model type it contains
+   */
+  adapter: Ember.computed(function() {
+    var typeClass = this.getTypeClass();
+    if(typeClass) {
+      return get(typeClass, 'adapter');
+    }
+    return get(RESTless, 'client.adapter');
+  }).property('type', 'RESTless.client.adapter'),
 
   /* 
    * deserializeMany: use the current Serializer to populate the array from supplied data
    */
   deserializeMany: function(data) {
-    return RESTless.get('client.adapter.serializer').deserializeMany(this, this.get('type'), data);
+    return get(this, 'adapter.serializer').deserializeMany(this, this.get('type'), data);
   },
   /* 
    * serializeMany: use the current Serializer turn the array into data representation
    */
   serializeMany: function() {
-    return RESTless.get('client.adapter.serializer').serializeMany(this, this.get('type'));
+    return get(this, 'adapter.serializer').serializeMany(this, this.get('type'));
   },
 
   /*
@@ -74,8 +88,7 @@ RESTless.RecordArray.reopenClass({
    */
   create: function() {
     var arr = this._super.apply(this, arguments);
-    arr.setProperties({ _isReady: true, isNew: false });
-    return arr;
+    return arr.setProperties({ _isReady: true, isNew: false });
   },
   /*
    * createWithContent: helper to create a RecordArray with the content property initialized

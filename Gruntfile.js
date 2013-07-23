@@ -33,7 +33,7 @@ module.exports = function(grunt) {
           'src/state.js',
           'src/model.js',
           'src/read_only_model.js',
-          'src/array.js'
+          'src/record_array.js'
         ]
       },
       transforms: {

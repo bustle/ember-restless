@@ -101,13 +101,13 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
    * Forward to the current adapter to perform operations on persistance layer
    */
   saveRecord: function() {
-    return RESTless.get('client.adapter').saveRecord(this);
+    return get(this.constructor, 'adapter').saveRecord(this);
   },
   deleteRecord: function() {
-    return RESTless.get('client.adapter').deleteRecord(this);
+    return get(this.constructor, 'adapter').deleteRecord(this);
   },
   reloadRecord: function() {
-    return RESTless.get('client.adapter').reloadRecord(this);
+    return get(this.constructor, 'adapter').reloadRecord(this);
   },
 
   /* 
@@ -135,6 +135,13 @@ RESTless.Model.reopenClass({
     instance.set('_isReady', true);
     return instance;
   },
+
+  /*
+   * adapter: hook to override which adapter instance to use per model
+   */
+  adapter: Ember.computed(function() {
+    return get(RESTless, 'client.adapter');
+  }).property('RESTless.client.adapter'),
 
   /* 
    * primaryKey: property name for the primary key.
@@ -176,19 +183,19 @@ RESTless.Model.reopenClass({
    * Forwards to the current adapter to retrieve from the appropriate data layer
    */
   find: function(params) {
-    return RESTless.get('client.adapter').find(this, params);
+    return get(this, 'adapter').find(this, params);
   },
   fetch: function(params) {
-    return RESTless.get('client.adapter').fetch(this, params);
+    return get(this, 'adapter').fetch(this, params);
   },
   findAll: function() {
-    return RESTless.get('client.adapter').findAll(this);
+    return get(this, 'adapter').findAll(this);
   },
   findQuery: function(params) {
-    return RESTless.get('client.adapter').findQuery(this, params);
+    return get(this, 'adapter').findQuery(this, params);
   },
   findByKey: function(key, params) {
-    return RESTless.get('client.adapter').findByKey(this, key, params);
+    return get(this, 'adapter').findByKey(this, key, params);
   },
   /*
    * findById: alias to findByKey method

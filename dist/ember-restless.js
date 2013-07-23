@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.3.0
- * last modifed: 2013-07-21
+ * last modifed: 2013-07-23
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -210,9 +210,9 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     var meta = this.extractMeta(data);
     if(meta) { resource.set('meta', meta); }
 
-    // findAll from ActiveRecord returns array wrapped in plural resource name: { posts: [...] }
-    if(!$.isArray(data)) {
-      var keyPlural = get(RESTless, 'client.adapter').pluralize(this._keyForResourceType(type));
+    // ActiveRecord returns array wrapped in plural resource name: { posts: [...] }
+    if(!Ember.isArray(data)) {
+      var keyPlural = get(resource, 'adapter').pluralize(this._keyForResourceType(type));
       data = data[keyPlural];
     }
     if(!data) { 
@@ -949,13 +949,13 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
    * Forward to the current adapter to perform operations on persistance layer
    */
   saveRecord: function() {
-    return RESTless.get('client.adapter').saveRecord(this);
+    return get(this.constructor, 'adapter').saveRecord(this);
   },
   deleteRecord: function() {
-    return RESTless.get('client.adapter').deleteRecord(this);
+    return get(this.constructor, 'adapter').deleteRecord(this);
   },
   reloadRecord: function() {
-    return RESTless.get('client.adapter').reloadRecord(this);
+    return get(this.constructor, 'adapter').reloadRecord(this);
   },
 
   /* 
@@ -983,6 +983,13 @@ RESTless.Model.reopenClass({
     instance.set('_isReady', true);
     return instance;
   },
+
+  /*
+   * adapter: hook to override which adapter instance to use per model
+   */
+  adapter: Ember.computed(function() {
+    return get(RESTless, 'client.adapter');
+  }).property('RESTless.client.adapter'),
 
   /* 
    * primaryKey: property name for the primary key.
@@ -1024,19 +1031,19 @@ RESTless.Model.reopenClass({
    * Forwards to the current adapter to retrieve from the appropriate data layer
    */
   find: function(params) {
-    return RESTless.get('client.adapter').find(this, params);
+    return get(this, 'adapter').find(this, params);
   },
   fetch: function(params) {
-    return RESTless.get('client.adapter').fetch(this, params);
+    return get(this, 'adapter').fetch(this, params);
   },
   findAll: function() {
-    return RESTless.get('client.adapter').findAll(this);
+    return get(this, 'adapter').findAll(this);
   },
   findQuery: function(params) {
-    return RESTless.get('client.adapter').findQuery(this, params);
+    return get(this, 'adapter').findQuery(this, params);
   },
   findByKey: function(key, params) {
-    return RESTless.get('client.adapter').findByKey(this, key, params);
+    return get(this, 'adapter').findByKey(this, key, params);
   },
   /*
    * findById: alias to findByKey method
@@ -1090,28 +1097,42 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
    */
   type: null,
 
+  getTypeClass: function() {
+    var type = this.get('type');
+    return type ? get(Ember.lookup, type) : null;
+  },
+
   /*
    * createItem: pushes an new object of type onto array
    */
-  createItem:function(opts) {
-    var type = this.get('type'),
-        itemClass = type ? get(Ember.lookup, type) : Ember.Object;
-        item = itemClass.create(opts);
-    this.pushObject(item);
-    return item;
+  createItem:function() {
+    var typeClass = this.getTypeClass() || Ember.Object,
+        item = typeClass.create.apply(typeClass, arguments);
+    return this.pushObject(item);
   },
+
+  /*
+   * adapter: Uses the adapter instance of the model type it contains
+   */
+  adapter: Ember.computed(function() {
+    var typeClass = this.getTypeClass();
+    if(typeClass) {
+      return get(typeClass, 'adapter');
+    }
+    return get(RESTless, 'client.adapter');
+  }).property('type', 'RESTless.client.adapter'),
 
   /* 
    * deserializeMany: use the current Serializer to populate the array from supplied data
    */
   deserializeMany: function(data) {
-    return RESTless.get('client.adapter.serializer').deserializeMany(this, this.get('type'), data);
+    return get(this, 'adapter.serializer').deserializeMany(this, this.get('type'), data);
   },
   /* 
    * serializeMany: use the current Serializer turn the array into data representation
    */
   serializeMany: function() {
-    return RESTless.get('client.adapter.serializer').serializeMany(this, this.get('type'));
+    return get(this, 'adapter.serializer').serializeMany(this, this.get('type'));
   },
 
   /*
@@ -1156,8 +1177,7 @@ RESTless.RecordArray.reopenClass({
    */
   create: function() {
     var arr = this._super.apply(this, arguments);
-    arr.setProperties({ _isReady: true, isNew: false });
-    return arr;
+    return arr.setProperties({ _isReady: true, isNew: false });
   },
   /*
    * createWithContent: helper to create a RecordArray with the content property initialized
