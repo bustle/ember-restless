@@ -21,7 +21,7 @@ RESTless.belongsTo = function(type, opts) {
 // hasMany: One-to-many & many-to-many relationships
 RESTless.hasMany = function(type, opts) {
   var defaultArray = function() {
-    return RESTless.RecordArray.createWithContent({type: type});
+    return RESTless.RecordArray.createWithContent();
   },
   meta = $.extend({ type: type, isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
   return makeComputedAttribute(meta);

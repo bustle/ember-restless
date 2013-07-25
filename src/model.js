@@ -216,7 +216,7 @@ RESTless.Model.reopenClass({
    * loadMany: Create collection of records directly from data representation.
    */
   loadMany: function(data) {
-    var array = RESTless.RecordArray.createWithContent({ type: this.toString() }).deserializeMany(data);
+    var array = RESTless.RecordArray.createWithContent().deserializeMany(this.toString(), data);
     array.onLoaded();
     return array;
   }

@@ -4,46 +4,23 @@
  */
 RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
   /*
-   * type: type of model class the array contains
-   */
-  type: null,
-
-  getTypeClass: function() {
-    var type = this.get('type');
-    return type ? get(Ember.lookup, type) : null;
-  },
-
-  /*
-   * createItem: pushes an new object of type onto array
-   */
-  createItem:function() {
-    var typeClass = this.getTypeClass() || Ember.Object,
-        item = typeClass.create.apply(typeClass, arguments);
-    return this.pushObject(item);
-  },
-
-  /*
-   * adapter: Uses the adapter instance of the model type it contains
+   * adapter: hook for overriding the record array adapter
    */
   adapter: Ember.computed(function() {
-    var typeClass = this.getTypeClass();
-    if(typeClass) {
-      return get(typeClass, 'adapter');
-    }
     return get(RESTless, 'client.adapter');
-  }).property('type', 'RESTless.client.adapter'),
+  }).property('RESTless.client.adapter'),
 
   /* 
-   * deserializeMany: use the current Serializer to populate the array from supplied data
+   * deserializeMany: use the current Serializer turn the data into a record array
    */
-  deserializeMany: function(data) {
-    return get(this, 'adapter.serializer').deserializeMany(this, this.get('type'), data);
+  deserializeMany: function(type, data) {
+    return get(this, 'adapter.serializer').deserializeMany(this, type, data);
   },
   /* 
    * serializeMany: use the current Serializer turn the array into data representation
    */
-  serializeMany: function() {
-    return get(this, 'adapter.serializer').serializeMany(this, this.get('type'));
+  serializeMany: function(type) {
+    return get(this, 'adapter.serializer').serializeMany(this, type);
   },
 
   /*
@@ -66,14 +43,17 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
       this.set('isDirty', true);
     }
   }, '@each.isDirty'),
+
   /*
    * _onLoadedChange: (private) observes when the array's isLoaded state changes
-   * and updates each item's isLoaded to match
+   * and triggers each items onLoaded
    */
   _onLoadedChange: Ember.observer(function() {
     if(this.get('isLoaded')) {
       this.forEach(function(item) {
-        item.onLoaded();
+        if(RESTless.Model.detectInstance(item)) {
+          item.onLoaded();
+        }
       });
     }
   }, 'isLoaded')

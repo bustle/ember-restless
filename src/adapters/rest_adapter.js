@@ -168,12 +168,13 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   },
 
   findQuery: function(klass, queryParams) {
-    var resourceInstance = klass.create({ isNew: false }),
-        result = RESTless.RecordArray.createWithContent({ type: klass.toString() }),
+    var type = klass.toString(),
+        resourceInstance = klass.create({ isNew: false }),
+        result = RESTless.RecordArray.createWithContent(),
         ajaxPromise = this.request(resourceInstance, { type: 'GET', data: queryParams });
 
     ajaxPromise.then(function(data){
-      result.deserializeMany(data);
+      result.deserializeMany(type, data);
       result.onLoaded();
     }, function(error) {
       result.onError(error);

@@ -7,6 +7,7 @@ lib-cov
 *.pid
 *.gz
 *.swp
+*.sh
 
 pids
 logs
@@ -16,4 +17,4 @@ npm-debug.log
 node_modules
 
 dist/*.min.js
-example
+examples

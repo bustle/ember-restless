@@ -8,16 +8,21 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   contentType: 'application/json; charset=utf-8',
 
   /* 
-   * deserialize: translates json object into a model. i.e:
-   * { id:1, name:'post 1' } => App.Post
+   * deserialize: translates json object into a model object
    */
   deserialize: function(resource, data) {
-    // Check if data is wrapped (ActiveRecord): { post: { id:1, name:'post 1' } }
-    var key = this._keyForResource(resource), prop;
+    if(!data) { return resource; }
+
+    var key, prop;
+
+    // Check for wrapped object by resource name: { post: { id:1, name:'post 1' } }
+    // This is the default from ActiveRecord
+    key = this._keyForResource(resource);
     if(data[key]) {
       data = data[key];
     }
 
+    // iterate over each json property and deserialze
     Ember.beginPropertyChanges(resource);
     for(prop in data) {
       if (data.hasOwnProperty(prop)) {
@@ -32,77 +37,79 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    * deserializeProperty: sets model object properties from json
    */
   deserializeProperty: function(resource, prop, value) {
-    var modelConfig = get(RESTless, 'client._modelConfigs').get(resource.constructor.toString()), formattedProp;
- 
-    // check if a custom key was configured for this property
-    if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[prop]) {
-      formattedProp = modelConfig.propertyKeys[prop];
-    } else {
-      formattedProp = Ember.String.camelize(prop);
-    }
-
-    var fields = get(resource.constructor, 'fields'),
-        field = fields.get(formattedProp);
+    var attrName = this.attributeNameForKey(resource, prop),
+        fields = get(resource.constructor, 'fields'),
+        field = fields.get(attrName), type, klass;
 
     // If the json contains a key not defined on the model, don't attempt to set it.
     if (!field) { return; }
 
+    type = field.type;
+    klass = get(Ember.lookup, type);
+
     // If property is a hasMany relationship, deserialze the array
     if (field.hasMany) {
-      var hasManyArr = this.deserializeMany(resource.get(formattedProp), field.type, value);
-      resource.set(formattedProp, hasManyArr);
+      var hasManyArr = this.deserializeMany(resource.get(attrName), type, value);
+      resource.set(attrName, hasManyArr);
     } 
     // If property is a belongsTo relationship, deserialze that model
-    else if (field.belongsTo) {
-      var belongsToModel = get(Ember.lookup, field.type).create({ isNew: false });
-      this.deserialize(belongsToModel, value);
-      resource.set(formattedProp, belongsToModel);
+    else if (field.belongsTo && klass) {
+      var belongsToModel = klass.create({ isNew: false }).deserialize(value);
       belongsToModel.onLoaded();
+      resource.set(attrName, belongsToModel);
     }
     else {
       // Check for a custom transform
-      if (field.type && RESTless.JSONTransforms[field.type]) {
-        value = RESTless.JSONTransforms[field.type].deserialize(value);
+      if (type && RESTless.JSONTransforms[type]) {
+        value = RESTless.JSONTransforms[type].deserialize(value);
       }
-      resource.set(formattedProp, value);
+      resource.set(attrName, value);
     }
   },
 
   /* 
    * deserializeMany: deserializes an array of json objects
    */
-  deserializeMany: function(resource, type, data) {
+  deserializeMany: function(recordArray, type, data) {
+    if(!data) { return recordArray; }
+
+    var klass = get(Ember.lookup, type), meta, keyPlural, len, i, item;
+
     // extract any meta info
-    var meta = this.extractMeta(data);
-    if(meta) { resource.set('meta', meta); }
+    meta = this.extractMeta(data);
+    if(meta) { recordArray.set('meta', meta); }
 
-    // ActiveRecord returns array wrapped in plural resource name: { posts: [...] }
+    // Check for wrapped array by resource name: { posts: [...] }
+    // This is the default from ActiveRecord on direct finds
     if(!Ember.isArray(data)) {
-      var keyPlural = get(resource, 'adapter').pluralize(this._keyForResourceType(type));
-      data = data[keyPlural];
-    }
-    if(!data) { 
-      return; 
+      keyPlural = this._keyPluralForResourceType(type);
+      if(data[keyPlural]) {
+        data = data[keyPlural];
+      } else {
+        return recordArray;
+      }
     }
 
-    var len = data.length,
-        resourceArr = [], item, i;
-    if(resource) {
-      resource.clear();
+    if(recordArray) {
+      recordArray.clear();
     } else {
-      resource = RESTless.RecordArray.createWithContent({type: type});
-    }
-    for(i=0; i<len; i++) {
-      item = get(Ember.lookup, type).create({ isNew: false }).deserialize(data[i]);
-      resourceArr.push(item);
-    }
-    if(resourceArr.length) {
-      resource.pushObjects(resourceArr);
+      recordArray = RESTless.RecordArray.createWithContent();
     }
 
-    resource.onLoaded();
-
-    return resource;
+    len = data.length;
+    if(len) {
+      Ember.beginPropertyChanges(recordArray);
+      for(i=0; i<len; i++) {
+        item = data[i];
+        if(klass && typeof item === 'object') {
+          item = klass.create({ isNew: false }).deserialize(item);
+        }
+        recordArray.pushObject(item);
+      }
+      Ember.endPropertyChanges(recordArray);
+    }
+    recordArray.onLoaded();
+    return recordArray;
   },
 
   /* 
@@ -133,11 +140,11 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   serializeProperty: function(resource, prop, opts) {
     var value = resource.get(prop);
 
+    // TODO: field options and custom serialize options are different
     if (!opts) {
       opts = resource.constructor.metaForProperty(prop);
     }
-
-    if (opts.hasMany) {
+    if (opts && opts.hasMany) {
       return this.serializeMany(value.get('content'), opts.type);
     }
 
@@ -151,39 +158,64 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   /* 
    * serializeMany: serializes an array of models into json
    */
-  serializeMany: function(resourceArr, type) {
+  serializeMany: function(recordArray, type) {
     var key = this._keyForResourceType(type),
-        result = [],
-        len = resourceArr.length, i, item;
+        len = recordArray.length,
+        result = [], i, item;
     for(i=0; i<len; i++) {
-      item = resourceArr[i].serialize();
+      item = recordArray[i];
+      if(RESTless.Model.detectInstance(item)) {
+        item = item.serialize();
+      }
       result.push(item[key]);
     }
     return result;
   },
 
   /*
-   * _keyForResource, _keyForResourceType (private) shortcut helpers
+   * (private) shortcut helpers
    */
   _keyForResource: function(resource) {
     return this.keyForResourceName(get(resource.constructor, 'resourceName'));
   },
   _keyForResourceType: function(type) {
-    return this._keyForResource(get(Ember.lookup, type).create());
+    var klass = get(Ember.lookup, type);
+    return klass ? this._keyForResource(klass.create()) : null;
   },
-
+  _keyPluralForResourceType: function(type) {
+    var klass = get(Ember.lookup, type), resource, adapter, plural;
+    if(klass) {
+      resource = klass.create();
+      adapter = get(resource.constructor, 'adapter'),
+      plural = adapter.pluralize(get(resource.constructor, 'resourceName'));
+      return this.keyForResourceName(plural);
+    }
+    return null;
+  },
   /*
    * keyForResourceName: helper to transform resource name to valid json key
    */
   keyForResourceName: function(name) {
-    return Ember.String.decamelize(name);
+    return name ? Ember.String.decamelize(name) : null;
   },
   /*
    * keyForAttributeName: helper to transform attribute name to valid json key
    */
   keyForAttributeName: function(name) {
-    return Ember.String.decamelize(name);
+    return name ? Ember.String.decamelize(name) : null;
   },
+  /*
+   * attributeNameForKey: returns ember property name based on json key
+   */
+  attributeNameForKey: function(resource, key) {
+    // check if a custom key was configured for this property
+    var modelConfig = get(RESTless, 'client._modelConfigs').get(resource.constructor.toString());
+    if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[key]) {
+      return modelConfig.propertyKeys[key];
+    }
+    return Ember.String.camelize(key);
+  },
+
   /* 
    * prepareData: json must be stringified before transmitting to most backends
    */
