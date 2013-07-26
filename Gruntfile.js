@@ -45,7 +45,7 @@ module.exports = function(grunt) {
     },
 
     jshint: {
-      beforeconcat: ['gruntfile.js', 'src/**/*.js'],
+      beforeconcat: ['gruntfile.js', 'src/**/*.js', 'tests/tests/*.js'],
       afterconcat: ['dist/<%= pkg.name %>.js'],
       options: {
         forin: true,
@@ -64,7 +64,7 @@ module.exports = function(grunt) {
     },
 
     qunit: {
-      files: ['tests/index.html']
+      files: ['tests/*.html']
     },
 
     concat: {

@@ -140,7 +140,6 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   serializeProperty: function(resource, prop, opts) {
     var value = resource.get(prop);
 
-    // TODO: field options and custom serialize options are different
     if (!opts) {
       opts = resource.constructor.metaForProperty(prop);
     }

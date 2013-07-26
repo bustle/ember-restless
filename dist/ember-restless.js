@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.3.1
- * last modifed: 2013-07-25
+ * last modifed: 2013-07-26
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -274,7 +274,6 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   serializeProperty: function(resource, prop, opts) {
     var value = resource.get(prop);
 
-    // TODO: field options and custom serialize options are different
     if (!opts) {
       opts = resource.constructor.metaForProperty(prop);
     }
