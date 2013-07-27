@@ -59,7 +59,7 @@ RESTless.Adapter = Ember.Object.extend({
     var configs = this.get('configurations'),
         configForType = configs.get(type);
     if(configForType) {
-      configs.set(type, $.extend(configForType, value));
+      configs.set(type, Ember.merge(configForType, value));
     }
     return this;
   },
@@ -88,7 +88,7 @@ RESTless.Adapter = Ember.Object.extend({
         } else {
           newConfig[configKey] = config[configKey];
         }
-        modelConfig = $.extend(modelConfig, newConfig);
+        modelConfig = modelConfig ? Ember.merge(modelConfig, newConfig) : newConfig;
       }
     }
     modelMap.set(modelKey, modelConfig);

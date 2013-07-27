@@ -5,7 +5,7 @@
 
 // Standard attribute
 RESTless.attr = function(type, opts) {
-  var meta = $.extend({ type: type, isAttribute: true }, opts);
+  var meta = Ember.merge({ type: type, isAttribute: true }, opts);
   return makeComputedAttribute(meta);
 };
 
@@ -14,7 +14,7 @@ RESTless.belongsTo = function(type, opts) {
   var defaultRecord = function() {
     return get(Ember.lookup, type).create();
   },
-  meta = $.extend({ type: type, isRelationship: true, belongsTo: true, defaultValue: defaultRecord }, opts);
+  meta = Ember.merge({ type: type, isRelationship: true, belongsTo: true, defaultValue: defaultRecord }, opts);
   return makeComputedAttribute(meta);
 };
 
@@ -23,7 +23,7 @@ RESTless.hasMany = function(type, opts) {
   var defaultArray = function() {
     return RESTless.RecordArray.createWithContent();
   },
-  meta = $.extend({ type: type, isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
+  meta = Ember.merge({ type: type, isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
   return makeComputedAttribute(meta);
 };
 
