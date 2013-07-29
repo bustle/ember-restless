@@ -11,10 +11,7 @@ RESTless.attr = function(type, opts) {
 
 // belongsTo: One-to-one relationships
 RESTless.belongsTo = function(type, opts) {
-  var defaultRecord = function() {
-    return get(Ember.lookup, type).create();
-  },
-  meta = Ember.merge({ type: type, isRelationship: true, belongsTo: true, defaultValue: defaultRecord }, opts);
+  var meta = Ember.merge({ type: type, isRelationship: true, belongsTo: true }, opts);
   return makeComputedAttribute(meta);
 };
 

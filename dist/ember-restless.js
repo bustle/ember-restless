@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.3.1
- * last modifed: 2013-07-27
+ * last modifed: 2013-07-29
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -48,10 +48,7 @@ RESTless.attr = function(type, opts) {
 
 // belongsTo: One-to-one relationships
 RESTless.belongsTo = function(type, opts) {
-  var defaultRecord = function() {
-    return get(Ember.lookup, type).create();
-  },
-  meta = Ember.merge({ type: type, isRelationship: true, belongsTo: true, defaultValue: defaultRecord }, opts);
+  var meta = Ember.merge({ type: type, isRelationship: true, belongsTo: true }, opts);
   return makeComputedAttribute(meta);
 };
 
