@@ -134,7 +134,7 @@ test('loading raw representation', function() {
 test('can set a different adapter per model', function() {
   equal( get(App.Comment, 'adapter'), get(RESTless, 'client.adapter'), 'defaults to client adapter' );
 
-  var testAdapter = RL.Adapter.create({
+  var testAdapter = RL.RESTAdapter.create({
     someProp: 'hi'
   });
 
@@ -145,4 +145,19 @@ test('can set a different adapter per model', function() {
   });
 
   equal( get(App.Comment, 'adapter'), testAdapter, 'adapter for model class changed' );
+});
+
+
+asyncTest('event hooks', 1, function() {
+  App.Comment.reopen({
+    becameError: function (error) {
+      this.set('test', 99);
+    }
+  });
+
+  var comment = App.Comment.find(1);
+  comment.get('currentRequest').abort().always(function() {
+    equal( comment.get('test'), 99, 'event hook was invoked' );
+    start();
+  });
 });

@@ -34,6 +34,15 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
   errors: null,
 
   /*
+   * State event hooks
+   */
+  didCreate:    Ember.K,
+  didUpdate:    Ember.K,
+  didLoad:      Ember.K,
+  didDelete:    Ember.K,
+  becameError:  Ember.K,
+
+  /*
    * Internal state change handlers, called by adapter
    */
   onSaved: function(wasNew) {
@@ -44,16 +53,12 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
       isError: false,
       errors: null
     });
-    Ember.run(this, function() {
-      this.trigger(wasNew ? 'didCreate' : 'didUpdate', this);
-      this.trigger('didLoad', this);
-    });
+    this._triggerEvent(wasNew ? 'didCreate' : 'didUpdate', this);
+    this._triggerEvent('didLoad', this);
   },
 
   onDeleted: function() {
-    Ember.run(this, function() {
-      this.trigger('didDelete', this);
-    });
+    this._triggerEvent('didDelete', this);
     Ember.run.next(this, function() {
       this.destroy();
     });
@@ -65,9 +70,7 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
       isError: false,
       errors: null
     });
-    Ember.run(this, function() {
-      this.trigger('didLoad', this);
-    });
+    this._triggerEvent('didLoad', this);
   },
 
   onError: function(errors) {
@@ -76,9 +79,7 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
       isError: true,
       errors: errors
     });
-    Ember.run(this, function() {
-      this.trigger('becameError', errors);
-    });
+    this._triggerEvent('becameError', errors);
   },
 
   /* 
@@ -103,6 +104,12 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
     }
     Ember.endPropertyChanges(clone);
     return clone;
-  }
+  },
 
+  _triggerEvent: function(event, data) {
+    Ember.run(this, function() {
+      Ember.tryInvoke(this, event, [data]);
+      this.trigger(event, data);
+    });
+  }
 });
