@@ -1,6 +1,6 @@
 # Ember RESTless [![Build Status](https://travis-ci.org/endlessinc/ember-restless.png?branch=master)](https://travis-ci.org/endlessinc/ember-restless)
 
-RESTless is a lightweight data persistence library for Ember.js. (~3KB minified & gzipped)
+RESTless is a lightweight data persistence library for Ember.js. (~4KB minified & gzipped)
 
 Out of the box, it is used to communicate with a remote JSON REST API to map data between a server and your Ember.js application.  
 
@@ -8,7 +8,7 @@ RESTless can be extended to support various other data persistence layers. For e
 
 One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
 
-Current version: **0.3**  
+Current version: **0.3.2**  
 See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
 ### Table of Contents
@@ -31,7 +31,7 @@ See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
 ## Getting started
 
-Include ```ember-restless.js``` in your application. (found in the ```dist/``` folder)
+Include [ember-restless.js](https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless.js) in your application. (found in the ```dist/``` folder)
 
 **Namespace**
 
@@ -81,14 +81,16 @@ For one-to-one relationships use the _belongsTo_ attribute helper.
 
 ``` javascript
 App.User = RL.Model.extend({
-  profile: RL.belongsTo('App.Profile')
+  name: RL.attr('string'),
+  role: RL.attr('number')
 });
+
 App.Profile = RL.Model.extend({
   user: RL.belongsTo('App.User')
 });
 ```
 
-One-to-many and many-to-many, use the _hasMany_ helper.  
+For one-to-many relationships, use the _hasMany_ helper.  
 For example, if a ```Post``` model contains an array of ```Tag``` models:
 ``` javascript
 App.Tag = RL.Model.extend({
@@ -100,7 +102,7 @@ App.Post = RL.Model.extend({
   tags: RL.hasMany('App.Tag')
 });
 ```
-_Currently, all relational data should be embedded in the response. Also, see "side-loading records" below._
+_Currently, all relational data should be embedded in the response. Also, see [Side-loading records](#side-loading-records)._
 
 
 ### Finding records
@@ -262,17 +264,9 @@ var posts = App.Post.fetch().then(function(records) {
 
 ## Advanced
 
-### Custom plurals configuration
-You can use a custom adapter to set irregular plural resource names
-``` javascript
-App.RESTAdapter.configure("plurals", {
-  person: "people"
-});
-```
-
 ### Changing resource endpoints
 Sometimes the name of your Ember model is different than the API endpoint.  
-For example if a CurrentUser model needs the point to ```/users``` and ```/user/1```  
+For example if a ```CurrentUser``` model needs to point to ```/users``` and ```/user/1```  
 ``` javascript
 App.CurrentUser = RL.Model.extend();
 App.CurrentUser.reopenClass({
@@ -280,12 +274,11 @@ App.CurrentUser.reopenClass({
 });
 ```
 
-### Forcing content type extentions
-If you want the RESTAdapter to add extentions to requests:
-For example ```/users.json``` and ```/user/1.json```  
+### Custom plurals configuration
+You can use a custom adapter to set irregular plural resource names
 ``` javascript
-App.RESTAdapter = RESTless.RESTAdapter.create({
-  useContentTypeExtension: true
+App.RESTAdapter.configure("plurals", {
+  person: "people"
 });
 ```
 
@@ -306,6 +299,15 @@ App.Person = RL.Model.extend({
 });
 App.RESTAdapter.map('App.Person', {
   lastName: { key: 'lastNameOfPerson' }
+});
+```
+
+### Forcing content type extentions
+If you want the RESTAdapter to add extentions to requests:
+For example ```/users.json``` and ```/user/1.json```  
+``` javascript
+App.RESTAdapter = RESTless.RESTAdapter.create({
+  useContentTypeExtension: true
 });
 ```
 
@@ -380,7 +382,7 @@ If you wish to build ember-restless yourself, you will need node.js and Grunt.
 2. Open a terminal window
 3. Install dependencies: ```npm install```
 4. Build: ```grunt```
-5. Output will be *dist/ember-restless.js* and *dist/ember-restless.min.js*
+5. Output will be ```dist/ember-restless.js``` and ```dist/ember-restless.min.js```
 
 ### Custom Builds
 
