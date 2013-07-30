@@ -160,7 +160,16 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
       });
     }
 
-    return this.fetch(klass, key);
+    record.set('isLoaded', false);
+    ajaxPromise = this.request(record, { type: 'GET' }, key);
+    ajaxPromise.then(function(data){
+      record.deserialize(data);
+      record.onLoaded();
+    }, function(error) {
+      record.onError(error);
+    });
+
+    return ajaxPromise;
   },
 
   findAll: function(klass) {

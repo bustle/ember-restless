@@ -2,7 +2,7 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.3.1
+ * version: 0.3.2
  * last modifed: 2013-07-29
  *
  * Garth Poitras <garth22@gmail.com>
@@ -652,7 +652,16 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
       });
     }
 
-    return this.fetch(klass, key);
+    record.set('isLoaded', false);
+    ajaxPromise = this.request(record, { type: 'GET' }, key);
+    ajaxPromise.then(function(data){
+      record.deserialize(data);
+      record.onLoaded();
+    }, function(error) {
+      record.onError(error);
+    });
+
+    return ajaxPromise;
   },
 
   findAll: function(klass) {
