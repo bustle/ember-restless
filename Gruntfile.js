@@ -107,6 +107,9 @@ module.exports = function(grunt) {
   // Build task: Lint and build only
   grunt.registerTask('build', ['jshint:beforeconcat', 'concat:dist', 'jshint:afterconcat']);
 
+  // Test only task
+  grunt.registerTask('test', ['qunit']);
+
   // Travis CI task: Build, lint, test
   grunt.registerTask('travis', ['concat:dist', 'jshint:afterconcat', 'qunit']);
 
