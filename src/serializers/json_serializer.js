@@ -182,11 +182,10 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     return klass ? this._keyForResource(klass.create()) : null;
   },
   _keyPluralForResourceType: function(type) {
-    var klass = get(Ember.lookup, type), resource, adapter, resourceName;
+    var klass = get(Ember.lookup, type), adapter, resourceName;
     if(klass) {
-      resource = klass.create();
-      adapter = get(resource.constructor, 'adapter'),
-      resourceName = get(resource.constructor, 'resourceName');
+      adapter = get(klass, 'adapter');
+      resourceName = get(klass, 'resourceName');
       return adapter.pluralize(this.keyForResourceName(resourceName));
     }
     return null;

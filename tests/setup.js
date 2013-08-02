@@ -5,7 +5,7 @@ App.Post = RL.Model.extend({
   title: RL.attr('string'),
   body: RL.attr('string'),
   tags: RL.hasMany('App.Tag'),
-  created: RL.attr('date')
+  createdAt: RL.attr('date')
 });
 
 App.Tag = RL.Model.extend({
@@ -33,3 +33,5 @@ App.Comment = RL.Model.extend({
 App.Like = RL.Model.extend({
   username: RL.attr('string')
 });
+
+App.ClientAddress = RL.Model.extend();

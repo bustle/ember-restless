@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.3.2
- * last modifed: 2013-07-29
+ * last modifed: 2013-08-02
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -313,12 +313,11 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     return klass ? this._keyForResource(klass.create()) : null;
   },
   _keyPluralForResourceType: function(type) {
-    var klass = get(Ember.lookup, type), resource, adapter, plural;
+    var klass = get(Ember.lookup, type), adapter, resourceName;
     if(klass) {
-      resource = klass.create();
-      adapter = get(resource.constructor, 'adapter'),
-      plural = adapter.pluralize(get(resource.constructor, 'resourceName'));
-      return this.keyForResourceName(plural);
+      adapter = get(klass, 'adapter');
+      resourceName = get(klass, 'resourceName');
+      return adapter.pluralize(this.keyForResourceName(resourceName));
     }
     return null;
   },
