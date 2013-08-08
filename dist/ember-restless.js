@@ -1011,6 +1011,12 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
   },
   deserialize: function(data) {
     return RESTless.get('client.adapter.serializer').deserialize(this, data);
+  },
+  serializeProperty: function(prop) {
+    return RESTless.get('client.adapter.serializer').serializeProperty(this, prop);
+  },
+  deserializeProperty: function(prop, value) {
+    return RESTless.get('client.adapter.serializer').deserializeProperty(this, prop, value);
   }
 });
 
