@@ -135,6 +135,10 @@ RESTless.Model.reopenClass({
     instance.set('_isReady', true);
     return instance;
   },
+  /*
+   * createRecord: alias to create.  Ease transition to/from ember-data
+   */
+  createRecord: Ember.aliasMethod('create'),
 
   /*
    * adapter: hook to override which adapter instance to use per model

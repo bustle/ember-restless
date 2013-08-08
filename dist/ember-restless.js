@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.3.2
- * last modifed: 2013-08-02
+ * last modifed: 2013-08-08
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -1027,6 +1027,10 @@ RESTless.Model.reopenClass({
     instance.set('_isReady', true);
     return instance;
   },
+  /*
+   * createRecord: alias to create.  Ease transition to/from ember-data
+   */
+  createRecord: Ember.aliasMethod('create'),
 
   /*
    * adapter: hook to override which adapter instance to use per model
