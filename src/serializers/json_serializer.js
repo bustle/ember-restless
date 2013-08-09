@@ -152,6 +152,8 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     }
     if (opts && opts.hasMany) {
       return this.serializeMany(value.get('content'), opts.type);
+    } else if(opts.belongsTo) {
+      return this.serialize(value);
     }
 
     //Check for a custom transform

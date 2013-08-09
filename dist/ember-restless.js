@@ -2,7 +2,7 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.4
+ * version: 0.4.0
  * last modifed: 2013-08-08
  *
  * Garth Poitras <garth22@gmail.com>
@@ -283,6 +283,8 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     }
     if (opts && opts.hasMany) {
       return this.serializeMany(value.get('content'), opts.type);
+    } else if(opts.belongsTo) {
+      return this.serialize(value);
     }
 
     //Check for a custom transform
