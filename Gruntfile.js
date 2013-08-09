@@ -41,12 +41,17 @@ module.exports = function(grunt) {
           'src/ext/date.js',
           'src/ext/json_transforms.js'
         ]
+      },
+      fixtures: {
+        src: [
+          'src/adapters/fixture_adapter.js'
+        ]
       }
     },
 
     jshint: {
       beforeconcat: ['gruntfile.js', 'src/**/*.js', 'tests/tests/*.js'],
-      afterconcat: ['dist/<%= pkg.name %>.js'],
+      afterconcat: ['dist/<%= pkg.name %>.js', 'dist/<%= pkg.name %>+extras.js'],
       options: {
         forin: true,
         noarg: true,
@@ -82,6 +87,15 @@ module.exports = function(grunt) {
         dest: 'dist/<%= pkg.name %>.js'
       },
 
+      extras: {
+        get src() {
+          var modules = grunt.config.data.modules;
+          // TODO: loop
+          return modules.core.src.concat(modules.transforms.src, modules.fixtures.src);
+        },
+        dest: 'dist/<%= pkg.name %>+extras.js'
+      },
+
       custom: {
         files: { 'dist/<%= pkg.name %>.js' : [] }
       }
@@ -92,6 +106,11 @@ module.exports = function(grunt) {
         files: {
           'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
         }
+      },
+      extras: {
+        files: {
+          'dist/<%= pkg.name %>+extras.min.js': ['<%= concat.extras.dest %>']
+        }
       }
     }
   });
@@ -101,27 +120,28 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-qunit');
 
-  // Default task: Lint, build, test, build production
-  grunt.registerTask('default', ['jshint:beforeconcat', 'concat:dist', 'jshint:afterconcat', 'qunit', 'uglify']);
-
   // Build task: Lint and build only
-  grunt.registerTask('build', ['jshint:beforeconcat', 'concat:dist', 'jshint:afterconcat']);
+  grunt.registerTask('build', ['jshint:beforeconcat', 'concat:dist', 'concat:extras', 'jshint:afterconcat']);
+
+  // Default task: Lint, build, test, build production
+  grunt.registerTask('default', ['build', 'qunit', 'uglify']);
 
   // Test only task
   grunt.registerTask('test', ['qunit']);
 
   // Travis CI task: Build, lint, test
-  grunt.registerTask('travis', ['concat:dist', 'jshint:afterconcat', 'qunit']);
+  grunt.registerTask('travis', ['concat:dist', 'concat:extras', 'jshint:afterconcat', 'qunit']);
 
   // Custom build task: Build with options to exclude files
   grunt.registerTask('custom', function(excludes) {
-    var excludeArr = excludes.split(','),
+    var customArr = excludes.split(','),
         modules = grunt.config.data.modules,
         customSrcs = [];
 
-    for(var i = 0; i < excludeArr.length; i++) {
-      excludeArr[i] = excludeArr[i].replace(/-/, '');
-      delete modules[excludeArr[i]];
+    for(var i = 0; i < customArr.length; i++) {
+      // TODO: support adding and removing
+      customArr[i] = customArr[i].replace(/-/, '');
+      delete modules[customArr[i]];
     }
     for(var module in modules) {
       if(modules.hasOwnProperty(module)) {

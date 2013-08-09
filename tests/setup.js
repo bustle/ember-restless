@@ -35,3 +35,9 @@ App.Like = RL.Model.extend({
 });
 
 App.ClientAddress = RL.Model.extend();
+
+App.Person.FIXTURES = [
+  { id: 1, name: 'Garth', role: 3 },
+  { id: 2, name: 'Tyler', role: 3 },
+  { id: 3, name: 'Beth', role: 1 }
+];

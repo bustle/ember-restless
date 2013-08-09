@@ -108,7 +108,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
    * saveRecord: POSTs a new record, or PUTs an updated record to REST service
    */
   saveRecord: function(record) {
-   var isNew = record.get('isNew'), method, ajaxPromise;
+    var isNew = record.get('isNew'), method, ajaxPromise;
     //If an existing model isn't dirty, no need to save.
     if(!isNew && !record.get('isDirty')) {
       return new Ember.RSVP.Promise(function(resolve, reject){
@@ -208,6 +208,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
 
   /*
    * fetch: wraps find method in a promise for async find support
+   * Overridden to add currentRequest
    */
   fetch: function(klass, params) {
     var adapter = this, find, promise;

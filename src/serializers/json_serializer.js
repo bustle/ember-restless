@@ -115,18 +115,26 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   /* 
    * serialize: turns model into json
    */
-  serialize: function(resource) {
+  serialize: function(resource, options) {
     var key = this._keyForResource(resource),
         fields = get(resource.constructor, 'fields'),
-        json = {};
+        serialized = {}, json;
 
-    json[key] = {};
-    fields.forEach(function(field, opts) {
-      //Don't include readOnly properties or to-one relationships
-      if (!opts.readOnly && !opts.belongsTo) {
-        var val = this.serializeProperty(resource, field, opts);
+    // By default, serialzed records are wrapped in a resource-named object
+    // { post: { id:1, name:"first post" } }
+    // The option 'nonEmbedded' returns { id:1, name:"first post" }
+    if(options && options.nonEmbedded) {
+      json = serialized;
+    } else {
+      json = serialized[key] = {};
+    }
+
+    fields.forEach(function(field, fieldOpts) {
+      //Don't include readOnly properties or relationships (unless specified)
+      if (!fieldOpts.readOnly || (fieldOpts.belongsTo && options && options.includeRelationships)) {
+        var val = this.serializeProperty(resource, field, fieldOpts);
         if(val !== null) {
-          json[key][this.keyForAttributeName(field)] = val;
+          json[this.keyForAttributeName(field)] = val;
         }
       }
     }, this);
@@ -145,6 +153,8 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     }
     if (opts && opts.hasMany) {
       return this.serializeMany(value.get('content'), opts.type);
+    } else if(opts.belongsTo) {
+      return this.serialize(value);
     }
 
     //Check for a custom transform

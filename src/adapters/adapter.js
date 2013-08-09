@@ -14,13 +14,12 @@ RESTless.Adapter = Ember.Object.extend({
   /* 
    * Common adapter methods to be implemented in a subclass
    */
-  saveRecord:   Ember.K,
-  deleteRecord: Ember.K,
-  reloadRecord: Ember.K,
-  findAll:      Ember.K,
-  findQuery:    Ember.K,
-  findByKey:    Ember.K,
-  fetch:        Ember.K,
+  saveRecord:           Ember.K,
+  deleteRecord:         Ember.K,
+  findAll:              Ember.K,
+  findQuery:            Ember.K,
+  findByKey:            Ember.K,
+  generateIdForRecord:  Ember.K,
 
   /*
    * find: a convenience method that can be used
@@ -40,6 +39,40 @@ RESTless.Adapter = Ember.Object.extend({
     } else {
       return this.findQuery(klass, params);
     }
+  },
+
+  /*
+   * fetch: wraps find method in a promise for async find support
+   */
+  fetch: function(klass, params) {
+    var adapter = this, find;
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      find = adapter.find(klass, params);
+      find.one('didLoad', function(model) {
+        resolve(model);
+      });
+      find.one('becameError', function(error) {
+        reject(error);
+      });
+    });
+  },
+
+  /*
+   * reloadRecord: refreshes existing record from the data store
+   */
+  reloadRecord: function(record) {
+    var klass = record.constructor,
+        primaryKey = get(klass, 'primaryKey'),
+        key = record.get(primaryKey);
+
+    // Can't reload a record that hasn't been stored yet (no primary key)
+    if(Ember.isNone(key)) {
+      return new Ember.RSVP.Promise(function(resolve, reject){
+        reject(null);
+      });
+    }
+
+    return this.fetch(klass, key);
   },
 
   /*

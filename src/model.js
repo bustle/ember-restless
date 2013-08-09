@@ -114,8 +114,8 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
    * serialization methods: Transforms model to and from its data representation.
    * Forward to the current serializer to perform appropriate parsing
    */
-  serialize: function() {
-    return RESTless.get('client.adapter.serializer').serialize(this);
+  serialize: function(options) {
+    return RESTless.get('client.adapter.serializer').serialize(this, options);
   },
   deserialize: function(data) {
     return RESTless.get('client.adapter.serializer').deserialize(this, data);
