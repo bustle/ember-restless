@@ -247,22 +247,12 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    * serialize: turns model into json
    */
   serialize: function(resource, options) {
-    var key = this._keyForResource(resource),
-        fields = get(resource.constructor, 'fields'),
-        serialized = {}, json;
-
-    // By default, serialzed records are wrapped in a resource-named object
-    // { post: { id:1, name:"first post" } }
-    // The option 'nonEmbedded' returns { id:1, name:"first post" }
-    if(options && options.nonEmbedded) {
-      json = serialized;
-    } else {
-      json = serialized[key] = {};
-    }
+    var fields = get(resource.constructor, 'fields'),
+        json = {};
 
     fields.forEach(function(field, fieldOpts) {
-      //Don't include readOnly properties or relationships (unless specified)
-      if (!fieldOpts.readOnly || (fieldOpts.belongsTo && options && options.includeRelationships)) {
+      //Don't include readOnly properties or to-one relationships (unless specified)
+      if (!fieldOpts.readOnly && (!fieldOpts.belongsTo || (fieldOpts.belongsTo && options && options.includeRelationships))) {
         var val = this.serializeProperty(resource, field, fieldOpts);
         if(val !== null) {
           json[this.keyForAttributeName(field)] = val;
@@ -270,7 +260,16 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       }
     }, this);
 
-    return json;
+    // By default, serialzed records are wrapped in a resource-named object
+    // { post: { id:1, name:"first post" } }
+    // The option 'nonEmbedded' returns { id:1, name:"first post" }
+    if(options && options.nonEmbedded) {
+      return json;
+    } else {
+      var wrapped = {};
+      wrapped[this._keyForResource(resource)] = json;
+      return wrapped;
+    }
   },
 
   /* 
@@ -284,8 +283,6 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     }
     if (opts && opts.hasMany) {
       return this.serializeMany(value.get('content'), opts.type);
-    } else if(opts.belongsTo) {
-      return this.serialize(value);
     }
 
     //Check for a custom transform
@@ -391,7 +388,6 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
  * Bulding with json_transforms.js is optional, and will overwrite this
  */
 RESTless.JSONTransforms = {};
-
 /*
  * Adapter
  * Base adapter to be subclassed.
