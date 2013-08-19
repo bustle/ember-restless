@@ -14,7 +14,7 @@ App.Tag = RL.Model.extend({
 
 App.PostGroup = RL.Model.extend({
   featured: RL.hasMany('App.Post'),
-  popular: RL.hasMany('App.Post')
+  popular: RL.hasMany('App.Post', { readOnly: true })
 });
 
 App.Person = RL.Model.extend({

@@ -71,6 +71,18 @@ test('becomes dirty when a nested relationship becomes dirty', function() {
   ok( postGroup.get('isDirty'), 'dirtying a nested relationship dirties the root object' );
 });
 
+test('does not become dirty when a readOnly nested relationship becomes dirty', function() {
+  var postGroup = App.PostGroup.load({
+    id: 3,
+    popular: [ { id: 2, title: 'world', tags: [ { name: 'tag1' }, { name: 'tag2' } ] } ]
+  });
+
+  ok( !postGroup.get('isDirty'), 'freshly loaded model is not dirty' );
+
+  postGroup.get('popular.firstObject').get('tags.firstObject').set('name', 'tagB');
+
+  ok( !postGroup.get('isDirty'), 'dirtying a readOnly nested relationship did not dirty parent' );
+});
 
 test('attributes can have default values', function() {
   var model = RL.Model.extend({
