@@ -44,3 +44,15 @@ test('resource key lookups', function() {
   equal(serialzer.attributeNameForKey(post, 'title'), 'title', 'key correct');
   equal(serialzer.attributeNameForKey(post, 'created_at'), 'createdAt', 'key correct');
 });
+
+test('null belongsTo relationship values do not create empty models', function() {
+  var serialzer = RL.JSONSerializer.create(),
+      comment = App.Comment.create(),
+      testJson = { comment: { id: 1, text: 'hello', post: null } };
+
+  comment.deserialize(testJson);
+
+  equal( 'hello', comment.get('text') );
+  equal( null ,   comment.get('post') );
+  equal( null ,   comment.get('author') );
+});
