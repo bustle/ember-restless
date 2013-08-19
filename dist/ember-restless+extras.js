@@ -184,7 +184,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       resource.set(attrName, hasManyArr);
     } 
     // If property is a belongsTo relationship, deserialze that model
-    else if (field.belongsTo && klass) {
+    else if (field.belongsTo && klass && value) {
       var belongsToModel = klass.create({ isNew: false }).deserialize(value);
       belongsToModel.onLoaded();
       resource.set(attrName, belongsToModel);
