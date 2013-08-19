@@ -34,7 +34,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     if (value instanceof Ember.Descriptor) {
       var meta = value.meta();
 
-      if (meta.isRelationship) {
+      if (meta.isRelationship && !meta.readOnly) {
         // If a relationship's property becomes dirty, need to mark owner as dirty.
         Ember.addObserver(proto, key + '.isDirty', null, '_onRelationshipChange');
       }

@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.4.0
- * last modifed: 2013-08-08
+ * last modifed: 2013-08-18
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -968,7 +968,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     if (value instanceof Ember.Descriptor) {
       var meta = value.meta();
 
-      if (meta.isRelationship) {
+      if (meta.isRelationship && !meta.readOnly) {
         // If a relationship's property becomes dirty, need to mark owner as dirty.
         Ember.addObserver(proto, key + '.isDirty', null, '_onRelationshipChange');
       }
