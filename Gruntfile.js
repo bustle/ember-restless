@@ -46,6 +46,11 @@ module.exports = function(grunt) {
         src: [
           'src/adapters/fixture_adapter.js'
         ]
+      },
+      localStorage: {
+        src: [
+          'src/adapters/ls_adapter.js'
+        ]
       }
     },
 
@@ -91,7 +96,7 @@ module.exports = function(grunt) {
         get src() {
           var modules = grunt.config.data.modules;
           // TODO: loop
-          return modules.core.src.concat(modules.transforms.src, modules.fixtures.src);
+          return modules.core.src.concat(modules.transforms.src, modules.fixtures.src, modules.localStorage.src);
         },
         dest: 'dist/<%= pkg.name %>+extras.js'
       },
