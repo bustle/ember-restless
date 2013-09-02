@@ -178,11 +178,12 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    */
   deleteAll: function(model) {
     var deferred = Ember.RSVP.defer(),
-        dataStore = localStorage.getItem(model.toString());
+        resourceName = get(model, 'resourceName'),
+        dataStore = localStorage.getItem(resourceName);
 
     if(dataStore) {
       try{
-        delete(localStorage[model.toString()]);
+        delete(localStorage[resourceName]);
         deferred.resolve();
       } catch (err) {
         deferred.reject(err);
@@ -191,7 +192,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
       deferred.resolve();
     }
 
-    return deferred.promise();
+    return deferred.promise;
   },
 
   /*
