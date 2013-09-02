@@ -314,3 +314,16 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
     localStorage.setItem('_modelsMeta', JSON.stringify(modelsMeta));
   }
 });
+
+/*
+ * reopenClass to add deleteAll and updateCircularLimit as properties
+ */
+RESTless.Model.reopenClass({
+  /*
+   * deleteAll: Delete all records
+   */
+  deleteAll: function(params) {
+    return get(this, 'adapter').deleteAll(this, params);
+  }
+});
+
