@@ -13,13 +13,19 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   deserialize: function(resource, data) {
     if(!data) { return resource; }
 
-    var key, prop;
+    var key, prop, meta;
 
     // Check for wrapped object by resource name: { post: { id:1, name:'post 1' } }
     // This is the default from ActiveRecord
     key = this._keyForResource(resource);
     if(data[key]) {
       data = data[key];
+    }
+
+    // extract any meta info
+    meta = this.extractMeta(data);
+    if(meta) { 
+      resource.set('meta', meta);
     }
 
     // iterate over each json property and deserialze
