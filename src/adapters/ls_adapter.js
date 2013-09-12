@@ -30,13 +30,6 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         dataStore = this._getDataStore(record),
         modelMeta = this._getModelMeta(record);
 
-    // If an  existing model isn't dirty, no need to save.
-    if(!isNew && !record.get('isDirty')) {
-      deferred.resolve(record);
-      return deferred.promise;
-    }
-
-
     /*
      * If primaryKey is not provided, we must generate it from tail value and
      * insert depending on circularLimit
@@ -73,7 +66,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         key = record.get(primaryKey),
         modelMeta = this._getModelMeta(record);
 
-    if(dataStore.hasOwnProperty(key)) {
+    if(dataStore[key]) {
       modelMeta.splice(modelMeta.indexOf(key), 1);
       delete(dataStore[key]);
       try{
@@ -132,7 +125,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         items = [], itemsA;
 
     for(var key in dataStore) {
-      if (dataStore.hasOwnProperty(key)) {
+      if (dataStore[key]) {
         items.push(dataStore[key]);
       }
     }
@@ -160,11 +153,11 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
     var result = model.create({ isNew: false}),
         dataStoreName = this._getDSName(result),
         dataStore = this._getDataStore(result),
-        primaryKey = get(record.constructor, 'primaryKey'),
-        recordFromkey = this.recordByKey(dataStore, key);
+        primaryKey = get(model, 'primaryKey'),
+        recordFromKey = this.recordByKey(dataStore, key);
 
     if(recordFromKey) {
-      result.deserialize(data);
+      result.deserialize(recordFromKey);
       result.onLoaded();
     } else {
       result.onError("error");
@@ -199,7 +192,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * Returns record by key
    */
   recordByKey: function(dataStore, key) {
-    if(dataStore.hasOwnPropery(key)) {
+    if(dataStore[key]) {
       return dataStore[key];
     } else {
       return null;
