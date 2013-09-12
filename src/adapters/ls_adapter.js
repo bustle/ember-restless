@@ -150,17 +150,16 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * findByKey: Find a record by given key
    */
   findByKey: function(model, key, queryParams) {
-    var result = model.create({ isNew: false}),
+    var result = null,
         dataStoreName = this._getDSName(result),
         dataStore = this._getDataStore(result),
         primaryKey = get(model, 'primaryKey'),
         recordFromKey = this.recordByKey(dataStore, key);
 
     if(recordFromKey) {
+      result = model.create({isNew: false});
       result.deserialize(recordFromKey);
       result.onLoaded();
-    } else {
-      result.onError("error");
     }
 
     return result;
