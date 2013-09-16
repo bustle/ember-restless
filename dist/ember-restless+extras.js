@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.4.0
- * last modifed: 2013-08-08
+ * last modifed: 2013-09-05
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -144,13 +144,19 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   deserialize: function(resource, data) {
     if(!data) { return resource; }
 
-    var key, prop;
+    var key, prop, meta;
 
     // Check for wrapped object by resource name: { post: { id:1, name:'post 1' } }
     // This is the default from ActiveRecord
     key = this._keyForResource(resource);
     if(data[key]) {
       data = data[key];
+    }
+
+    // extract any meta info
+    meta = this.extractMeta(data);
+    if(meta) { 
+      resource.set('meta', meta);
     }
 
     // iterate over each json property and deserialze
@@ -184,7 +190,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       resource.set(attrName, hasManyArr);
     } 
     // If property is a belongsTo relationship, deserialze that model
-    else if (field.belongsTo && klass) {
+    else if (field.belongsTo && klass && value) {
       var belongsToModel = klass.create({ isNew: false }).deserialize(value);
       belongsToModel.onLoaded();
       resource.set(attrName, belongsToModel);
@@ -968,7 +974,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     if (value instanceof Ember.Descriptor) {
       var meta = value.meta();
 
-      if (meta.isRelationship) {
+      if (meta.isRelationship && !meta.readOnly) {
         // If a relationship's property becomes dirty, need to mark owner as dirty.
         Ember.addObserver(proto, key + '.isDirty', null, '_onRelationshipChange');
       }
