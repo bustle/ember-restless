@@ -60,8 +60,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     } 
     // If property is a belongsTo relationship, deserialze that model
     else if (field.belongsTo && klass && value) {
-      var belongsToModel = klass.create({ isNew: false }).deserialize(value);
-      belongsToModel.onLoaded();
+      var belongsToModel = klass.create({ isNew: false, isLoaded: true }).deserialize(value);
       resource.set(attrName, belongsToModel);
     }
     else {
@@ -114,7 +113,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       }
       Ember.endPropertyChanges(recordArray);
     }
-    recordArray.onLoaded();
+    recordArray.set('isLoaded', true);
     return recordArray;
   },
 
