@@ -4,7 +4,7 @@ The change log documents features and breaking changes for each version.
 While RESTless reaches a 1.0 release and more feedback and testing continues, the API is subject to change.  
 To keep the library small, API depreciation warnings may not be added.
 
-### 0.4
+### 0.4.0
 
 - FixtureAdapter
 - Expose serializeProperty/deserializeProperty to Model 
