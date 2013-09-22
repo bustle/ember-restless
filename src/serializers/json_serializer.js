@@ -225,7 +225,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[key]) {
       return modelConfig.propertyKeys[key];
     }
-    return Ember.String.camelize(key);
+    return key;
   },
 
   /* 
