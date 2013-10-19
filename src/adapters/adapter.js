@@ -45,8 +45,8 @@ RESTless.Adapter = Ember.Object.extend({
    * fetch: wraps find method in a promise for async find support
    */
   fetch: function(klass, params) {
-    var adapter = this, find;
-    return new Ember.RSVP.Promise(function(resolve, reject) {
+    var adapter = this, find,
+    promise = new Ember.RSVP.Promise(function(resolve, reject) {
       find = adapter.find(klass, params);
       find.one('didLoad', function(model) {
         resolve(model);
@@ -55,6 +55,9 @@ RESTless.Adapter = Ember.Object.extend({
         reject(error);
       });
     });
+    // private: access to find for subclasses
+    promise._find = find;
+    return promise;
   },
 
   /*

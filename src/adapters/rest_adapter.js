@@ -83,7 +83,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   },
 
   /*
-   * buildUrl (private): constructs request url and dynamically adds the a resource key if specified
+   * buildUrl (private): constructs request url and dynamically adds the resource key if specified
    */
   buildUrl: function(model, key) {
     var resourcePath = this.resourcePath(get(model.constructor, 'resourceName')),
@@ -208,21 +208,12 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
 
   /*
    * fetch: wraps find method in a promise for async find support
-   * Overridden to add currentRequest
    */
   fetch: function(klass, params) {
-    var adapter = this, find, promise;
-    promise = new Ember.RSVP.Promise(function(resolve, reject) {
-      find = adapter.find(klass, params);
-      find.one('didLoad', function(model) {
-        resolve(model);
-      });
-      find.one('becameError', function(error) {
-        reject(error);
-      });
-    });
-    // private: store the ajax request for aborting, etc.
-    promise._currentRequest = find.get('currentRequest');
+    var promise = this._super(klass, params);
+    // private: store the current ajax request for aborting, etc.
+    // depreciate: _currentRequest now that find access is directly available.
+    promise._currentRequest = promise._find.get('currentRequest');
     return promise;
   },
 
