@@ -96,6 +96,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     }
 
     if(recordArray) {
+      recordArray.set('isLoaded', false);
       recordArray.clear();
     } else {
       recordArray = RESTless.RecordArray.createWithContent();
