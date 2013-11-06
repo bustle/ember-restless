@@ -6,8 +6,10 @@ To keep the library small, API depreciation warnings may not be added.
 
 ### 0.4.1
 
-- Bug fixes
+- Register via `Ember.libraries` 
+- Using `Ember.exports` instead of `window` to expose library 
 - Bower support 
+- Bug fixes 
 
 ### 0.4.0
 

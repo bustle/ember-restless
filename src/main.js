@@ -11,11 +11,21 @@ if (RESTless === undefined) {
    */
   RESTless = Ember.Namespace.create();
 
+  RESTless.VERSION = '0.4.1';
+
+  RESTless.toString = function() { return 'RESTless'; };
+
   /**
-   * Expose RESTless to the global window namespace.
-   * Create shortcut alias 'RL'.
+   * Export RESTless to the global (window) namespace.
+   * Create shortcut alias 'RL'
    */
-  if (window !== undefined) {
-    window.RL = window.RESTless = RESTless;
+  var exports = Ember.exports || this;
+  exports.RL = exports.RESTless = RESTless;
+
+  /**
+   * Register RESTless as a library.
+   */
+  if (Ember.libraries) { 
+    Ember.libraries.register(RESTless.toString(), RESTless.VERSION);
   }
 }
