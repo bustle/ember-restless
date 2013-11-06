@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.4.0
- * last modifed: 2013-10-19
+ * last modifed: 2013-11-05
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -227,6 +227,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     }
 
     if(recordArray) {
+      recordArray.set('isLoaded', false);
       recordArray.clear();
     } else {
       recordArray = RESTless.RecordArray.createWithContent();
