@@ -56,3 +56,14 @@ test('null belongsTo relationship values do not create empty models', function()
   equal( null ,   comment.get('post') );
   equal( null ,   comment.get('author') );
 });
+
+test('deserializing into an existing record array triggers isLoaded observer', function() {
+  var serializer = RL.JSONSerializer.create(),
+      testJson = [ { name: 'tag1' }, { name: 'tag2' } ],
+      arr = App.Tag.loadMany(testJson);
+
+  serializer.deserializeMany(arr, 'App.Tag', testJson);
+  arr.forEach(function(item) {
+    equal(item.get('isLoaded'), true);
+  });
+});
