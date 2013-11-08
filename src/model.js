@@ -176,6 +176,15 @@ RESTless.Model.reopenClass({
   }),
 
   /*
+   * resourceNamePlural: returns the pluralized resource name
+   */
+  resourceNamePlural: Ember.computed(function() {
+    var resourceName = get(this, 'resourceName'),
+        adapter = get(this, 'adapter');    
+    return adapter.pluralize(Ember.String.decamelize(resourceName));
+  }),
+
+  /*
    * fields: meta information for all attributes and relationships
    */
   fields: Ember.computed(function() {

@@ -194,16 +194,11 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   },
   _keyForResourceType: function(type) {
     var klass = get(Ember.lookup, type);
-    return klass ? this._keyForResource(klass.create()) : null;
+    return klass ? this.keyForResourceName(get(klass, 'resourceName')) : null;
   },
   _keyPluralForResourceType: function(type) {
-    var klass = get(Ember.lookup, type), adapter, resourceName;
-    if(klass) {
-      adapter = get(klass, 'adapter');
-      resourceName = get(klass, 'resourceName');
-      return adapter.pluralize(this.keyForResourceName(resourceName));
-    }
-    return null;
+    var klass = get(Ember.lookup, type);
+    return klass ? get(klass, 'resourceNamePlural') : null;
   },
   /*
    * keyForResourceName: helper to transform resource name to valid json key
