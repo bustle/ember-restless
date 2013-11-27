@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.4.1
- * last modifed: 2013-11-08
+ * last modifed: 2013-11-26
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -176,6 +176,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
         this.deserializeProperty(resource, prop, data[prop]);
       }
     }
+    resource.setProperties({ isLoaded: true, isDirty: false });
     Ember.endPropertyChanges(resource);
     return resource;
   },
@@ -219,22 +220,11 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   deserializeMany: function(recordArray, type, data) {
     if(!data) { return recordArray; }
 
-    var klass = get(Ember.lookup, type), meta, keyPlural, len, i, item;
+    var klass = get(Ember.lookup, type),
+        arrayData = this._arrayDataForType(type, data),
+        meta, i, len, item, content;
 
-    // extract any meta info
-    meta = this.extractMeta(data);
-    if(meta) { recordArray.set('meta', meta); }
-
-    // Check for wrapped array by resource name: { posts: [...] }
-    // This is the default from ActiveRecord on direct finds
-    if(!Ember.isArray(data)) {
-      keyPlural = this._keyPluralForResourceType(type);
-      if(data[keyPlural]) {
-        data = data[keyPlural];
-      } else {
-        return recordArray;
-      }
-    }
+    if(!arrayData) { return recordArray; }
 
     if(recordArray) {
       recordArray.set('isLoaded', false);
@@ -243,20 +233,43 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       recordArray = RESTless.RecordArray.createWithContent();
     }
 
-    len = data.length;
+    len = arrayData.length;
     if(len) {
-      Ember.beginPropertyChanges(recordArray);
+      content = [];
       for(i=0; i<len; i++) {
-        item = data[i];
+        item = arrayData[i];
         if(klass && typeof item === 'object') {
           item = klass.create({ isNew: false }).deserialize(item);
         }
-        recordArray.pushObject(item);
+        content.push(item);
       }
-      Ember.endPropertyChanges(recordArray);
+      recordArray.pushObjects(content);
     }
-    recordArray.set('isLoaded', true);
+
+    // extract any meta info
+    meta = this.extractMeta(data);
+    if(meta) { recordArray.set('meta', meta); }
+
+    recordArray.setProperties({ isLoaded: true, isDirty: false });
+
     return recordArray;
+  },
+
+  /* 
+   * _arrayDataForType (private)
+   * Checks for wrapped array data by resource name: { posts: [...] }
+   * This is the default from ActiveRecord on direct finds
+   */
+  _arrayDataForType: function(type, data) {
+    if(Ember.isArray(data)) {
+      return data;
+    } else {
+      var keyPlural = this._keyPluralForResourceType(type);
+      if(data[keyPlural]) {
+        return data[keyPlural];
+      }
+    }
+    return null;
   },
 
   /* 
@@ -889,6 +902,8 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
 
   onLoaded: function() {
     this.setProperties({
+      isDirty: false,
+      isSaving: false,
       isLoaded: true,
       isError: false,
       errors: null
@@ -1237,7 +1252,7 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
    * _onItemDirtyChange: (private) observes when items become dirty
    */
   _onItemDirtyChange: Ember.observer(function() {
-    var clean = this.get('content').everyProperty('isDirty', false);
+    var clean = this.get('content').everyBy('isDirty', false);
     if(this.get('isLoaded') && !clean) {
       this.set('isDirty', true);
     }

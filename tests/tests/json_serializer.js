@@ -67,3 +67,21 @@ test('deserializing into an existing record array triggers isLoaded observer', f
     equal(item.get('isLoaded'), true);
   });
 });
+
+test('deserializing resets state', function() {
+  var data = {
+    id: 1,
+    featured: [ { id: 1, title: 'hello' } ]
+  };
+
+  var postGroup = App.PostGroup.load(data);
+
+  // dirty a relationship
+  postGroup.get('featured').objectAt(0).set('title', 'goodbye');
+  ok( postGroup.get('featured.isDirty'), 'relationship was dirtied');
+  ok( postGroup.get('isDirty'), 'parent was dirtied');
+
+  postGroup.deserialize(data);
+  ok( !postGroup.get('featured.isDirty'), 'relationship is clean after deserialize');
+  ok( !postGroup.get('isDirty'), 'is clean after deserialize');
+});

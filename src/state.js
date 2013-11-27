@@ -66,6 +66,8 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
 
   onLoaded: function() {
     this.setProperties({
+      isDirty: false,
+      isSaving: false,
       isLoaded: true,
       isError: false,
       errors: null

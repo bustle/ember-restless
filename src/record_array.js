@@ -38,7 +38,7 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
    * _onItemDirtyChange: (private) observes when items become dirty
    */
   _onItemDirtyChange: Ember.observer(function() {
-    var clean = this.get('content').everyProperty('isDirty', false);
+    var clean = this.get('content').everyBy('isDirty', false);
     if(this.get('isLoaded') && !clean) {
       this.set('isDirty', true);
     }
