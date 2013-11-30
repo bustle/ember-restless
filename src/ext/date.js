@@ -1,15 +1,13 @@
-/**
- * Date.parse with progressive enhancement for ISO 8601 <https://github.com/csnover/js-iso8601>
- * © 2011 Colin Snover <http://zetafleet.com>
- * Released under MIT license.
- *
- * From ember-data:
- * https://github.com/emberjs/data/blob/master/packages/ember-data/lib/ext/date.js
- */
-
+/*
+  Date.parse with progressive enhancement for ISO 8601 <https://github.com/csnover/js-iso8601>
+  © 2011 Colin Snover <http://zetafleet.com>
+  Released under MIT license.
+  Copied from: <https://raw.github.com/emberjs/data/master/packages/ember-data/lib/ext/date.js>
+*/
 Ember.Date = Ember.Date || {};
 
 var origParse = Date.parse, numericKeys = [ 1, 4, 5, 6, 7, 10, 11 ];
+
 Ember.Date.parse = function (date) {
     var timestamp, struct, minutesOffset = 0;
 

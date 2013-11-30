@@ -1,34 +1,49 @@
-/*
- * RESTAdapter
- * Builds REST urls to resources
- * Builds and handles remote ajax requests
- */
+/**
+  The REST Adapter handles sending and fetching data to and from a REST API.
+
+  @class RESTAdapter
+  @namespace RESTless
+  @extends RESTless.Adapter
+*/
 RESTless.RESTAdapter = RESTless.Adapter.extend({
-  /*
-   * serializer: default to a JSON serializer
+  /**
+    Serializer used to transform data.
+    @property serializer
+    @type RESTless.Serializer
+    @default RESTless.JSONSerializer
    */
   serializer: RESTless.JSONSerializer.create(),
 
-  /*
-   * url: base url of backend REST service
-   * example: 'https://api.example.com'
+  /**
+    Base url of REST API
+    @property url
+    @type String
+    @example 'http://api.example.com'
    */
   url: null,
-  /*
-   * namespace: endpoint path
-   * example: 'api/v1'
+  /**
+    API namespace endpoint path
+    @property namespace
+    @type String
+    @optional
+    @example 'api/v1'
    */
   namespace: null,
-  /*
-   * useContentTypeExtension: forces content type extensions on resource requests
-   * i.e. /posts.json vs /posts | /posts/115.json vs /posts/115
-   * Useful for conforming to 3rd party apis
-   * or returning correct content-type headers with Rails caching
+  /**
+    Adds content type extensions to requests.
+    @property useContentTypeExtension
+    @type Boolean
+    @default false
+    @example
+      When `true` will make requests `/posts.json` instead of `/posts` or `/posts/115.json` instead of `/posts/115`
    */
   useContentTypeExtension: false,
 
-  /*
-   * rootPath: computed path based on url and namespace
+  /**
+    Computed path based on url and namespace.
+    @property rootPath
+    @type String
+    @final
    */
   rootPath: Ember.computed(function() {
     var a = document.createElement('a'),
@@ -43,16 +58,24 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return a.href.replace(/\/+$/, '');
   }).property('url', 'namespace'),
 
-  /*
-   * resourcePath: helper method creates a valid REST path to a resource
-   * App.Post => 'posts',  App.PostGroup => 'post_groups'
+  /**
+    Helper method creates a valid REST path to a resource
+    @method resourcePath
+    @param {String} resourceName Type of Model
+    @return {String} the resource path
+    @example App.Post => 'posts',  App.PostGroup => 'post_groups'
    */
   resourcePath: function(resourceName) {
     return this.pluralize(Ember.String.decamelize(resourceName));
   },
 
-  /*
-   * request: creates and executes an ajax request wrapped in a promise
+  /**
+    Creates and executes an ajax request wrapped in a promise.
+    @method request
+    @param {RESTless.Model} model model to use to build the request
+    @param {Object} [params] Additional ajax params
+    @param {Object} [key] optional resource primary key value
+    @return {Ember.RSVP.Promise}
    */
   request: function(model, params, key) {
     var adapter = this, serializer = this.serializer;
@@ -82,8 +105,10 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     });
   },
 
-  /*
-   * buildUrl (private): constructs request url and dynamically adds the resource key if specified
+  /**
+    Constructs request url and dynamically adds the resource key if specified
+    @method buildUrl
+    @private
    */
   buildUrl: function(model, key) {
     var resourcePath = this.resourcePath(get(model.constructor, 'resourceName')),
@@ -104,8 +129,11 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return url;
   },
 
-  /*
-   * saveRecord: POSTs a new record, or PUTs an updated record to REST service
+  /**
+    Saves a record. POSTs a new record, or PUTs an updated record to REST API
+    @method saveRecord
+    @param {RESTless.Model} record record to be saved
+    @return {Ember.RSVP.Promise}
    */
   saveRecord: function(record) {
     var isNew = record.get('isNew'), method, ajaxPromise;
@@ -134,6 +162,12 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return ajaxPromise;
   },
 
+  /**
+    Deletes a record from REST API using DELETE
+    @method deleteRecord
+    @param {RESTless.Model} record record to be deleted
+    @return {Ember.RSVP.Promise}
+   */
   deleteRecord: function(record) {
     var ajaxPromise = this.request(record, { type: 'DELETE', data: record.serialize() });
 
@@ -148,6 +182,12 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return ajaxPromise;
   },
 
+  /**
+    Reloads a record from REST API
+    @method reloadRecord
+    @param {RESTless.Model} record record to be reloaded
+    @return {Ember.RSVP.Promise}
+   */
   reloadRecord: function(record) {
     var klass = record.constructor,
         primaryKey = get(klass, 'primaryKey'),
@@ -172,10 +212,23 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return ajaxPromise;
   },
 
+  /**
+    Finds all records of specified class using GET
+    @method findAll
+    @param {RESTless.Model} klass model type to find
+    @return {RESTless.RecordArray}
+   */
   findAll: function(klass) {
     return this.findQuery(klass);
   },
 
+  /**
+    Finds records with specified query params using GET
+    @method findQuery
+    @param {RESTless.Model} klass model type to find
+    @param {Object} queryParams hash of query params
+    @return {RESTless.RecordArray}
+   */
   findQuery: function(klass, queryParams) {
     var type = klass.toString(),
         resourceInstance = klass.create({ isNew: false }),
@@ -192,6 +245,14 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return result;
   },
 
+  /**
+    Finds record with specified primary key using GET
+    @method findByKey
+    @param {RESTless.Model} klass model type to find
+    @param {Number|String} key primary key value
+    @param {Object} [queryParams] hash of additional query params
+    @return {RESTless.Model}
+   */
   findByKey: function(klass, key, queryParams) {
     var result = klass.create({ isNew: false }),
         ajaxPromise = this.request(result, { type: 'GET', data: queryParams }, key);
@@ -206,9 +267,13 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return result;
   },
 
-  /*
-   * fetch: wraps find method in a promise for async find support
-   */
+  /**
+    Fetch wraps `find` in a promise for async find support.
+    @method fetch
+    @param {Object} klass Model class type
+    @param {Object} [params] a hash of query params.
+    @return Ember.RSVP.Promise
+  */
   fetch: function(klass, params) {
     var promise = this._super(klass, params);
     // private: store the current ajax request for aborting, etc.
@@ -217,9 +282,20 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return promise;
   },
 
-  /*
-   * parseAjaxErrors: builds a robust error object using the serializer and xhr data
-   */
+  /**
+    Registers custom attribute transforms.
+    Fowards creation to serializer.
+    @method registerTransform
+  */
+  registerTransform: function(type, transform) {
+    this.get('serializer').registerTransform(type, transform);
+  },
+
+  /**
+    Builds a robust error object using the serializer and xhr data
+    @method parseAjaxErrors
+    @private
+  */
   parseAjaxErrors: function(jqXHR, textStatus, errorThrown) {
     // use serializer to parse error messages from server
     var errors = this.get('serializer').parseError(jqXHR.responseText) || {};
@@ -229,12 +305,5 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     errors.textStatus = textStatus;
     errors.errorThrown = errorThrown;
     return errors;
-  },
-
-  /*
-   * registerTransform: fowards custom tranform creation to serializer
-   */
-  registerTransform: function(type, transform) {
-    this.get('serializer').registerTransform(type, transform);
   }
 });

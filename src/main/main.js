@@ -1,27 +1,26 @@
+/** 
+  @module ember-restless
+ */
 var get = Ember.get, set = Ember.set,
     none = Ember.isNone, empty = Ember.isEmpty,
+    exports = Ember.exports || this,
     RESTless;
 
 if ('undefined' === typeof RESTless) {
   /**
-   * Create RESTless as an Ember Namespace.
-   *
-   * @class RESTless
-   * @static 
+    All Ember RESTless functionality is defined inside of this namespace.
+    @class RESTless
+    @static
    */
   RESTless = Ember.Namespace.create({
     VERSION: '0.4.1'
   });
 
-  /**
-   * Export RESTless to the global namespace.
-   * Create shortcut alias 'RL'
-   *
-   * @class RL
-   * @alias RESTless
-   * @static 
+  /*
+    A shortcut alias to the RESTless namespace.
+    Similar to `Ember` and `Em`.
+    Expose to global namespace.
    */
-  var exports = Ember.exports || this;
   exports.RL = exports.RESTless = RESTless;
 
   if (Ember.libraries) { 

@@ -23,17 +23,17 @@ module.exports = function(grunt) {
     modules: {
       core: {
         src: [
-          'src/main.js',
-          'src/attribute.js',
+          'src/main/main.js',
+          'src/main/attribute.js',
           'src/serializers/serializer.js',
           'src/serializers/json_serializer.js',
           'src/adapters/adapter.js',
           'src/adapters/rest_adapter.js',
-          'src/client.js',
-          'src/state.js',
-          'src/model.js',
-          'src/read_only_model.js',
-          'src/record_array.js'
+          'src/main/client.js',
+          'src/main/state.js',
+          'src/main/model.js',
+          'src/main/read_only_model.js',
+          'src/main/record_array.js'
         ]
       },
       transforms: {
@@ -112,19 +112,41 @@ module.exports = function(grunt) {
           'dist/<%= pkg.name %>+extras.min.js': ['<%= concat.extras.dest %>']
         }
       }
-    }
+    },
+
+    yuidoc: {
+      compile: {
+        name: '<%= pkg.name %>',
+        description: '<%= pkg.description %>',
+        version: '<%= pkg.version %>',
+        url: '<%= pkg.homepage %>',
+        options: {
+          paths: [
+            'src/main',
+            'src/adapters',
+            'src/serializers',
+          ],
+          outdir: 'docs'
+        }
+      }
+    },
+
+    clean: ['dist', 'docs']
+
   });
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-qunit');
+  grunt.loadNpmTasks('grunt-contrib-yuidoc');
+  grunt.loadNpmTasks('grunt-contrib-clean');
 
   // Build task: Lint and build only
   grunt.registerTask('build', ['jshint:beforeconcat', 'concat:dist', 'concat:extras', 'jshint:afterconcat']);
 
-  // Default task: Lint, build, test, build production
-  grunt.registerTask('default', ['build', 'qunit', 'uglify']);
+  // Default task: Lint, build, test, build production, generate docs.
+  grunt.registerTask('default', ['build', 'qunit', 'uglify', 'yuidoc']);
 
   // Test only task
   grunt.registerTask('test', ['qunit']);
