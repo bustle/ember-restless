@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src/main/attribute.js - ember-restless</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.0/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify.css">
+    <link rel="stylesheet" href="../assets/css/yuidoc.css" id="site_styles">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" href="../assets/css/yuidoc-bootstrap.css">
+    <link rel="stylesheet" href="../assets/css/custom.css">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+</head>
+<body class="yui3-skin-sam">
+<div class="navbar navbar-static-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <h1 class="brand">
+                
+                ember-restless
+            </h1>
+        	<ul class="nav">
+                <li class="divider-vertical"></li>
+                <li>
+                    <p class="navbar-text">
+                        API Docs for Version: <b>0.4.1</b>
+                    </p>
+                </li>
+            </ul>
+            <form class="navbar-form pull-right" style="line-height: 40px; height: 40px;">
+                <input style="margin-top: 0;" type="text" class="search-query" placeholder="Search for classes/modules..." data-obj='["classes/RESTless", "classes/RESTless.Adapter", "classes/RESTless.Client", "classes/RESTless.FixtureAdapter", "classes/RESTless.JSONSerializer", "classes/RESTless.Model", "classes/RESTless.ReadOnlyModel", "classes/RESTless.RecordArray", "classes/RESTless.RESTAdapter", "classes/RESTless.Serializer", "classes/RESTless.State", "modules/ember-restless"]'>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="span3">
+	    <div>
+    <h3>APIs</h3>
+    <div id="sidebar" data-spy="affix" data-offset-top="80">
+        <ul id="main-nav" class="nav nav-tabs" style="margin-bottom:0;">
+            <li class="active"><a href="#classes" data-toggle="tab">Classes</a></li>
+            <li><a href="#modules" data-toggle="tab">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" placeholder="Type to filter APIs">
+        </div>
+
+        <div class="tab-content" style="border: 1px solid #DDD; border-top:0;">
+            <div class="tab-pane active" id="classes">
+                <ul id="api-classes" class="nav nav-list">
+                    
+                        <li><a href="../classes/RESTless.html">RESTless</a></li>
+                    
+                        <li><a href="../classes/RESTless.Adapter.html">RESTless.Adapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.Client.html">RESTless.Client</a></li>
+                    
+                        <li><a href="../classes/RESTless.FixtureAdapter.html">RESTless.FixtureAdapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.JSONSerializer.html">RESTless.JSONSerializer</a></li>
+                    
+                        <li><a href="../classes/RESTless.Model.html">RESTless.Model</a></li>
+                    
+                        <li><a href="../classes/RESTless.ReadOnlyModel.html">RESTless.ReadOnlyModel</a></li>
+                    
+                        <li><a href="../classes/RESTless.RecordArray.html">RESTless.RecordArray</a></li>
+                    
+                        <li><a href="../classes/RESTless.RESTAdapter.html">RESTless.RESTAdapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.Serializer.html">RESTless.Serializer</a></li>
+                    
+                        <li><a href="../classes/RESTless.State.html">RESTless.State</a></li>
+                    
+                </ul>
+            </div>
+
+            <div class="tab-pane" id="modules">
+                <ul id="api-modules" class="nav nav-list">
+                    
+                        <li><a href="../modules/ember-restless.html">ember-restless</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+        </div>
+        <div class="span9">
+                <form id="options-form" class="form-inline pull-right">
+        Show:
+        <label for="api-show-inherited" class="checkbox">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected" class="checkbox">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private" class="checkbox">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated" class="checkbox">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </form>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <div class="page-header">
+    <h1>src/main/attribute.js <small>File</small></h1>
+</div>
+
+<div class="file">
+    <pre class="prettyprint linenums">
+/**
+  Defines an attribute on a Model.
+  Supports types: &#x27;string&#x27;, &#x27;number&#x27;, &#x27;boolean&#x27;, &#x27;date&#x27;.
+
+  @method attr
+  @for RESTless
+  @param {String} type the attribute type
+  @param {Object} [opts] a hash of options
+  @return {Ember.computed} attribute
+*/
+RESTless.attr = function(type, opts) {
+  var meta = Ember.merge({ type: type, isAttribute: true }, opts);
+  return makeComputedAttribute(meta);
+};
+
+/**
+  Defines a one-to-one relationship attribute on a Model.
+
+  @method belongsTo
+  @for RESTless
+  @param {String} type the belongsTo Class type
+  @param {Object} [opts] a hash of options
+  @return {Ember.computed} attribute
+*/
+RESTless.belongsTo = function(type, opts) {
+  var meta = Ember.merge({ type: type, isRelationship: true, belongsTo: true }, opts);
+  return makeComputedAttribute(meta);
+};
+
+/**
+  Defines a one-to-many relationship attribute on a Model.
+
+  @method hasMany
+  @for RESTless
+  @param {String} type the hasMany Class type
+  @param {Object} [opts] a hash of options
+  @return {Ember.computed} attribute
+*/
+RESTless.hasMany = function(type, opts) {
+  var defaultArray = function() {
+    return RESTless.RecordArray.createWithContent();
+  },
+  meta = Ember.merge({ type: type, isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
+  return makeComputedAttribute(meta);
+};
+
+function makeComputedAttribute(meta) {
+  return Ember.computed(function(key, value) {
+    var data = this.get(&#x27;_data&#x27;);
+    // Getter
+    if (arguments.length === 1) {
+      value = data[key];
+
+      if (value === undefined) { 
+        // Default values
+        if (typeof meta.defaultValue === &#x27;function&#x27;) {
+          value = meta.defaultValue();
+        } else {
+          value = meta.defaultValue;
+        }
+        data[key] = value;
+      }
+    }
+    // Setter 
+    else if (value !== data[key]) {
+      data[key] = value;
+      if (!meta.readOnly &amp;&amp; !RESTless.ReadOnlyModel.detectInstance(this)) {
+        this._onPropertyChange(key);
+      }
+    }
+    return value;
+  }).property(&#x27;_data&#x27;).meta(meta);
+}
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/jquery/jquery-1.10.2.min.js"></script>
+<script src="../assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../assets/vendor/prettify/prettify.min.js"></script>
+<script src="../assets/js/yuidoc-bootstrap.js"></script>
+<script>prettyPrint();</script>
+</body>
+</html>

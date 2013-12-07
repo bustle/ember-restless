@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src/adapters/rest_adapter.js - ember-restless</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.0/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify.css">
+    <link rel="stylesheet" href="../assets/css/yuidoc.css" id="site_styles">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" href="../assets/css/yuidoc-bootstrap.css">
+    <link rel="stylesheet" href="../assets/css/custom.css">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+</head>
+<body class="yui3-skin-sam">
+<div class="navbar navbar-static-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <h1 class="brand">
+                
+                ember-restless
+            </h1>
+        	<ul class="nav">
+                <li class="divider-vertical"></li>
+                <li>
+                    <p class="navbar-text">
+                        API Docs for Version: <b>0.4.1</b>
+                    </p>
+                </li>
+            </ul>
+            <form class="navbar-form pull-right" style="line-height: 40px; height: 40px;">
+                <input style="margin-top: 0;" type="text" class="search-query" placeholder="Search for classes/modules..." data-obj='["classes/RESTless", "classes/RESTless.Adapter", "classes/RESTless.Client", "classes/RESTless.FixtureAdapter", "classes/RESTless.JSONSerializer", "classes/RESTless.Model", "classes/RESTless.ReadOnlyModel", "classes/RESTless.RecordArray", "classes/RESTless.RESTAdapter", "classes/RESTless.Serializer", "classes/RESTless.State", "modules/ember-restless"]'>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="span3">
+	    <div>
+    <h3>APIs</h3>
+    <div id="sidebar" data-spy="affix" data-offset-top="80">
+        <ul id="main-nav" class="nav nav-tabs" style="margin-bottom:0;">
+            <li class="active"><a href="#classes" data-toggle="tab">Classes</a></li>
+            <li><a href="#modules" data-toggle="tab">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" placeholder="Type to filter APIs">
+        </div>
+
+        <div class="tab-content" style="border: 1px solid #DDD; border-top:0;">
+            <div class="tab-pane active" id="classes">
+                <ul id="api-classes" class="nav nav-list">
+                    
+                        <li><a href="../classes/RESTless.html">RESTless</a></li>
+                    
+                        <li><a href="../classes/RESTless.Adapter.html">RESTless.Adapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.Client.html">RESTless.Client</a></li>
+                    
+                        <li><a href="../classes/RESTless.FixtureAdapter.html">RESTless.FixtureAdapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.JSONSerializer.html">RESTless.JSONSerializer</a></li>
+                    
+                        <li><a href="../classes/RESTless.Model.html">RESTless.Model</a></li>
+                    
+                        <li><a href="../classes/RESTless.ReadOnlyModel.html">RESTless.ReadOnlyModel</a></li>
+                    
+                        <li><a href="../classes/RESTless.RecordArray.html">RESTless.RecordArray</a></li>
+                    
+                        <li><a href="../classes/RESTless.RESTAdapter.html">RESTless.RESTAdapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.Serializer.html">RESTless.Serializer</a></li>
+                    
+                        <li><a href="../classes/RESTless.State.html">RESTless.State</a></li>
+                    
+                </ul>
+            </div>
+
+            <div class="tab-pane" id="modules">
+                <ul id="api-modules" class="nav nav-list">
+                    
+                        <li><a href="../modules/ember-restless.html">ember-restless</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+        </div>
+        <div class="span9">
+                <form id="options-form" class="form-inline pull-right">
+        Show:
+        <label for="api-show-inherited" class="checkbox">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected" class="checkbox">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private" class="checkbox">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated" class="checkbox">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </form>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <div class="page-header">
+    <h1>src/adapters/rest_adapter.js <small>File</small></h1>
+</div>
+
+<div class="file">
+    <pre class="prettyprint linenums">
+/**
+  The REST Adapter handles sending and fetching data to and from a REST API.
+
+  @class RESTAdapter
+  @namespace RESTless
+  @extends RESTless.Adapter
+*/
+RESTless.RESTAdapter = RESTless.Adapter.extend({
+  /**
+    Serializer used to transform data.
+    @property serializer
+    @type RESTless.Serializer
+    @default RESTless.JSONSerializer
+   */
+  serializer: RESTless.JSONSerializer.create(),
+
+  /**
+    Base url of REST API
+    @property url
+    @type String
+    @example &#x27;http://api.example.com&#x27;
+   */
+  url: null,
+  /**
+    API namespace endpoint path
+    @property namespace
+    @type String
+    @optional
+    @example &#x27;api/v1&#x27;
+   */
+  namespace: null,
+  /**
+    Adds content type extensions to requests.
+    @property useContentTypeExtension
+    @type Boolean
+    @default false
+    @example
+      When &#x60;true&#x60; will make requests &#x60;/posts.json&#x60; instead of &#x60;/posts&#x60; or &#x60;/posts/115.json&#x60; instead of &#x60;/posts/115&#x60;
+   */
+  useContentTypeExtension: false,
+
+  /**
+    Computed path based on url and namespace.
+    @property rootPath
+    @type String
+    @final
+   */
+  rootPath: Ember.computed(function() {
+    var a = document.createElement(&#x27;a&#x27;),
+        url = this.get(&#x27;url&#x27;),
+        ns = this.get(&#x27;namespace&#x27;),
+        rootReset = ns &amp;&amp; ns.charAt(0) === &#x27;/&#x27;;
+
+    a.href = url ? url : &#x27;&#x27;;
+    if(ns) {
+      a.pathname = rootReset ? ns : (a.pathname + ns);
+    }
+    return a.href.replace(/\/+$/, &#x27;&#x27;);
+  }).property(&#x27;url&#x27;, &#x27;namespace&#x27;),
+
+  /**
+    Helper method creates a valid REST path to a resource
+    @method resourcePath
+    @param {String} resourceName Type of Model
+    @return {String} the resource path
+    @example App.Post =&gt; &#x27;posts&#x27;,  App.PostGroup =&gt; &#x27;post_groups&#x27;
+   */
+  resourcePath: function(resourceName) {
+    return this.pluralize(Ember.String.decamelize(resourceName));
+  },
+
+  /**
+    Creates and executes an ajax request wrapped in a promise.
+    @method request
+    @param {RESTless.Model} model model to use to build the request
+    @param {Object} [params] Additional ajax params
+    @param {Object} [key] optional resource primary key value
+    @return {Ember.RSVP.Promise}
+   */
+  request: function(model, params, key) {
+    var adapter = this, serializer = this.serializer;
+
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      params = params || {};
+      params.url = adapter.buildUrl(model, key);
+      params.dataType = serializer.dataType;
+      params.contentType = serializer.contentType;
+
+      if(params.data &amp;&amp; params.type !== &#x27;GET&#x27;) {
+        params.data = serializer.prepareData(params.data);
+      }
+
+      params.success = function(data, textStatus, jqXHR) {
+        Ember.run(null, resolve, data);
+      };
+      params.error = function(jqXHR, textStatus, errorThrown) {
+        var errors = adapter.parseAjaxErrors(jqXHR, textStatus, errorThrown);
+        Ember.run(null, reject, errors);
+      };
+
+      var ajax = Ember.$.ajax(params);
+
+      // (private) store current ajax request on the model.
+      model.set(&#x27;currentRequest&#x27;, ajax);
+    });
+  },
+
+  /**
+    Constructs request url and dynamically adds the resource key if specified
+    @method buildUrl
+    @private
+   */
+  buildUrl: function(model, key) {
+    var resourcePath = this.resourcePath(get(model.constructor, &#x27;resourceName&#x27;)),
+        primaryKey = get(model.constructor, &#x27;primaryKey&#x27;),
+        urlParts = [this.get(&#x27;rootPath&#x27;), resourcePath],
+        dataType = this.get(&#x27;serializer.dataType&#x27;), url;
+
+    if(key) {
+      urlParts.push(key);
+    } else if(model.get(primaryKey)) {
+      urlParts.push(model.get(primaryKey));
+    }
+
+    url = urlParts.join(&#x27;/&#x27;);
+    if(this.get(&#x27;useContentTypeExtension&#x27;) &amp;&amp; dataType) {
+      url += &#x27;.&#x27; + dataType;
+    }
+    return url;
+  },
+
+  /**
+    Saves a record. POSTs a new record, or PUTs an updated record to REST API
+    @method saveRecord
+    @param {RESTless.Model} record record to be saved
+    @return {Ember.RSVP.Promise}
+   */
+  saveRecord: function(record) {
+    var isNew = record.get(&#x27;isNew&#x27;), method, ajaxPromise;
+    //If an existing model isn&#x27;t dirty, no need to save.
+    if(!isNew &amp;&amp; !record.get(&#x27;isDirty&#x27;)) {
+      return new Ember.RSVP.Promise(function(resolve, reject){
+        resolve(record);
+      });
+    }
+
+    record.set(&#x27;isSaving&#x27;, true);
+    method = isNew ? &#x27;POST&#x27; : &#x27;PUT&#x27;;
+    ajaxPromise = this.request(record, { type: method, data: record.serialize() });
+
+    ajaxPromise.then(function(data){
+      if(data) {
+        record.deserialize(data);
+      }
+      record.onSaved(isNew);
+      return record;
+    }, function(error) {
+      record.onError(error);
+      return error;
+    });
+
+    return ajaxPromise;
+  },
+
+  /**
+    Deletes a record from REST API using DELETE
+    @method deleteRecord
+    @param {RESTless.Model} record record to be deleted
+    @return {Ember.RSVP.Promise}
+   */
+  deleteRecord: function(record) {
+    var ajaxPromise = this.request(record, { type: &#x27;DELETE&#x27;, data: record.serialize() });
+
+    ajaxPromise.then(function() {
+      record.onDeleted();
+      return null;
+    }, function(error) {
+      record.onError(error);
+      return error;
+    });
+
+    return ajaxPromise;
+  },
+
+  /**
+    Reloads a record from REST API
+    @method reloadRecord
+    @param {RESTless.Model} record record to be reloaded
+    @return {Ember.RSVP.Promise}
+   */
+  reloadRecord: function(record) {
+    var klass = record.constructor,
+        primaryKey = get(klass, &#x27;primaryKey&#x27;),
+        key = record.get(primaryKey), ajaxPromise;
+
+    // Can&#x27;t reload a record that hasn&#x27;t been stored yet (no primary key)
+    if(Ember.isNone(key)) {
+      return new Ember.RSVP.Promise(function(resolve, reject){
+        reject(null);
+      });
+    }
+
+    record.set(&#x27;isLoaded&#x27;, false);
+    ajaxPromise = this.request(record, { type: &#x27;GET&#x27; }, key);
+    ajaxPromise.then(function(data){
+      record.deserialize(data);
+      record.onLoaded();
+    }, function(error) {
+      record.onError(error);
+    });
+
+    return ajaxPromise;
+  },
+
+  /**
+    Finds all records of specified class using GET
+    @method findAll
+    @param {RESTless.Model} klass model type to find
+    @return {RESTless.RecordArray}
+   */
+  findAll: function(klass) {
+    return this.findQuery(klass);
+  },
+
+  /**
+    Finds records with specified query params using GET
+    @method findQuery
+    @param {RESTless.Model} klass model type to find
+    @param {Object} queryParams hash of query params
+    @return {RESTless.RecordArray}
+   */
+  findQuery: function(klass, queryParams) {
+    var type = klass.toString(),
+        resourceInstance = klass.create({ isNew: false }),
+        result = RESTless.RecordArray.createWithContent(),
+        ajaxPromise = this.request(resourceInstance, { type: &#x27;GET&#x27;, data: queryParams });
+
+    ajaxPromise.then(function(data){
+      result.deserializeMany(type, data);
+      result.onLoaded();
+    }, function(error) {
+      result.onError(error);
+    });
+
+    return result;
+  },
+
+  /**
+    Finds record with specified primary key using GET
+    @method findByKey
+    @param {RESTless.Model} klass model type to find
+    @param {Number|String} key primary key value
+    @param {Object} [queryParams] hash of additional query params
+    @return {RESTless.Model}
+   */
+  findByKey: function(klass, key, queryParams) {
+    var result = klass.create({ isNew: false }),
+        ajaxPromise = this.request(result, { type: &#x27;GET&#x27;, data: queryParams }, key);
+
+    ajaxPromise.then(function(data){
+      result.deserialize(data);
+      result.onLoaded();
+    }, function(error) {
+      result.onError(error);
+    });
+
+    return result;
+  },
+
+  /**
+    Fetch wraps &#x60;find&#x60; in a promise for async find support.
+    @method fetch
+    @param {Object} klass Model class type
+    @param {Object} [params] a hash of query params.
+    @return Ember.RSVP.Promise
+  */
+  fetch: function(klass, params) {
+    var promise = this._super(klass, params);
+    // private: store the current ajax request for aborting, etc.
+    // depreciate: _currentRequest now that find access is directly available.
+    promise._currentRequest = promise._find.get(&#x27;currentRequest&#x27;);
+    return promise;
+  },
+
+  /**
+    Registers custom attribute transforms.
+    Fowards creation to serializer.
+    @method registerTransform
+  */
+  registerTransform: function(type, transform) {
+    this.get(&#x27;serializer&#x27;).registerTransform(type, transform);
+  },
+
+  /**
+    Builds a robust error object using the serializer and xhr data
+    @method parseAjaxErrors
+    @private
+  */
+  parseAjaxErrors: function(jqXHR, textStatus, errorThrown) {
+    // use serializer to parse error messages from server
+    var errors = this.get(&#x27;serializer&#x27;).parseError(jqXHR.responseText) || {};
+    // add additional xhr error info
+    errors.status = jqXHR.status;
+    errors.state = jqXHR.state();
+    errors.textStatus = textStatus;
+    errors.errorThrown = errorThrown;
+    return errors;
+  }
+});
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/jquery/jquery-1.10.2.min.js"></script>
+<script src="../assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../assets/vendor/prettify/prettify.min.js"></script>
+<script src="../assets/js/yuidoc-bootstrap.js"></script>
+<script>prettyPrint();</script>
+</body>
+</html>

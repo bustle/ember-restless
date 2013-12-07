@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src/adapters/adapter.js - ember-restless</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.0/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify.css">
+    <link rel="stylesheet" href="../assets/css/yuidoc.css" id="site_styles">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" href="../assets/css/yuidoc-bootstrap.css">
+    <link rel="stylesheet" href="../assets/css/custom.css">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+</head>
+<body class="yui3-skin-sam">
+<div class="navbar navbar-static-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <h1 class="brand">
+                
+                ember-restless
+            </h1>
+        	<ul class="nav">
+                <li class="divider-vertical"></li>
+                <li>
+                    <p class="navbar-text">
+                        API Docs for Version: <b>0.4.1</b>
+                    </p>
+                </li>
+            </ul>
+            <form class="navbar-form pull-right" style="line-height: 40px; height: 40px;">
+                <input style="margin-top: 0;" type="text" class="search-query" placeholder="Search for classes/modules..." data-obj='["classes/RESTless", "classes/RESTless.Adapter", "classes/RESTless.Client", "classes/RESTless.FixtureAdapter", "classes/RESTless.JSONSerializer", "classes/RESTless.Model", "classes/RESTless.ReadOnlyModel", "classes/RESTless.RecordArray", "classes/RESTless.RESTAdapter", "classes/RESTless.Serializer", "classes/RESTless.State", "modules/ember-restless"]'>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="span3">
+	    <div>
+    <h3>APIs</h3>
+    <div id="sidebar" data-spy="affix" data-offset-top="80">
+        <ul id="main-nav" class="nav nav-tabs" style="margin-bottom:0;">
+            <li class="active"><a href="#classes" data-toggle="tab">Classes</a></li>
+            <li><a href="#modules" data-toggle="tab">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" placeholder="Type to filter APIs">
+        </div>
+
+        <div class="tab-content" style="border: 1px solid #DDD; border-top:0;">
+            <div class="tab-pane active" id="classes">
+                <ul id="api-classes" class="nav nav-list">
+                    
+                        <li><a href="../classes/RESTless.html">RESTless</a></li>
+                    
+                        <li><a href="../classes/RESTless.Adapter.html">RESTless.Adapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.Client.html">RESTless.Client</a></li>
+                    
+                        <li><a href="../classes/RESTless.FixtureAdapter.html">RESTless.FixtureAdapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.JSONSerializer.html">RESTless.JSONSerializer</a></li>
+                    
+                        <li><a href="../classes/RESTless.Model.html">RESTless.Model</a></li>
+                    
+                        <li><a href="../classes/RESTless.ReadOnlyModel.html">RESTless.ReadOnlyModel</a></li>
+                    
+                        <li><a href="../classes/RESTless.RecordArray.html">RESTless.RecordArray</a></li>
+                    
+                        <li><a href="../classes/RESTless.RESTAdapter.html">RESTless.RESTAdapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.Serializer.html">RESTless.Serializer</a></li>
+                    
+                        <li><a href="../classes/RESTless.State.html">RESTless.State</a></li>
+                    
+                </ul>
+            </div>
+
+            <div class="tab-pane" id="modules">
+                <ul id="api-modules" class="nav nav-list">
+                    
+                        <li><a href="../modules/ember-restless.html">ember-restless</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+        </div>
+        <div class="span9">
+                <form id="options-form" class="form-inline pull-right">
+        Show:
+        <label for="api-show-inherited" class="checkbox">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected" class="checkbox">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private" class="checkbox">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated" class="checkbox">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </form>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <div class="page-header">
+    <h1>src/adapters/adapter.js <small>File</small></h1>
+</div>
+
+<div class="file">
+    <pre class="prettyprint linenums">
+/**
+  Adapters handle sending and fetching data to and from a persistence layer.
+  This is a base class to be subclassed.
+
+  @class Adapter
+  @namespace RESTless
+  @extends Ember.Object
+*/
+RESTless.Adapter = Ember.Object.extend({
+  /**
+    Instance of a Serializer used to transform data
+    @property serializer
+    @type RESTless.Serializer
+   */
+  serializer: null,
+
+  /**
+    Saves a record. Abstract - implement in subclass.
+    @method saveRecord
+  */
+  saveRecord: Ember.K,
+  /**
+    Deletes a record. Abstract - implement in subclass.
+    @method deleteRecord
+  */
+  deleteRecord: Ember.K,
+  /**
+    Finds all records. Abstract - implement in subclass.
+    @method findAll
+  */
+  findAll: Ember.K,
+  /**
+    Finds records by query. Abstract - implement in subclass.
+    @method findQuery
+  */
+  findQuery: Ember.K,
+  /**
+    Finds record by primary key. Abstract - implement in subclass.
+    @method findByKey
+  */
+  findByKey: Ember.K,
+  /**
+    Generates a unique id for new records. Abstract - implement in subclass.
+    @method generateIdForRecord
+  */
+  generateIdForRecord: Ember.K,
+
+  /**
+    Finds records with specified params.
+    A convenience method that can be used to intelligently route to 
+    &#x60;&#x60;&#x60;findAll&#x60;&#x60;&#x60; &#x60;&#x60;&#x60;findQuery&#x60;&#x60;&#x60; &#x60;&#x60;&#x60;findByKey&#x60;&#x60;&#x60; based on its params.
+    @method find
+    @param {Object} klass Model class type
+    @param {Object} [params] a hash of params.
+  */
+  find: function(klass, params) {
+    var primaryKey = get(klass, &#x27;primaryKey&#x27;),
+        singleResourceRequest = typeof params === &#x27;string&#x27; || typeof params === &#x27;number&#x27; ||
+                                (typeof params === &#x27;object&#x27; &amp;&amp; params.hasOwnProperty(primaryKey));
+    if(singleResourceRequest) {
+      if(!params.hasOwnProperty(primaryKey)) {
+        return this.findByKey(klass, params);
+      }
+      var key = params[primaryKey];  
+      delete params[primaryKey];
+      return this.findByKey(klass, key, params);
+    } else {
+      return this.findQuery(klass, params);
+    }
+  },
+
+  /**
+    Fetch wraps &#x60;find&#x60; in a promise for async find support.
+    @method fetch
+    @param {Object} klass Model class type
+    @param {Object} [params] a hash of params.
+    @return Ember.RSVP.Promise
+  */
+  fetch: function(klass, params) {
+    var adapter = this, find,
+    promise = new Ember.RSVP.Promise(function(resolve, reject) {
+      find = adapter.find(klass, params);
+      find.one(&#x27;didLoad&#x27;, function(model) {
+        resolve(model);
+      });
+      find.one(&#x27;becameError&#x27;, function(error) {
+        reject(error);
+      });
+    });
+    // private: access to find for subclasses
+    promise._find = find;
+    return promise;
+  },
+
+  /**
+    Refreshes an existing record from the data store.
+    @method reloadRecord
+    @param {RESTless.Model} record The record to relead
+    @return Ember.RSVP.Promise
+  */
+  reloadRecord: function(record) {
+    var klass = record.constructor,
+        primaryKey = get(klass, &#x27;primaryKey&#x27;),
+        key = record.get(primaryKey);
+
+    // Can&#x27;t reload a record that hasn&#x27;t been stored yet (no primary key)
+    if(Ember.isNone(key)) {
+      return new Ember.RSVP.Promise(function(resolve, reject){
+        reject(null);
+      });
+    }
+
+    return this.fetch(klass, key);
+  },
+
+  /**
+    Stores info about custom configurations.
+    * plurals - to set the plural resource name (&#x27;person&#x27; to &#x27;people&#x27;).
+    * models - to set a different primary key for a model type.
+    @property configurations
+    @type Ember.Object
+  */
+  configurations: Ember.Object.create({
+    plurals: Ember.Object.create(),
+    models: Ember.Map.create()
+  }),
+
+
+  /**
+    Helper method to set allowed configurations.
+    @method configure
+    @param {Object} type config key
+    @param {Object} value config value
+    @chainable
+  */
+  configure: function(type, value) {
+    var configs = this.get(&#x27;configurations&#x27;),
+        configForType = configs.get(type);
+    if(configForType) {
+      configs.set(type, Ember.merge(configForType, value));
+    }
+    return this;
+  },
+
+  /**
+    Helper to map configurations for model types.
+    @method map
+    @param {String} modelKey Model type
+    @param {Object} config config value
+    @chainable
+    @example
+      &lt;pre class=&quot;prettyprint&quot;&gt;
+      App.Adapter.map(&#x27;App.Post&#x27;, { primaryKey: &#x27;slug&#x27; });
+      App.Adapter.map(&#x27;App.Person&#x27;, { lastName: { key: &#x27;lastNameOfPerson&#x27; } });&lt;/pre&gt;
+  */
+  map: function(modelKey, config) {
+    var modelMap = this.get(&#x27;configurations.models&#x27;),
+        modelConfig = modelMap.get(modelKey), 
+        newConfig = {},
+        configKey, propertyKeys, modifiedPropKey;
+
+    for(configKey in config) {
+      if(config.hasOwnProperty(configKey)) {
+        if(config[configKey].hasOwnProperty(&#x27;key&#x27;)) {
+          // If trying to set a custom property key
+          // Transform and merge into a custom &#x27;propertyKeys&#x27; hash to make lookup faster when deserializing
+          propertyKeys = modelConfig &amp;&amp; modelConfig.hasOwnProperty(&#x27;propertyKeys&#x27;) ? modelConfig.propertyKeys : {};
+          modifiedPropKey = config[configKey].key;
+          propertyKeys[modifiedPropKey] = configKey;
+          newConfig.propertyKeys = propertyKeys;
+        } else {
+          newConfig[configKey] = config[configKey];
+        }
+        modelConfig = modelConfig ? Ember.merge(modelConfig, newConfig) : newConfig;
+      }
+    }
+    modelMap.set(modelKey, modelConfig);
+    return this;
+  },
+
+  /**
+    Helper to pluralize a model resource names.
+    Checks custom configs or simply appends a &#x27;s&#x27;.
+    @method pluralize
+    @param {String} resourceName Name of model class
+    @return {String} plural name
+  */
+  pluralize: function(resourceName) {
+    var plurals = this.get(&#x27;configurations.plurals&#x27;);
+    return (plurals &amp;&amp; plurals[resourceName]) || resourceName + &#x27;s&#x27;;
+  }
+});
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/jquery/jquery-1.10.2.min.js"></script>
+<script src="../assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../assets/vendor/prettify/prettify.min.js"></script>
+<script src="../assets/js/yuidoc-bootstrap.js"></script>
+<script>prettyPrint();</script>
+</body>
+</html>

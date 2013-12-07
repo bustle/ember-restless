@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src/main/model.js - ember-restless</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.0/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify.css">
+    <link rel="stylesheet" href="../assets/css/yuidoc.css" id="site_styles">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" href="../assets/css/yuidoc-bootstrap.css">
+    <link rel="stylesheet" href="../assets/css/custom.css">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+</head>
+<body class="yui3-skin-sam">
+<div class="navbar navbar-static-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <h1 class="brand">
+                
+                ember-restless
+            </h1>
+        	<ul class="nav">
+                <li class="divider-vertical"></li>
+                <li>
+                    <p class="navbar-text">
+                        API Docs for Version: <b>0.4.1</b>
+                    </p>
+                </li>
+            </ul>
+            <form class="navbar-form pull-right" style="line-height: 40px; height: 40px;">
+                <input style="margin-top: 0;" type="text" class="search-query" placeholder="Search for classes/modules..." data-obj='["classes/RESTless", "classes/RESTless.Adapter", "classes/RESTless.Client", "classes/RESTless.FixtureAdapter", "classes/RESTless.JSONSerializer", "classes/RESTless.Model", "classes/RESTless.ReadOnlyModel", "classes/RESTless.RecordArray", "classes/RESTless.RESTAdapter", "classes/RESTless.Serializer", "classes/RESTless.State", "modules/ember-restless"]'>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="span3">
+	    <div>
+    <h3>APIs</h3>
+    <div id="sidebar" data-spy="affix" data-offset-top="80">
+        <ul id="main-nav" class="nav nav-tabs" style="margin-bottom:0;">
+            <li class="active"><a href="#classes" data-toggle="tab">Classes</a></li>
+            <li><a href="#modules" data-toggle="tab">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" placeholder="Type to filter APIs">
+        </div>
+
+        <div class="tab-content" style="border: 1px solid #DDD; border-top:0;">
+            <div class="tab-pane active" id="classes">
+                <ul id="api-classes" class="nav nav-list">
+                    
+                        <li><a href="../classes/RESTless.html">RESTless</a></li>
+                    
+                        <li><a href="../classes/RESTless.Adapter.html">RESTless.Adapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.Client.html">RESTless.Client</a></li>
+                    
+                        <li><a href="../classes/RESTless.FixtureAdapter.html">RESTless.FixtureAdapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.JSONSerializer.html">RESTless.JSONSerializer</a></li>
+                    
+                        <li><a href="../classes/RESTless.Model.html">RESTless.Model</a></li>
+                    
+                        <li><a href="../classes/RESTless.ReadOnlyModel.html">RESTless.ReadOnlyModel</a></li>
+                    
+                        <li><a href="../classes/RESTless.RecordArray.html">RESTless.RecordArray</a></li>
+                    
+                        <li><a href="../classes/RESTless.RESTAdapter.html">RESTless.RESTAdapter</a></li>
+                    
+                        <li><a href="../classes/RESTless.Serializer.html">RESTless.Serializer</a></li>
+                    
+                        <li><a href="../classes/RESTless.State.html">RESTless.State</a></li>
+                    
+                </ul>
+            </div>
+
+            <div class="tab-pane" id="modules">
+                <ul id="api-modules" class="nav nav-list">
+                    
+                        <li><a href="../modules/ember-restless.html">ember-restless</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+        </div>
+        <div class="span9">
+                <form id="options-form" class="form-inline pull-right">
+        Show:
+        <label for="api-show-inherited" class="checkbox">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected" class="checkbox">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private" class="checkbox">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated" class="checkbox">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </form>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <div class="page-header">
+    <h1>src/main/model.js <small>File</small></h1>
+</div>
+
+<div class="file">
+    <pre class="prettyprint linenums">
+/**
+  The base model class for all RESTless objects.
+
+  @class Model
+  @namespace RESTless
+  @extends Ember.Object
+  @uses RESTless.State
+  @uses Ember.Copyable
+*/
+RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
+  /** 
+    A unique id number for the record. &#x60;id&#x60; is the default primary key.
+    @property id
+   */
+  id: RESTless.attr(&#x27;number&#x27;),
+
+  /**
+    Stores raw model data. Don&#x27;t use directly; use declared model attributes.
+    @private
+   */
+  __data: null,
+  _data: Ember.computed(function() {
+    if (!this.__data) { this.__data = {}; }
+    return this.__data;
+  }),
+
+  /** 
+    Hook to add observers for each attribute/relationship for &#x27;isDirty&#x27; functionality
+    @protected
+   */
+  didDefineProperty: function(proto, key, value) {
+    if (value instanceof Ember.Descriptor) {
+      var meta = value.meta();
+
+      if (meta.isRelationship &amp;&amp; !meta.readOnly) {
+        // If a relationship&#x27;s property becomes dirty, need to mark owner as dirty.
+        Ember.addObserver(proto, key + &#x27;.isDirty&#x27;, null, &#x27;_onRelationshipChange&#x27;);
+      }
+    }
+  },
+
+  /**
+    _onPropertyChange: called when any property of the model changes
+    If the model has been loaded, or is new, isDirty flag is set to true.
+    @private
+   */
+  _onPropertyChange: function(key) {
+    var isNew = this.get(&#x27;isNew&#x27;);
+
+    // No longer a new record once a primary key is assigned.
+    if (isNew &amp;&amp; get(this.constructor, &#x27;primaryKey&#x27;) === key) {
+      this.set(&#x27;isNew&#x27;, false);
+      isNew = false;
+    }
+
+    if (this.get(&#x27;_isReady&#x27;) &amp;&amp; (isNew || this.get(&#x27;isLoaded&#x27;))) {
+      this.set(&#x27;isDirty&#x27;, true);
+    }
+  },
+  /**
+    Called when a relationship property&#x27;s isDirty state changes.
+    Forwards a _onPropertyChange event for the parent object.
+    @private
+   */
+  _onRelationshipChange: function(sender, key) {
+    if(sender.get(key)) { // if isDirty
+      this._onPropertyChange(key);
+    }
+  },
+
+  /**
+    Creates a clone of the model. Implements Ember.Copyable protocol
+    &lt;http://emberjs.com/api/classes/Ember.Copyable.html#method_copy&gt;
+    @method copy
+    @param {Boolean} deep if &#x60;true&#x60;, a deep copy of the object should be made
+    @return {Object} copy of receiver
+   */
+  copy: function(deep) {
+    var clone = this.constructor.create(),
+        fields = get(this.constructor, &#x27;fields&#x27;);
+
+    Ember.beginPropertyChanges(this);
+    fields.forEach(function(field, opts) {
+      var value = this.get(field);
+      if (value !== null) {
+        clone.set(field, value);
+      }
+    }, this);
+    Ember.endPropertyChanges(this);
+
+    return clone;
+  },
+
+  /**
+    Creates a clone copy of the model along with it&#x27;s current State.
+    @method copyWithState
+    @param {Boolean} deep if &#x60;true&#x60;, a deep copy of the object should be made
+    @return {Object} copy of receiver
+   */
+  copyWithState: function(deep) {
+    return this.copyState(this.copy(deep));
+  },
+
+  /**
+    Saves the record using the model&#x27;s adapter.
+    @method saveRecord
+    @chainable
+  */
+  saveRecord: function() {
+    return get(this.constructor, &#x27;adapter&#x27;).saveRecord(this);
+  },
+  /**
+    Deletes the record using the model&#x27;s adapter.
+    @method deleteRecord
+    @chainable
+  */
+  deleteRecord: function() {
+    return get(this.constructor, &#x27;adapter&#x27;).deleteRecord(this);
+  },
+  /**
+    Reloads the record using the model&#x27;s adapter.
+    @method reloadRecord
+    @chainable
+  */
+  reloadRecord: function() {
+    return get(this.constructor, &#x27;adapter&#x27;).reloadRecord(this);
+  },
+
+  /**
+    Serializes the record into its data representaion.
+    @method serialize
+    @param {Object} options hash of serialization options
+    @chainable
+  */
+  serialize: function(options) {
+    return RESTless.get(&#x27;client.adapter.serializer&#x27;).serialize(this, options);
+  },
+  /**
+    Deserializes raw data into Model properties
+    @method deserialize
+    @param {Object} data raw data to deserialize
+    @chainable
+  */
+  deserialize: function(data) {
+    return RESTless.get(&#x27;client.adapter.serializer&#x27;).deserialize(this, data);
+  },
+  /**
+    Serializes a Model property into its data representaion.
+    @method serializeProperty
+    @param {String} prop property key
+    @chainable
+  */
+  serializeProperty: function(prop) {
+    return RESTless.get(&#x27;client.adapter.serializer&#x27;).serializeProperty(this, prop);
+  },
+  /**
+    Deserializes raw data property into Model property
+    @method deserializeProperty
+    @param {String} prop property key
+    @param value property value
+    @chainable
+  */
+  deserializeProperty: function(prop, value) {
+    return RESTless.get(&#x27;client.adapter.serializer&#x27;).deserializeProperty(this, prop, value);
+  }
+});
+
+/**
+  Static properties and methods for the Model Class.
+
+  @class Model
+  @namespace RESTless
+*/
+RESTless.Model.reopenClass({
+  /** 
+    Extends super class &#x60;create&#x60; and marks _isReady state.
+    @method create
+    @return RESTless.Model
+   */
+  create: function() {
+    var instance = this._super.apply(this, arguments);
+    instance.set(&#x27;_isReady&#x27;, true);
+    return instance;
+  },
+  /** 
+    Alias to &#x60;create&#x60;. Eases transition to/from ember-data
+    @deprecated Use &#x60;create&#x60;
+    @method createRecord
+    @return RESTless.Model
+   */
+  createRecord: Ember.aliasMethod(&#x27;create&#x27;),
+
+  /** 
+    The adapter for the Model. Provides a hook for overriding.
+    @property adapter
+    @type RESTless.Adapter
+   */
+  adapter: Ember.computed(function() {
+    return get(RESTless, &#x27;client.adapter&#x27;);
+  }).property(&#x27;RESTless.client.adapter&#x27;),
+
+  /** 
+    The property name for the primary key
+    @property primaryKey
+    @type String
+    @default &#x27;id&#x27;
+   */
+  primaryKey: Ember.computed(function() {
+    var className = this.toString(),
+        modelConfig = get(RESTless, &#x27;client._modelConfigs&#x27;).get(className);
+    if(modelConfig &amp;&amp; modelConfig.primaryKey) {
+      return modelConfig.primaryKey;
+    }
+    return &#x27;id&#x27;;
+  }).property(&#x27;RESTless.client._modelConfigs&#x27;),
+
+  /** 
+    The name of the resource, derived from the class name.
+    App.Post =&gt; &#x27;Post&#x27;, App.PostGroup =&gt; &#x27;PostGroup&#x27;, App.AnotherNamespace.Post =&gt; &#x27;Post&#x27;
+
+    @property resourceName
+    @type String
+   */
+  resourceName: Ember.computed(function() {
+    var classNameParts = this.toString().split(&#x27;.&#x27;);
+    return classNameParts[classNameParts.length-1];
+  }),
+  /** 
+    The plural name of the resource, derived from the class name.
+    App.Post =&gt; &#x27;Post&#x27;, App.PostGroup =&gt; &#x27;PostGroup&#x27;, App.AnotherNamespace.Post =&gt; &#x27;Post&#x27;
+
+    @property resourceNamePlural
+    @type String
+   */
+  resourceNamePlural: Ember.computed(function() {
+    var resourceName = get(this, &#x27;resourceName&#x27;),
+        adapter = get(this, &#x27;adapter&#x27;);    
+    return adapter.pluralize(Ember.String.decamelize(resourceName));
+  }),
+
+  /** 
+    Meta information for all attributes and relationships
+    @property fields
+    @type Ember.Map
+   */
+  fields: Ember.computed(function() {
+    var map = Ember.Map.create();
+    this.eachComputedProperty(function(name, meta) {
+      if (meta.isAttribute || meta.isRelationship) {
+        map.set(name, meta);
+      }
+    });
+    return map;
+  }),
+
+  /** 
+    Find resources using the adapter.
+    This method can handle all find types: &#x60;findAll&#x60;, &#x60;findQuery&#x60;, &#x60;findByKey&#x60;
+    @method find
+    @param {Object} params
+    @return Object
+   */
+  find: function(params) {
+    return get(this, &#x27;adapter&#x27;).find(this, params);
+  },
+  /** 
+    Finds resources using the adapter, and returns a promise.
+    @method fetch
+    @param {Object} params hash of query params
+    @return Ember.RSVP.Promise
+   */
+  fetch: function(params) {
+    return get(this, &#x27;adapter&#x27;).fetch(this, params);
+  },
+  /** 
+    Finds all resources of this type using the adapter.
+    @method findAll
+    @return Object
+   */
+  findAll: function() {
+    return get(this, &#x27;adapter&#x27;).findAll(this);
+  },
+  /** 
+    Find resources with query using the adapter.
+    @method findQuery
+    @param {Object} params hash of query params
+    @return Object
+   */
+  findQuery: function(params) {
+    return get(this, &#x27;adapter&#x27;).findQuery(this, params);
+  },
+  /** 
+    Find resource with specified primary key using the adapter.
+    @method findByKey
+    @param {Number|String} key
+    @param {Object} params any additional params
+    @return Object
+   */
+  findByKey: function(key, params) {
+    return get(this, &#x27;adapter&#x27;).findByKey(this, key, params);
+  },
+  /** 
+    Find resource with specified id using the adapter.
+    Keeps API similar to ember-data.
+    @method findById
+    @deprecated Use &#x60;findByKey&#x60;
+   */
+  findById: Ember.aliasMethod(&#x27;findByKey&#x27;),
+
+  /** 
+    Create model directly from data representation.
+    @method load
+    @param {Object} data raw data to load
+    @return RESTless.Model
+   */
+  load: function(data) {
+    var model = this.create().set(&#x27;_isReady&#x27;, false).deserialize(data).set(&#x27;_isReady&#x27;, true);
+    model.onLoaded();
+    return model;
+  },
+  /** 
+    Create collection of records directly from data representation..
+    @method loadMany
+    @param {Object} data raw data to load
+    @return RESTless.RecordArray
+   */
+  loadMany: function(data) {
+    var array = RESTless.RecordArray.createWithContent().deserializeMany(this.toString(), data);
+    array.onLoaded();
+    return array;
+  }
+});
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/jquery/jquery-1.10.2.min.js"></script>
+<script src="../assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../assets/vendor/prettify/prettify.min.js"></script>
+<script src="../assets/js/yuidoc-bootstrap.js"></script>
+<script>prettyPrint();</script>
+</body>
+</html>

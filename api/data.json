@@ -1,0 +1,2486 @@
+{
+    "project": {
+        "name": "ember-restless",
+        "description": "A lightweight data persistence library for Ember.js",
+        "version": "0.4.1",
+        "url": "https://github.com/endlessinc/ember-restless"
+    },
+    "files": {
+        "src/main/attribute.js": {
+            "name": "src/main/attribute.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RESTless": 1
+            },
+            "namespaces": {}
+        },
+        "src/main/client.js": {
+            "name": "src/main/client.js",
+            "modules": {},
+            "classes": {
+                "RESTless.Client": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "RESTless": 1
+            }
+        },
+        "src/main/main.js": {
+            "name": "src/main/main.js",
+            "modules": {
+                "ember-restless": 1
+            },
+            "classes": {
+                "RESTless": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/main/model.js": {
+            "name": "src/main/model.js",
+            "modules": {},
+            "classes": {
+                "RESTless.Model": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "RESTless": 1
+            }
+        },
+        "src/main/read_only_model.js": {
+            "name": "src/main/read_only_model.js",
+            "modules": {},
+            "classes": {
+                "RESTless.ReadOnlyModel": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "RESTless": 1
+            }
+        },
+        "src/main/record_array.js": {
+            "name": "src/main/record_array.js",
+            "modules": {},
+            "classes": {
+                "RESTless.RecordArray": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "RESTless": 1
+            }
+        },
+        "src/main/state.js": {
+            "name": "src/main/state.js",
+            "modules": {},
+            "classes": {
+                "RESTless.State": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "RESTless": 1
+            }
+        },
+        "src/adapters/adapter.js": {
+            "name": "src/adapters/adapter.js",
+            "modules": {},
+            "classes": {
+                "RESTless.Adapter": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "RESTless": 1
+            }
+        },
+        "src/adapters/fixture_adapter.js": {
+            "name": "src/adapters/fixture_adapter.js",
+            "modules": {},
+            "classes": {
+                "RESTless.FixtureAdapter": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "RESTless": 1
+            }
+        },
+        "src/adapters/rest_adapter.js": {
+            "name": "src/adapters/rest_adapter.js",
+            "modules": {},
+            "classes": {
+                "RESTless.RESTAdapter": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "RESTless": 1
+            }
+        },
+        "src/serializers/json_serializer.js": {
+            "name": "src/serializers/json_serializer.js",
+            "modules": {},
+            "classes": {
+                "RESTless.JSONSerializer": 1
+            },
+            "fors": {
+                "RESTless": 1
+            },
+            "namespaces": {
+                "RESTless": 1
+            }
+        },
+        "src/serializers/serializer.js": {
+            "name": "src/serializers/serializer.js",
+            "modules": {},
+            "classes": {
+                "RESTless.Serializer": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "RESTless": 1
+            }
+        }
+    },
+    "modules": {
+        "ember-restless": {
+            "name": "ember-restless",
+            "submodules": {},
+            "classes": {
+                "RESTless": 1,
+                "RESTless.Client": 1,
+                "RESTless.Model": 1,
+                "RESTless.ReadOnlyModel": 1,
+                "RESTless.RecordArray": 1,
+                "RESTless.State": 1,
+                "RESTless.Adapter": 1,
+                "RESTless.FixtureAdapter": 1,
+                "RESTless.RESTAdapter": 1,
+                "RESTless.JSONSerializer": 1,
+                "RESTless.Serializer": 1
+            },
+            "fors": {
+                "RESTless": 1
+            },
+            "namespaces": {
+                "RESTless": 1
+            },
+            "tag": "module",
+            "file": "src/serializers/serializer.js",
+            "line": 1
+        }
+    },
+    "classes": {
+        "RESTless": {
+            "name": "RESTless",
+            "shortname": "RESTless",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember-restless",
+            "file": "src/main/main.js",
+            "line": 10,
+            "description": "All Ember RESTless functionality is defined inside of this namespace.",
+            "static": 1
+        },
+        "RESTless.Client": {
+            "name": "RESTless.Client",
+            "shortname": "RESTless.Client",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember-restless",
+            "namespace": "RESTless",
+            "file": "src/main/client.js",
+            "line": 1,
+            "description": "The Client is the top level store, housing the default adapter and configurations.\nThe client will be automatically detected and set from your App namespace.\nSetting a client is optional and will automatically use a base client.",
+            "extends": "Ember.Object"
+        },
+        "RESTless.Model": {
+            "name": "RESTless.Model",
+            "shortname": "RESTless.Model",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember-restless",
+            "namespace": "RESTless",
+            "file": "src/main/model.js",
+            "line": 168,
+            "description": "Static properties and methods for the Model Class.",
+            "extends": "Ember.Object",
+            "uses": [
+                "RESTless.State",
+                "Ember.Copyable"
+            ]
+        },
+        "RESTless.ReadOnlyModel": {
+            "name": "RESTless.ReadOnlyModel",
+            "shortname": "RESTless.ReadOnlyModel",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember-restless",
+            "namespace": "RESTless",
+            "file": "src/main/read_only_model.js",
+            "line": 1,
+            "description": "A read-only model. Removes property change observers and write methods.\nHelps improve performance when write functionality is not needed.",
+            "extends": "RESTless.Model"
+        },
+        "RESTless.RecordArray": {
+            "name": "RESTless.RecordArray",
+            "shortname": "RESTless.RecordArray",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember-restless",
+            "namespace": "RESTless",
+            "file": "src/main/record_array.js",
+            "line": 1,
+            "description": "RecordArray is an Array of Model objects.",
+            "extends": "Ember.ArrayProxy",
+            "uses": [
+                "RESTless.State"
+            ]
+        },
+        "RESTless.State": {
+            "name": "RESTless.State",
+            "shortname": "RESTless.State",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [
+                "RESTless.Model",
+                "RESTless.RecordArray"
+            ],
+            "module": "ember-restless",
+            "namespace": "RESTless",
+            "file": "src/main/state.js",
+            "line": 1,
+            "description": "The State Mixin is responsible for keeping state and\nhandling state events for Models.",
+            "uses": [
+                "<a href=\"http://emberjs.com/api/classes/Ember.Evented.html\">Ember.Evented</a>"
+            ]
+        },
+        "RESTless.Adapter": {
+            "name": "RESTless.Adapter",
+            "shortname": "RESTless.Adapter",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember-restless",
+            "namespace": "RESTless",
+            "file": "src/adapters/adapter.js",
+            "line": 1,
+            "description": "Adapters handle sending and fetching data to and from a persistence layer.\nThis is a base class to be subclassed.",
+            "extends": "Ember.Object"
+        },
+        "RESTless.FixtureAdapter": {
+            "name": "RESTless.FixtureAdapter",
+            "shortname": "RESTless.FixtureAdapter",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember-restless",
+            "namespace": "RESTless",
+            "file": "src/adapters/fixture_adapter.js",
+            "line": 1,
+            "description": "The FixtureAdapter is used for working with predefined\njavascript data stored in memory.",
+            "beta": 1,
+            "extends": "RESTless.Adapter"
+        },
+        "RESTless.RESTAdapter": {
+            "name": "RESTless.RESTAdapter",
+            "shortname": "RESTless.RESTAdapter",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember-restless",
+            "namespace": "RESTless",
+            "file": "src/adapters/rest_adapter.js",
+            "line": 1,
+            "description": "The REST Adapter handles sending and fetching data to and from a REST API.",
+            "extends": "RESTless.Adapter"
+        },
+        "RESTless.JSONSerializer": {
+            "name": "RESTless.JSONSerializer",
+            "shortname": "RESTless.JSONSerializer",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember-restless",
+            "namespace": "RESTless",
+            "file": "src/serializers/json_serializer.js",
+            "line": 1,
+            "description": "Handles transforming json data to Models and Models to json data.",
+            "extends": "RESTless.Serializer"
+        },
+        "RESTless.Serializer": {
+            "name": "RESTless.Serializer",
+            "shortname": "RESTless.Serializer",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember-restless",
+            "namespace": "RESTless",
+            "file": "src/serializers/serializer.js",
+            "line": 1,
+            "description": "Serializers handle transforming data to and from raw data and Models.\nThis is a base class to be subclassed.",
+            "extends": "Ember.Object"
+        }
+    },
+    "classitems": [
+        {
+            "file": "src/main/attribute.js",
+            "line": 1,
+            "description": "Defines an attribute on a Model.\nSupports types: 'string', 'number', 'boolean', 'date'.",
+            "itemtype": "method",
+            "name": "attr",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "the attribute type",
+                    "type": "String"
+                },
+                {
+                    "name": "opts",
+                    "description": "a hash of options",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "attribute",
+                "type": "Ember.computed"
+            },
+            "class": "RESTless"
+        },
+        {
+            "file": "src/main/attribute.js",
+            "line": 16,
+            "description": "Defines a one-to-one relationship attribute on a Model.",
+            "itemtype": "method",
+            "name": "belongsTo",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "the belongsTo Class type",
+                    "type": "String"
+                },
+                {
+                    "name": "opts",
+                    "description": "a hash of options",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "attribute",
+                "type": "Ember.computed"
+            },
+            "class": "RESTless"
+        },
+        {
+            "file": "src/main/attribute.js",
+            "line": 30,
+            "description": "Defines a one-to-many relationship attribute on a Model.",
+            "itemtype": "method",
+            "name": "hasMany",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "the hasMany Class type",
+                    "type": "String"
+                },
+                {
+                    "name": "opts",
+                    "description": "a hash of options",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "attribute",
+                "type": "Ember.computed"
+            },
+            "class": "RESTless"
+        },
+        {
+            "file": "src/main/client.js",
+            "line": 11,
+            "description": "The default adapter for all models.",
+            "itemtype": "property",
+            "name": "adapter",
+            "type": "RESTless.Adapter",
+            "class": "RESTless.Client",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/client.js",
+            "line": 17,
+            "description": "Shortcut alias to model configurations",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.Client",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 11,
+            "description": "A unique id number for the record. `id` is the default primary key.",
+            "itemtype": "property",
+            "name": "id",
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 17,
+            "description": "Stores raw model data. Don't use directly; use declared model attributes.",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 27,
+            "description": "Hook to add observers for each attribute/relationship for 'isDirty' functionality",
+            "access": "protected",
+            "tagname": "",
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 42,
+            "description": "_onPropertyChange: called when any property of the model changes\nIf the model has been loaded, or is new, isDirty flag is set to true.",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 60,
+            "description": "Called when a relationship property's isDirty state changes.\nForwards a _onPropertyChange event for the parent object.",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 71,
+            "description": "Creates a clone of the model. Implements Ember.Copyable protocol\n<http://emberjs.com/api/classes/Ember.Copyable.html#method_copy>",
+            "itemtype": "method",
+            "name": "copy",
+            "params": [
+                {
+                    "name": "deep",
+                    "description": "if `true`, a deep copy of the object should be made",
+                    "type": "Boolean"
+                }
+            ],
+            "return": {
+                "description": "copy of receiver",
+                "type": "Object"
+            },
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 94,
+            "description": "Creates a clone copy of the model along with it's current State.",
+            "itemtype": "method",
+            "name": "copyWithState",
+            "params": [
+                {
+                    "name": "deep",
+                    "description": "if `true`, a deep copy of the object should be made",
+                    "type": "Boolean"
+                }
+            ],
+            "return": {
+                "description": "copy of receiver",
+                "type": "Object"
+            },
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 104,
+            "description": "Saves the record using the model's adapter.",
+            "itemtype": "method",
+            "name": "saveRecord",
+            "chainable": 1,
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 112,
+            "description": "Deletes the record using the model's adapter.",
+            "itemtype": "method",
+            "name": "deleteRecord",
+            "chainable": 1,
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 120,
+            "description": "Reloads the record using the model's adapter.",
+            "itemtype": "method",
+            "name": "reloadRecord",
+            "chainable": 1,
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 129,
+            "description": "Serializes the record into its data representaion.",
+            "itemtype": "method",
+            "name": "serialize",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "hash of serialization options",
+                    "type": "Object"
+                }
+            ],
+            "chainable": 1,
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 138,
+            "description": "Deserializes raw data into Model properties",
+            "itemtype": "method",
+            "name": "deserialize",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "raw data to deserialize",
+                    "type": "Object"
+                }
+            ],
+            "chainable": 1,
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 147,
+            "description": "Serializes a Model property into its data representaion.",
+            "itemtype": "method",
+            "name": "serializeProperty",
+            "params": [
+                {
+                    "name": "prop",
+                    "description": "property key",
+                    "type": "String"
+                }
+            ],
+            "chainable": 1,
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 156,
+            "description": "Deserializes raw data property into Model property",
+            "itemtype": "method",
+            "name": "deserializeProperty",
+            "params": [
+                {
+                    "name": "prop",
+                    "description": "property key",
+                    "type": "String"
+                },
+                {
+                    "name": "value",
+                    "description": "property value"
+                }
+            ],
+            "chainable": 1,
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 175,
+            "description": "Extends super class `create` and marks _isReady state.",
+            "itemtype": "method",
+            "name": "create",
+            "return": {
+                "description": "RESTless.Model"
+            },
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 185,
+            "description": "Alias to `create`. Eases transition to/from ember-data",
+            "deprecated": true,
+            "deprecationMessage": "Use `create`",
+            "itemtype": "method",
+            "name": "createRecord",
+            "return": {
+                "description": "RESTless.Model"
+            },
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 193,
+            "description": "The adapter for the Model. Provides a hook for overriding.",
+            "itemtype": "property",
+            "name": "adapter",
+            "type": "RESTless.Adapter",
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 202,
+            "description": "The property name for the primary key",
+            "itemtype": "property",
+            "name": "primaryKey",
+            "type": "String",
+            "default": "'id'",
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 217,
+            "description": "The name of the resource, derived from the class name.\nApp.Post => 'Post', App.PostGroup => 'PostGroup', App.AnotherNamespace.Post => 'Post'",
+            "itemtype": "property",
+            "name": "resourceName",
+            "type": "String",
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 228,
+            "description": "The plural name of the resource, derived from the class name.\nApp.Post => 'Post', App.PostGroup => 'PostGroup', App.AnotherNamespace.Post => 'Post'",
+            "itemtype": "property",
+            "name": "resourceNamePlural",
+            "type": "String",
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 241,
+            "description": "Meta information for all attributes and relationships",
+            "itemtype": "property",
+            "name": "fields",
+            "type": "Ember.Map",
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 256,
+            "description": "Find resources using the adapter.\nThis method can handle all find types: `findAll`, `findQuery`, `findByKey`",
+            "itemtype": "method",
+            "name": "find",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Object"
+            },
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 266,
+            "description": "Finds resources using the adapter, and returns a promise.",
+            "itemtype": "method",
+            "name": "fetch",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "hash of query params",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Ember.RSVP.Promise"
+            },
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 275,
+            "description": "Finds all resources of this type using the adapter.",
+            "itemtype": "method",
+            "name": "findAll",
+            "return": {
+                "description": "Object"
+            },
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 283,
+            "description": "Find resources with query using the adapter.",
+            "itemtype": "method",
+            "name": "findQuery",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "hash of query params",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Object"
+            },
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 292,
+            "description": "Find resource with specified primary key using the adapter.",
+            "itemtype": "method",
+            "name": "findByKey",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "",
+                    "type": "Number|String"
+                },
+                {
+                    "name": "params",
+                    "description": "any additional params",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Object"
+            },
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 302,
+            "description": "Find resource with specified id using the adapter.\nKeeps API similar to ember-data.",
+            "itemtype": "method",
+            "name": "findById",
+            "deprecated": true,
+            "deprecationMessage": "Use `findByKey`",
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 310,
+            "description": "Create model directly from data representation.",
+            "itemtype": "method",
+            "name": "load",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "raw data to load",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "RESTless.Model"
+            },
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/model.js",
+            "line": 321,
+            "description": "Create collection of records directly from data representation..",
+            "itemtype": "method",
+            "name": "loadMany",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "raw data to load",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "RESTless.RecordArray"
+            },
+            "class": "RESTless.Model",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/record_array.js",
+            "line": 10,
+            "description": "The default adapter for the RecordArray. Providing a hook for overriding.",
+            "itemtype": "property",
+            "name": "adapter",
+            "class": "RESTless.RecordArray",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/record_array.js",
+            "line": 18,
+            "description": "Use the current Serializer to turn the data into a record array.",
+            "itemtype": "method",
+            "name": "deserializeMany",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "The type of model class",
+                    "type": "Object"
+                },
+                {
+                    "name": "data",
+                    "description": "The data to deserialize",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "RESTless.RecordArray"
+            },
+            "class": "RESTless.RecordArray",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/record_array.js",
+            "line": 29,
+            "description": "Use the current Serializer to turn the array into its data representation.",
+            "itemtype": "method",
+            "name": "serializeMany",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "The type of model class",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "RESTless.RecordArray"
+            },
+            "class": "RESTless.RecordArray",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/record_array.js",
+            "line": 39,
+            "description": "Overrides super replaceContent method to add isDirty functionality",
+            "itemtype": "method",
+            "name": "replaceContent",
+            "params": [
+                {
+                    "name": "idx",
+                    "description": "The starting index",
+                    "type": "Number"
+                },
+                {
+                    "name": "amt",
+                    "description": "The number of items to remove from the content.",
+                    "type": "Number"
+                },
+                {
+                    "name": "objects",
+                    "description": "Optional array of objects to insert or null if no objects.",
+                    "type": "Array"
+                }
+            ],
+            "class": "RESTless.RecordArray",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/record_array.js",
+            "line": 53,
+            "description": "Observes when items become dirty and sets itself to dirty.",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.RecordArray",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/record_array.js",
+            "line": 64,
+            "description": "Observes when the array's isLoaded state changes and triggers each item's onLoaded.",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.RecordArray",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/record_array.js",
+            "line": 81,
+            "description": "Creates a RecordArray",
+            "itemtype": "method",
+            "name": "create",
+            "return": {
+                "description": "RESTless.RecordArray"
+            },
+            "class": "RESTless.RecordArray",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/record_array.js",
+            "line": 92,
+            "description": "Helper to create a RecordArray with it's content property initialized to an Array",
+            "itemtype": "method",
+            "name": "createWithContent",
+            "return": {
+                "description": "RESTless.RecordArray"
+            },
+            "class": "RESTless.RecordArray",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 10,
+            "description": "Model has not yet been saved; not yet assigned a primary key.",
+            "itemtype": "property",
+            "name": "isNew",
+            "type": "{Boolean}",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 16,
+            "description": "Model has been retrieved and properties set.",
+            "itemtype": "property",
+            "name": "isLoaded",
+            "type": "{Boolean}",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 22,
+            "description": "Model has changes that have not yet been saved.",
+            "itemtype": "property",
+            "name": "isDirty",
+            "type": "{Boolean}",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 28,
+            "description": "Model model is in the process of saving.",
+            "itemtype": "property",
+            "name": "isSaving",
+            "type": "{Boolean}",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 34,
+            "description": "Model model is in error state.",
+            "itemtype": "property",
+            "name": "isError",
+            "type": "{Boolean}",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 41,
+            "description": "Hash of current errors on model.",
+            "itemtype": "property",
+            "name": "errors",
+            "type": "Object",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 48,
+            "description": "Fired when the record is created.",
+            "itemtype": "event",
+            "name": "didCreate",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 53,
+            "description": "Fired when the record is updated.",
+            "itemtype": "event",
+            "name": "didUpdate",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 58,
+            "description": "Fired when the record is enters the loaded state.",
+            "itemtype": "event",
+            "name": "didLoad",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 63,
+            "description": "Fired when the record is deleted.",
+            "itemtype": "event",
+            "name": "didDelete",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 68,
+            "description": "Fired when the record enters the error state.",
+            "itemtype": "event",
+            "name": "becameError",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 74,
+            "description": "Updates state and triggers events upon saving.",
+            "itemtype": "method",
+            "name": "onSaved",
+            "params": [
+                {
+                    "name": "wasNew",
+                    "description": "was a new model prior to saving.",
+                    "type": "Boolean"
+                }
+            ],
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 91,
+            "description": "Updates state and triggers events upon deletion.",
+            "itemtype": "method",
+            "name": "onDeleted",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 102,
+            "description": "Updates state and triggers events upon loading.",
+            "itemtype": "method",
+            "name": "onLoaded",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 117,
+            "description": "Updates state and triggers events upon an error.",
+            "itemtype": "method",
+            "name": "onError",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 130,
+            "description": "Clears errors and resets error state",
+            "itemtype": "method",
+            "name": "clearErrors",
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 140,
+            "description": "Copies the current state to a cloned object",
+            "itemtype": "method",
+            "name": "copyState",
+            "params": [
+                {
+                    "name": "clone",
+                    "description": "the cloned object",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "the cloned object with copied state",
+                "type": "Object"
+            },
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 159,
+            "description": "Flag for deferring dirty state when setting initial values on create() or load()",
+            "itemtype": "property",
+            "name": "_isReady",
+            "type": "{Boolean}",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/state.js",
+            "line": 167,
+            "description": "Helper function to trigger events on models and to any listeners.",
+            "itemtype": "method",
+            "name": "_triggerEvent",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.State",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 10,
+            "description": "Instance of a Serializer used to transform data",
+            "itemtype": "property",
+            "name": "serializer",
+            "type": "RESTless.Serializer",
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 17,
+            "description": "Saves a record. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "saveRecord",
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 22,
+            "description": "Deletes a record. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "deleteRecord",
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 27,
+            "description": "Finds all records. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "findAll",
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 32,
+            "description": "Finds records by query. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "findQuery",
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 37,
+            "description": "Finds record by primary key. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "findByKey",
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 42,
+            "description": "Generates a unique id for new records. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "generateIdForRecord",
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 48,
+            "description": "Finds records with specified params.\nA convenience method that can be used to intelligently route to \n```findAll``` ```findQuery``` ```findByKey``` based on its params.",
+            "itemtype": "method",
+            "name": "find",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "Model class type",
+                    "type": "Object"
+                },
+                {
+                    "name": "params",
+                    "description": "a hash of params.",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 72,
+            "description": "Fetch wraps `find` in a promise for async find support.",
+            "itemtype": "method",
+            "name": "fetch",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "Model class type",
+                    "type": "Object"
+                },
+                {
+                    "name": "params",
+                    "description": "a hash of params.",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "Ember.RSVP.Promise"
+            },
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 95,
+            "description": "Refreshes an existing record from the data store.",
+            "itemtype": "method",
+            "name": "reloadRecord",
+            "params": [
+                {
+                    "name": "record",
+                    "description": "The record to relead",
+                    "type": "RESTless.Model"
+                }
+            ],
+            "return": {
+                "description": "Ember.RSVP.Promise"
+            },
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 116,
+            "description": "Stores info about custom configurations.\n* plurals - to set the plural resource name ('person' to 'people').\n* models - to set a different primary key for a model type.",
+            "itemtype": "property",
+            "name": "configurations",
+            "type": "Ember.Object",
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 129,
+            "description": "Helper method to set allowed configurations.",
+            "itemtype": "method",
+            "name": "configure",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "config key",
+                    "type": "Object"
+                },
+                {
+                    "name": "value",
+                    "description": "config value",
+                    "type": "Object"
+                }
+            ],
+            "chainable": 1,
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 145,
+            "description": "Helper to map configurations for model types.",
+            "itemtype": "method",
+            "name": "map",
+            "params": [
+                {
+                    "name": "modelKey",
+                    "description": "Model type",
+                    "type": "String"
+                },
+                {
+                    "name": "config",
+                    "description": "config value",
+                    "type": "Object"
+                }
+            ],
+            "chainable": 1,
+            "example": [
+                "\n  <pre class=\"prettyprint\">\n  App.Adapter.map('App.Post', { primaryKey: 'slug' });\n  App.Adapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });</pre>"
+            ],
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 181,
+            "description": "Helper to pluralize a model resource names.\nChecks custom configs or simply appends a 's'.",
+            "itemtype": "method",
+            "name": "pluralize",
+            "params": [
+                {
+                    "name": "resourceName",
+                    "description": "Name of model class",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "plural name",
+                "type": "String"
+            },
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/fixture_adapter.js",
+            "line": 14,
+            "description": "Saves a record. Pushes a new record to fixtures, or updates an existing record.",
+            "itemtype": "method",
+            "name": "saveRecord",
+            "params": [
+                {
+                    "name": "record",
+                    "description": "record to be saved",
+                    "type": "RESTless.Model"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Ember.RSVP.Promise"
+            },
+            "class": "RESTless.FixtureAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/fixture_adapter.js",
+            "line": 68,
+            "description": "Deletes a record from fixtures array",
+            "itemtype": "method",
+            "name": "deleteRecord",
+            "params": [
+                {
+                    "name": "record",
+                    "description": "record to be deleted",
+                    "type": "RESTless.Model"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Ember.RSVP.Promise"
+            },
+            "class": "RESTless.FixtureAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/fixture_adapter.js",
+            "line": 93,
+            "description": "Finds all records of specified class in fixtures array",
+            "itemtype": "method",
+            "name": "findAll",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "model type to find",
+                    "type": "RESTless.Model"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "RESTless.RecordArray"
+            },
+            "class": "RESTless.FixtureAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/fixture_adapter.js",
+            "line": 103,
+            "description": "Finds records with specified query params in fixtures array",
+            "itemtype": "method",
+            "name": "findQuery",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "model type to find",
+                    "type": "RESTless.Model"
+                },
+                {
+                    "name": "queryParams",
+                    "description": "hash of query params",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "RESTless.RecordArray"
+            },
+            "class": "RESTless.FixtureAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/fixture_adapter.js",
+            "line": 136,
+            "description": "Finds record with specified primary key in fixtures",
+            "itemtype": "method",
+            "name": "findByKey",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "model type to find",
+                    "type": "RESTless.Model"
+                },
+                {
+                    "name": "key",
+                    "description": "primary key value",
+                    "type": "Number|String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "RESTless.Model"
+            },
+            "class": "RESTless.FixtureAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/fixture_adapter.js",
+            "line": 164,
+            "description": "Generates a uuid for a new record.",
+            "itemtype": "method",
+            "name": "generateIdForRecord",
+            "params": [
+                {
+                    "name": "record",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "uuid",
+                "type": "String"
+            },
+            "class": "RESTless.FixtureAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/fixture_adapter.js",
+            "line": 174,
+            "itemtype": "method",
+            "name": "_findFixtureRecordIndex",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.FixtureAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 9,
+            "description": "Serializer used to transform data.",
+            "itemtype": "property",
+            "name": "serializer",
+            "type": "RESTless.Serializer",
+            "default": "RESTless.JSONSerializer",
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 17,
+            "description": "Base url of REST API",
+            "itemtype": "property",
+            "name": "url",
+            "type": "String",
+            "example": [
+                " 'http://api.example.com'"
+            ],
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 24,
+            "description": "API namespace endpoint path",
+            "itemtype": "property",
+            "name": "namespace",
+            "type": "String",
+            "optional": 1,
+            "example": [
+                " 'api/v1'"
+            ],
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 32,
+            "description": "Adds content type extensions to requests.",
+            "itemtype": "property",
+            "name": "useContentTypeExtension",
+            "type": "Boolean",
+            "default": "false",
+            "example": [
+                "\n  When `true` will make requests `/posts.json` instead of `/posts` or `/posts/115.json` instead of `/posts/115`"
+            ],
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 42,
+            "description": "Computed path based on url and namespace.",
+            "itemtype": "property",
+            "name": "rootPath",
+            "type": "String",
+            "final": 1,
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 61,
+            "description": "Helper method creates a valid REST path to a resource",
+            "itemtype": "method",
+            "name": "resourcePath",
+            "params": [
+                {
+                    "name": "resourceName",
+                    "description": "Type of Model",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "the resource path",
+                "type": "String"
+            },
+            "example": [
+                " App.Post => 'posts',  App.PostGroup => 'post_groups'"
+            ],
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 72,
+            "description": "Creates and executes an ajax request wrapped in a promise.",
+            "itemtype": "method",
+            "name": "request",
+            "params": [
+                {
+                    "name": "model",
+                    "description": "model to use to build the request",
+                    "type": "RESTless.Model"
+                },
+                {
+                    "name": "params",
+                    "description": "Additional ajax params",
+                    "type": "Object",
+                    "optional": true
+                },
+                {
+                    "name": "key",
+                    "description": "optional resource primary key value",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Ember.RSVP.Promise"
+            },
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 108,
+            "description": "Constructs request url and dynamically adds the resource key if specified",
+            "itemtype": "method",
+            "name": "buildUrl",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 132,
+            "description": "Saves a record. POSTs a new record, or PUTs an updated record to REST API",
+            "itemtype": "method",
+            "name": "saveRecord",
+            "params": [
+                {
+                    "name": "record",
+                    "description": "record to be saved",
+                    "type": "RESTless.Model"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Ember.RSVP.Promise"
+            },
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 165,
+            "description": "Deletes a record from REST API using DELETE",
+            "itemtype": "method",
+            "name": "deleteRecord",
+            "params": [
+                {
+                    "name": "record",
+                    "description": "record to be deleted",
+                    "type": "RESTless.Model"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Ember.RSVP.Promise"
+            },
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 185,
+            "description": "Reloads a record from REST API",
+            "itemtype": "method",
+            "name": "reloadRecord",
+            "params": [
+                {
+                    "name": "record",
+                    "description": "record to be reloaded",
+                    "type": "RESTless.Model"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Ember.RSVP.Promise"
+            },
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 215,
+            "description": "Finds all records of specified class using GET",
+            "itemtype": "method",
+            "name": "findAll",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "model type to find",
+                    "type": "RESTless.Model"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "RESTless.RecordArray"
+            },
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 225,
+            "description": "Finds records with specified query params using GET",
+            "itemtype": "method",
+            "name": "findQuery",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "model type to find",
+                    "type": "RESTless.Model"
+                },
+                {
+                    "name": "queryParams",
+                    "description": "hash of query params",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "RESTless.RecordArray"
+            },
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 248,
+            "description": "Finds record with specified primary key using GET",
+            "itemtype": "method",
+            "name": "findByKey",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "model type to find",
+                    "type": "RESTless.Model"
+                },
+                {
+                    "name": "key",
+                    "description": "primary key value",
+                    "type": "Number|String"
+                },
+                {
+                    "name": "queryParams",
+                    "description": "hash of additional query params",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "RESTless.Model"
+            },
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 270,
+            "description": "Fetch wraps `find` in a promise for async find support.",
+            "itemtype": "method",
+            "name": "fetch",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "Model class type",
+                    "type": "Object"
+                },
+                {
+                    "name": "params",
+                    "description": "a hash of query params.",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "Ember.RSVP.Promise"
+            },
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 285,
+            "description": "Registers custom attribute transforms.\nFowards creation to serializer.",
+            "itemtype": "method",
+            "name": "registerTransform",
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 294,
+            "description": "Builds a robust error object using the serializer and xhr data",
+            "itemtype": "method",
+            "name": "parseAjaxErrors",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 10,
+            "description": "Type of data to serialize.",
+            "itemtype": "property",
+            "name": "dataType",
+            "type": "String",
+            "default": "'json'",
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 17,
+            "description": "Additional content type headers when transmitting data.",
+            "itemtype": "property",
+            "name": "contentType",
+            "type": "String",
+            "default": "'application/json; charset=utf-8'",
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 25,
+            "description": "Transforms json object into model",
+            "itemtype": "method",
+            "name": "deserialize",
+            "params": [
+                {
+                    "name": "resource",
+                    "description": "model resource",
+                    "type": "RESTless.Model"
+                },
+                {
+                    "name": "data",
+                    "description": "json data",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "RESTless.Model"
+            },
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 62,
+            "description": "Transforms json key/value into model property",
+            "itemtype": "method",
+            "name": "deserializeProperty",
+            "params": [
+                {
+                    "name": "resource",
+                    "description": "model resource",
+                    "type": "RESTless.Model"
+                },
+                {
+                    "name": "prop",
+                    "description": "json data key",
+                    "type": "Object"
+                },
+                {
+                    "name": "value",
+                    "description": "json data value",
+                    "type": "Object"
+                }
+            ],
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 99,
+            "description": "Transforms json array into a record array",
+            "itemtype": "method",
+            "name": "deserializeMany",
+            "params": [
+                {
+                    "name": "recordArray",
+                    "description": "RecordArray",
+                    "type": "RESTless.RecordArray"
+                },
+                {
+                    "name": "type",
+                    "description": "records class name",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "json data",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "RESTless.RecordArray"
+            },
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 145,
+            "description": "Transforms a Model into json",
+            "itemtype": "method",
+            "name": "serialize",
+            "params": [
+                {
+                    "name": "resource",
+                    "description": "Model to serialize",
+                    "type": "RESTless.Model"
+                },
+                {
+                    "name": "options",
+                    "description": "additional serialization options",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "json data",
+                "type": "Object"
+            },
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 178,
+            "description": "Transforms a Model property into json value",
+            "itemtype": "method",
+            "name": "serializeProperty",
+            "params": [
+                {
+                    "name": "resource",
+                    "description": "Model to serialize",
+                    "type": "RESTless.Model"
+                },
+                {
+                    "name": "prop",
+                    "description": "property to serialize",
+                    "type": "String"
+                },
+                {
+                    "name": "opts",
+                    "description": "Model metadata",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "json value",
+                "type": "Object"
+            },
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 205,
+            "description": "Transforms a RecordArray into a json array",
+            "itemtype": "method",
+            "name": "serializeMany",
+            "params": [
+                {
+                    "name": "recordArray",
+                    "description": "RecordArray",
+                    "type": "RESTless.RecordArray"
+                },
+                {
+                    "name": "type",
+                    "description": "records class name",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "json array",
+                "type": "Object"
+            },
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 226,
+            "description": "Helper to transform resource name to valid json key",
+            "itemtype": "method",
+            "name": "keyForResourceName",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "Model class name",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "json key name",
+                "type": "String"
+            },
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 235,
+            "description": "Helper to transform attribute name to valid json key",
+            "itemtype": "method",
+            "name": "keyForAttributeName",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "Model property name",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "json key name",
+                "type": "String"
+            },
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 247,
+            "description": "Helper to get Model property name from json key name",
+            "itemtype": "method",
+            "name": "attributeNameForKey",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "Model class",
+                    "type": "RESTless.Model"
+                },
+                {
+                    "name": "key",
+                    "description": "Model property name",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "Model property name",
+                "type": "String"
+            },
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 263,
+            "description": "JSON should be stringified before transmitting.",
+            "itemtype": "method",
+            "name": "prepareData",
+            "return": {
+                "description": "Object"
+            },
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 271,
+            "description": "Transforms error response text into json.",
+            "itemtype": "method",
+            "name": "parseError",
+            "return": {
+                "description": "Object"
+            },
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 281,
+            "description": "Attempts to extract metadata on json responses",
+            "itemtype": "method",
+            "name": "extractMeta",
+            "return": {
+                "description": "Object"
+            },
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 291,
+            "description": "To register a custom attribute transform. Adds to JSONTransforms.",
+            "itemtype": "method",
+            "name": "registerTransform",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "attribute type name",
+                    "type": "String"
+                },
+                {
+                    "name": "custom",
+                    "description": "serialize and deserialize method hash",
+                    "type": "Object"
+                }
+            ],
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 301,
+            "itemtype": "method",
+            "name": "_keyForResource",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 308,
+            "itemtype": "method",
+            "name": "_keyForResourceType",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 316,
+            "itemtype": "method",
+            "name": "_keyPluralForResourceType",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 324,
+            "description": "Checks for wrapped array data by resource name: { posts: [...] }\nThis is the default from ActiveRecord on direct finds",
+            "itemtype": "method",
+            "name": "_arrayDataForType",
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.JSONSerializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/json_serializer.js",
+            "line": 343,
+            "description": "Hash for custom json transforms",
+            "itemtype": "property",
+            "name": "JSONTransforms",
+            "type": "Object",
+            "class": "RESTless",
+            "module": "ember-restless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 10,
+            "description": "Type of data to serialize.",
+            "itemtype": "property",
+            "name": "dataType",
+            "type": "String",
+            "example": [
+                " json, jsonp, xml, html"
+            ],
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 17,
+            "description": "Additional content type headers when transmitting data.",
+            "itemtype": "property",
+            "name": "dataType",
+            "type": "String",
+            "optional": 1,
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 25,
+            "description": "Transforms raw data into model. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "deserialize",
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 30,
+            "description": "Transforms raw data property into model property. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "deserializeProperty",
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 35,
+            "description": "Transforms array of raw data into record array. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "deserializeMany",
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 40,
+            "description": "Transforms model into raw data. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "serialize",
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 45,
+            "description": "Transforms model property into raw data property. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "serializeProperty",
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 50,
+            "description": "Transforms a record array into raw data array. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "serializeMany",
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 55,
+            "description": "To register a custom attribute transform. Abstract - implement in subclass.",
+            "itemtype": "method",
+            "name": "registerTransform",
+            "optional": 1,
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 62,
+            "description": "Optional override to prep data before persisting.",
+            "itemtype": "method",
+            "name": "prepareData",
+            "return": {
+                "description": "Object"
+            },
+            "optional": 1,
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 71,
+            "description": "Optional override to deserialize error messages.",
+            "itemtype": "method",
+            "name": "parseError",
+            "return": {
+                "description": "Object"
+            },
+            "optional": 1,
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        }
+    ],
+    "warnings": [
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " src/main/record_array.js:18"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " src/main/record_array.js:29"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " src/main/record_array.js:81"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " src/main/record_array.js:92"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " src/main/state.js:130"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " src/main/state.js:140"
+        },
+        {
+            "message": "replacing incorrect tag: parma with param",
+            "line": " src/serializers/json_serializer.js:291"
+        },
+        {
+            "message": "Missing item type\nShortcut alias to model configurations",
+            "line": " src/main/client.js:17"
+        },
+        {
+            "message": "Missing item type\nStores raw model data. Don't use directly; use declared model attributes.",
+            "line": " src/main/model.js:17"
+        },
+        {
+            "message": "Missing item type\nHook to add observers for each attribute/relationship for 'isDirty' functionality",
+            "line": " src/main/model.js:27"
+        },
+        {
+            "message": "Missing item type\n_onPropertyChange: called when any property of the model changes\nIf the model has been loaded, or is new, isDirty flag is set to true.",
+            "line": " src/main/model.js:42"
+        },
+        {
+            "message": "Missing item type\nCalled when a relationship property's isDirty state changes.\nForwards a _onPropertyChange event for the parent object.",
+            "line": " src/main/model.js:60"
+        },
+        {
+            "message": "Missing item type\nObserves when items become dirty and sets itself to dirty.",
+            "line": " src/main/record_array.js:53"
+        },
+        {
+            "message": "Missing item type\nObserves when the array's isLoaded state changes and triggers each item's onLoaded.",
+            "line": " src/main/record_array.js:64"
+        }
+    ]
+}
