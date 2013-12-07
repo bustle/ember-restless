@@ -8,10 +8,12 @@ RESTless can be extended to support various other data persistence layers. For e
 
 One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
 
+## [API Documentation](http://endlessinc.github.io/ember-restless/api/)
 Current version: **0.4.1**  
 See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
-### Table of Contents
+
+## Guide
 - [Getting started](#getting-started)
 - [Defining a RESTAdapter](#defining-a-restadapter)
 - [Defining a 'Client'](#defining-a-client)
