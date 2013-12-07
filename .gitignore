@@ -18,3 +18,4 @@ node_modules
 
 dist/*.min.js
 docs/
+docs-theme/

@@ -48,11 +48,10 @@ RESTless.Adapter = Ember.Object.extend({
   /**
     Finds records with specified params.
     A convenience method that can be used to intelligently route to 
-    findAll / findQuery / findByKey based on its params.
+    ```findAll``` ```findQuery``` ```findByKey``` based on its params.
     @method find
     @param {Object} klass Model class type
     @param {Object} [params] a hash of params.
-    @final 
   */
   find: function(klass, params) {
     var primaryKey = get(klass, 'primaryKey'),
@@ -150,8 +149,9 @@ RESTless.Adapter = Ember.Object.extend({
     @param {Object} config config value
     @chainable
     @example
-      ```App.Adapter.map('App.Post', { primaryKey: 'slug' });```  
-      ```App.Adapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });```
+      <pre class="prettyprint">
+      App.Adapter.map('App.Post', { primaryKey: 'slug' });
+      App.Adapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });</pre>
   */
   map: function(modelKey, config) {
     var modelMap = this.get('configurations.models'),

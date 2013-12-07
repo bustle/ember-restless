@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.4.1
- * last modifed: 2013-11-30
+ * last modifed: 2013-12-07
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.

@@ -6,7 +6,7 @@
   @for RESTless
   @param {String} type the attribute type
   @param {Object} [opts] a hash of options
-  @return {Ember.computed}
+  @return {Ember.computed} attribute
 */
 RESTless.attr = function(type, opts) {
   var meta = Ember.merge({ type: type, isAttribute: true }, opts);
@@ -20,7 +20,7 @@ RESTless.attr = function(type, opts) {
   @for RESTless
   @param {String} type the belongsTo Class type
   @param {Object} [opts] a hash of options
-  @return {Ember.computed}
+  @return {Ember.computed} attribute
 */
 RESTless.belongsTo = function(type, opts) {
   var meta = Ember.merge({ type: type, isRelationship: true, belongsTo: true }, opts);
@@ -34,7 +34,7 @@ RESTless.belongsTo = function(type, opts) {
   @for RESTless
   @param {String} type the hasMany Class type
   @param {Object} [opts] a hash of options
-  @return {Ember.computed}
+  @return {Ember.computed} attribute
 */
 RESTless.hasMany = function(type, opts) {
   var defaultArray = function() {

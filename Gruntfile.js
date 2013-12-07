@@ -126,7 +126,9 @@ module.exports = function(grunt) {
             'src/adapters',
             'src/serializers',
           ],
-          outdir: 'docs'
+          outdir: 'docs',
+          themedir: 'docs-theme',
+          helpers: ['docs-theme/helpers/helpers.js']
         }
       }
     },
@@ -145,8 +147,8 @@ module.exports = function(grunt) {
   // Build task: Lint and build only
   grunt.registerTask('build', ['jshint:beforeconcat', 'concat:dist', 'concat:extras', 'jshint:afterconcat']);
 
-  // Default task: Lint, build, test, build production, generate docs.
-  grunt.registerTask('default', ['build', 'qunit', 'uglify', 'yuidoc']);
+  // Default task: Lint, build, test, build production
+  grunt.registerTask('default', ['build', 'qunit', 'uglify']);
 
   // Test only task
   grunt.registerTask('test', ['qunit']);

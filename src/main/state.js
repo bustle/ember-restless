@@ -140,8 +140,8 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
   /**
     Copies the current state to a cloned object
     @method copyState
-    @param {Object}
-    @returns {Object}
+    @param {Object} clone the cloned object
+    @returns {Object} the cloned object with copied state
    */
   copyState: function(clone) {
     var mi = RESTless.State.mixins,
