@@ -1,0 +1,519 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>ember-restless by endlessinc</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>ember-restless</h1>
+        <p>A lightweight data persistence library for Ember.js</p>
+
+        <p class="view"><a href="https://github.com/endlessinc/ember-restless">View the Project on GitHub <small>endlessinc/ember-restless</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/endlessinc/ember-restless/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/endlessinc/ember-restless/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/endlessinc/ember-restless">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p>RESTless is a lightweight data persistence library for Ember.js. (~4KB minified &amp; gzipped)</p>
+
+<p>Out of the box, it is used to communicate with a remote JSON REST API to map data between a server and your Ember.js application.  </p>
+
+<p>RESTless can be extended to support various other data persistence layers. For example, to handle XML data instead of JSON, or store data to localStorage instead of a remote server.</p>
+
+<p>One of its main goals is to reproduce much of the simple, useful features of <a href="https://github.com/emberjs/data">ember-data</a>, and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.</p>
+
+<h1>
+<a name="api-docs--" class="anchor" href="#api-docs--"><span class="octicon octicon-link"></span></a><a href="http://endlessinc.github.io/ember-restless/api/">API Docs -&gt;</a>
+</h1>
+
+<p>Current version: <strong>0.4.1</strong><br>
+See the <a href="CHANGELOG.md">Changelog</a> for the latest features and API changes.</p>
+
+<hr><h2>
+<a name="guide" class="anchor" href="#guide"><span class="octicon octicon-link"></span></a>Guide</h2>
+
+<ul>
+<li><a href="#getting-started">Getting started</a></li>
+<li><a href="#defining-a-restadapter">Defining a RESTAdapter</a></li>
+<li><a href="#defining-a-client">Defining a 'Client'</a></li>
+<li>
+<a href="#models">Models</a>
+
+<ul>
+<li><a href="#relationships">Relationships</a></li>
+<li><a href="#finding-records">Finding records</a></li>
+<li><a href="#creating-records">Creating records</a></li>
+<li><a href="#saving-records">Saving records</a></li>
+<li><a href="#deleting-records">Deleting records</a></li>
+<li><a href="#reloading-records">Reloading records</a></li>
+<li><a href="#side-loading-records">Side-loading records</a></li>
+<li><a href="#model-lifecycle">Model lifecycle</a></li>
+</ul>
+</li>
+<li><a href="#promises">Promises</a></li>
+<li><a href="#extras">Extras</a></li>
+<li><a href="#advanced">Advanced</a></li>
+<li><a href="#building-restless">Building RESTless</a></li>
+<li><a href="#tests">Tests</a></li>
+</ul><h2>
+<a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting started</h2>
+
+<p>Include <a href="https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless.js">ember-restless.js</a> in your application. (found in the <code>dist/</code> folder)</p>
+
+<p><strong>Namespace</strong></p>
+
+<p>RESTless can be referenced either with the namespace <strong>RESTless</strong> or the shorthand <strong>RL</strong>.  Similar to <strong>Ember</strong> and <strong>Em</strong></p>
+
+<h3>
+<a name="defining-a-restadapter" class="anchor" href="#defining-a-restadapter"><span class="octicon octicon-link"></span></a>Defining a RESTAdapter</h3>
+
+<p>The REST adapter is responsible for communicating with your backend REST service.
+Here, you can set the url, and optionally a namespace.<br>
+For example, if your REST API is located at <a href="http://api.myservice.com/v1">http://api.myservice.com/v1</a></p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">RESTAdapter</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">RESTAdapter</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">url</span><span class="o">:</span> <span class="s1">'http://api.myservice.com'</span><span class="p">,</span>
+  <span class="nx">namespace</span><span class="o">:</span> <span class="s1">'v1'</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="defining-a-client" class="anchor" href="#defining-a-client"><span class="octicon octicon-link"></span></a>Defining a 'Client'</h3>
+
+<p>Similar to defining the 'Store' using ember-data, instead define the 'Client' for your application.  RESTless will automatically detect the Client on your application namespace and initialize RESTless to work with you app.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">Client</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">adapter</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">RESTAdapter</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="models" class="anchor" href="#models"><span class="octicon octicon-link"></span></a>Models</h3>
+
+<p>Each model you create should extend RL.Model<br>
+Supported attribute types are string, number, boolean, and date.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">Post</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span>       <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'string'</span><span class="p">),</span>
+  <span class="nx">isPublished</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'boolean'</span><span class="p">),</span>
+  <span class="nx">readCount</span><span class="o">:</span>   <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'number'</span><span class="p">),</span>
+  <span class="nx">createdAt</span><span class="o">:</span>   <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'date'</span><span class="p">)</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>You can define custom attribute types in your adapter.  See the advanced section below.</p>
+
+<h3>
+<a name="relationships" class="anchor" href="#relationships"><span class="octicon octicon-link"></span></a>Relationships</h3>
+
+<p>For one-to-one relationships use the <em>belongsTo</em> attribute helper.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">User</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'string'</span><span class="p">),</span>
+  <span class="nx">role</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'number'</span><span class="p">)</span>
+<span class="p">});</span>
+
+<span class="nx">App</span><span class="p">.</span><span class="nx">Profile</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">user</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="s1">'App.User'</span><span class="p">)</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>For one-to-many relationships, use the <em>hasMany</em> helper.<br>
+For example, if a <code>Post</code> model contains an array of <code>Tag</code> models:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">Tag</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'string'</span><span class="p">),</span>
+  <span class="nx">count</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'number'</span><span class="p">)</span>
+<span class="p">});</span>
+
+<span class="nx">App</span><span class="p">.</span><span class="nx">Post</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">tags</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="s1">'App.Tag'</span><span class="p">)</span>
+<span class="p">});</span>
+</pre></div>
+
+<p><em>Currently, all relational data should be embedded in the response. Also, see <a href="#side-loading-records">Side-loading records</a>.</em></p>
+
+<h3>
+<a name="finding-records" class="anchor" href="#finding-records"><span class="octicon octicon-link"></span></a>Finding records</h3>
+
+<p>Use the <code>find()</code> method to retrieve records.</p>
+
+<p>To find a Post with an id of 1:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">post</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+
+<p>To use a query to find:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">posts</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">find</span><span class="p">({</span> <span class="nx">isPublished</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
+</pre></div>
+
+<p>To find all records:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">posts</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">find</span><span class="p">();</span>
+</pre></div>
+
+<p><code>find()</code> automatically handles all query types, however, explicit methods are also available:<br><code>findAll()</code>, <code>findQuery()</code>, <code>findByKey()</code> / <code>findById()</code></p>
+
+<h3>
+<a name="creating-records" class="anchor" href="#creating-records"><span class="octicon octicon-link"></span></a>Creating records</h3>
+
+<p>Create records like you would a normal Ember Object:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">post</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="s1">'My First Post'</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="saving-records" class="anchor" href="#saving-records"><span class="octicon octicon-link"></span></a>Saving records</h3>
+
+<p>Simply call: <code>saveRecord()</code><br>
+The Adapter will automatically POST to save a new record, or PUT to update an existing record.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">post</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">title</span><span class="o">:</span> <span class="s1">'My First Post'</span> <span class="p">});</span>
+<span class="nx">post</span><span class="p">.</span><span class="nx">saveRecord</span><span class="p">();</span>
+</pre></div>
+
+<p>Updating:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">post</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'title'</span><span class="p">,</span> <span class="s1">'My Very First Post'</span><span class="p">);</span>
+<span class="nx">post</span><span class="p">.</span><span class="nx">saveRecord</span><span class="p">();</span>
+</pre></div>
+
+<h3>
+<a name="deleting-records" class="anchor" href="#deleting-records"><span class="octicon octicon-link"></span></a>Deleting records</h3>
+
+<p>The Adapter will delete the record remotely, then destroy the object when complete:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">post</span><span class="p">.</span><span class="nx">deleteRecord</span><span class="p">();</span>
+</pre></div>
+
+<h3>
+<a name="reloading-records" class="anchor" href="#reloading-records"><span class="octicon octicon-link"></span></a>Reloading records</h3>
+
+<p>To refresh an existing record from the data store: <code>reloadRecord()</code></p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">post</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="c1">// ...</span>
+<span class="nx">post</span><span class="p">.</span><span class="nx">reloadRecord</span><span class="p">();</span>
+</pre></div>
+
+<h3>
+<a name="side-loading-records" class="anchor" href="#side-loading-records"><span class="octicon octicon-link"></span></a>Side-loading records</h3>
+
+<p>You can manually populate records using raw data (side-loading).<br>
+Use the <code>load</code> and <code>loadMany</code> convenience methods:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">post</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
+
+<span class="c1">// The following could have been retrieved from a separate ajax request</span>
+<span class="kd">var</span> <span class="nx">commentData</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">comment</span><span class="o">:</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="mi">101</span><span class="p">,</span> <span class="nx">message</span><span class="o">:</span> <span class="s1">'This is awesome!'</span> <span class="p">}</span> <span class="p">};</span>
+<span class="kd">var</span> <span class="nx">comment</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Comment</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span><span class="nx">commentData</span><span class="p">);</span>
+<span class="nx">post</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'comment'</span><span class="p">,</span> <span class="nx">comment</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">postTagData</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">'technology'</span><span class="p">,</span> <span class="nx">count</span><span class="o">:</span> <span class="mi">50</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">'entertainment'</span><span class="p">,</span> <span class="nx">count</span><span class="o">:</span> <span class="mi">11</span> <span class="p">}</span>
+<span class="p">];</span>
+<span class="kd">var</span> <span class="nx">tags</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Tag</span><span class="p">.</span><span class="nx">loadMany</span><span class="p">(</span><span class="nx">postTagData</span><span class="p">);</span>
+<span class="nx">post</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'tags'</span><span class="p">,</span> <span class="nx">tags</span><span class="p">);</span>
+</pre></div>
+
+<h3>
+<a name="model-lifecycle-and-state" class="anchor" href="#model-lifecycle-and-state"><span class="octicon octicon-link"></span></a>Model lifecycle and state</h3>
+
+<p>All models have the following state properties added:</p>
+
+<ul>
+<li>
+<strong>isNew</strong>: Record has been created but not yet saved</li>
+<li>
+<strong>isLoaded</strong>: Record(s) have been retrieved</li>
+<li>
+<strong>isDirty</strong>: The record has local changes that have not yet been stored</li>
+<li>
+<strong>isSaving</strong>: Record is in the process of saving</li>
+<li>
+<strong>isError</strong>: Record has been attempted to be saved, updated, or deleted but returned an error. Error messages are store in the <strong>errors</strong> property.</li>
+</ul><p>You can subscribe to events that are fired during the lifecycle:</p>
+
+<ul>
+<li><strong>didLoad</strong></li>
+<li><strong>didCreate</strong></li>
+<li><strong>didUpdate</strong></li>
+<li><strong>becameError</strong></li>
+</ul><p><strong>Event Examples:</strong></p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">post</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">title</span><span class="o">:</span> <span class="s1">'My First Post'</span> <span class="p">});</span>
+
+<span class="nx">post</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'didCreate'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'post created!'</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">post</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'becameError'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'error saving post!'</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">post</span><span class="p">.</span><span class="nx">saveRecord</span><span class="p">();</span>
+</pre></div>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">allPosts</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">find</span><span class="p">();</span>
+
+<span class="nx">allPosts</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'didLoad'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'posts retrieved!'</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">allPosts</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'becameError'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'error getting posts!'</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="promises" class="anchor" href="#promises"><span class="octicon octicon-link"></span></a>Promises</h3>
+
+<p>CRUD actions return promises (<code>saveRecord()</code>, <code>deleteRecord()</code>, <code>reloadRecord()</code>), allowing you to do the following:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">post</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="s1">'My First Post'</span>
+<span class="p">});</span>
+
+<span class="nx">post</span><span class="p">.</span><span class="nx">saveRecord</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">record</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Success!</span>
+<span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">errors</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Error!</span>
+<span class="p">});</span>
+</pre></div>
+
+<p><strong>To take advantage of promises when finding records, use <code>fetch()</code> instead of <code>find()</code></strong><br><code>fetch()</code> returns a promise, while <code>find()</code> will return entities that will update when resolved.  </p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">posts</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">fetch</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">records</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Success!</span>
+<span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Error!</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>Using the router:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">PostIndexRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">fetch</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<hr><h2>
+<a name="extras" class="anchor" href="#extras"><span class="octicon octicon-link"></span></a>Extras</h2>
+
+<p>To keep RESTless lightweight and focused, the default distrubtion solely supports a REST Adapter.<br>
+We are separately offering an "extras" build: <a href="https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless+extras.js">ember-restless+extras.js</a>.
+Currently, this adds a FixtureAdapter, with more to come!</p>
+
+<hr><h2>
+<a name="advanced" class="anchor" href="#advanced"><span class="octicon octicon-link"></span></a>Advanced</h2>
+
+<h3>
+<a name="changing-resource-endpoints" class="anchor" href="#changing-resource-endpoints"><span class="octicon octicon-link"></span></a>Changing resource endpoints</h3>
+
+<p>Sometimes the name of your Ember model is different than the API endpoint.<br>
+For example if a <code>CurrentUser</code> model needs to point to <code>/users</code> and <code>/user/1</code>  </p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">CurrentUser</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">();</span>
+<span class="nx">App</span><span class="p">.</span><span class="nx">CurrentUser</span><span class="p">.</span><span class="nx">reopenClass</span><span class="p">({</span>
+  <span class="nx">resourceName</span><span class="o">:</span> <span class="s1">'user'</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="custom-plurals-configuration" class="anchor" href="#custom-plurals-configuration"><span class="octicon octicon-link"></span></a>Custom plurals configuration</h3>
+
+<p>You can use a custom adapter to set irregular plural resource names</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">RESTAdapter</span><span class="p">.</span><span class="nx">configure</span><span class="p">(</span><span class="s2">"plurals"</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">person</span><span class="o">:</span> <span class="s2">"people"</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="changing-the-the-primary-key-for-a-model" class="anchor" href="#changing-the-the-primary-key-for-a-model"><span class="octicon octicon-link"></span></a>Changing the the primary key for a model</h3>
+
+<p>The primary key for all models defaults to 'id'. 
+You can customize it per model class to match your API:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">RESTAdapter</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="s2">"App.Post"</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">primaryKey</span><span class="o">:</span> <span class="s2">"slug"</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="mapping-different-property-keys" class="anchor" href="#mapping-different-property-keys"><span class="octicon octicon-link"></span></a>Mapping different property keys</h3>
+
+<p>For example, if your JSON has a key <code>lastNameOfPerson</code> and the desired attribute name is <code>lastName</code>:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">Person</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'string'</span><span class="p">)</span>
+<span class="p">});</span>
+<span class="nx">App</span><span class="p">.</span><span class="nx">RESTAdapter</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="s1">'App.Person'</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="p">{</span> <span class="nx">key</span><span class="o">:</span> <span class="s1">'lastNameOfPerson'</span> <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="forcing-content-type-extentions" class="anchor" href="#forcing-content-type-extentions"><span class="octicon octicon-link"></span></a>Forcing content type extentions</h3>
+
+<p>If you want the RESTAdapter to add extentions to requests:
+For example <code>/users.json</code> and <code>/user/1.json</code>  </p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">RESTAdapter</span> <span class="o">=</span> <span class="nx">RESTless</span><span class="p">.</span><span class="nx">RESTAdapter</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">useContentTypeExtension</span><span class="o">:</span> <span class="kc">true</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="default-attribute-values" class="anchor" href="#default-attribute-values"><span class="octicon octicon-link"></span></a>Default attribute values</h3>
+
+<p>You can define default values to assign to newly created instances of a model:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">User</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'string'</span><span class="p">),</span>
+  <span class="nx">role</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'number'</span><span class="p">,</span> <span class="p">{</span> <span class="nx">defaultValue</span><span class="o">:</span> <span class="mi">3</span> <span class="p">})</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="read-only-attributes" class="anchor" href="#read-only-attributes"><span class="octicon octicon-link"></span></a>Read-only attributes</h3>
+
+<p>You can make attributes 'read-only', which will exclude them from being serialized and transmitted when saving.
+For example, if you want to let the backend compute the date a record is created:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">Person</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">firstName</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'string'</span><span class="p">),</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'string'</span><span class="p">),</span>
+  <span class="nx">createdAt</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'date'</span><span class="p">,</span> <span class="p">{</span> <span class="nx">readOnly</span><span class="o">:</span> <span class="kc">true</span> <span class="p">})</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="read-only-models" class="anchor" href="#read-only-models"><span class="octicon octicon-link"></span></a>Read-only models</h3>
+
+<p>You can make an entire model to read-only. This removes all 'write' methods and provides a slight performance increase since each property won't have to be observed for 'isDirty'.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">Post</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">ReadOnlyModel</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<span class="p">...</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="custom-transforms" class="anchor" href="#custom-transforms"><span class="octicon octicon-link"></span></a>Custom transforms</h3>
+
+<p>You can add custom transforms to your adapter:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">RESTAdapter</span><span class="p">.</span><span class="nx">registerTransform</span><span class="p">(</span><span class="s1">'timeAgo'</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">deserialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">serialized</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// return a custom date string, such as: '5 minutes ago'</span>
+  <span class="p">},</span>
+  <span class="nx">serialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">deserialized</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// return a custom date json format for your backend or </span>
+    <span class="c1">// simply return deserialized</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">Comment</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">createdAt</span><span class="o">:</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">'timeAgo'</span><span class="p">)</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="custom-adapters--serializers" class="anchor" href="#custom-adapters--serializers"><span class="octicon octicon-link"></span></a>Custom Adapters &amp; Serializers</h3>
+
+<p>RESTless is abstracted so you can write your own Adapters and Serializers.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">App</span><span class="p">.</span><span class="nx">XMLSerializer</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Serializer</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="p">...</span>
+<span class="p">});</span>
+<span class="nx">App</span><span class="p">.</span><span class="nx">SOAPAdapter</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Adapter</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">serializer</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">XMLSerializer</span>
+  <span class="p">...</span>
+<span class="p">});</span>
+<span class="nx">App</span><span class="p">.</span><span class="nx">Client</span> <span class="o">=</span> <span class="nx">RL</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">adapter</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">SOAPAdapter</span>
+<span class="p">});</span>
+</pre></div>
+
+<h2>
+<a name="building-restless" class="anchor" href="#building-restless"><span class="octicon octicon-link"></span></a>Building RESTless</h2>
+
+<p>If you wish to build ember-restless yourself, you will need node.js and Grunt.  </p>
+
+<ol>
+<li>Install node: <a href="http://nodejs.org/"></a><a href="http://nodejs.org/">http://nodejs.org/</a>
+</li>
+<li>Open a terminal window</li>
+<li>Install dependencies: <code>npm install</code>
+</li>
+<li>To build and run tests: <code>grunt</code>
+</li>
+<li>Output will be in <code>dist/</code>
+</li>
+</ol><h3>
+<a name="custom-builds" class="anchor" href="#custom-builds"><span class="octicon octicon-link"></span></a>Custom Builds</h3>
+
+<p>You can create custom builds, that exclude optional packages and further reduce filesize.<br>
+For example, to exclude the json transforms and date parsing libs:</p>
+
+<pre><code>grunt custom:-transforms
+</code></pre>
+
+<h2>
+<a name="tests" class="anchor" href="#tests"><span class="octicon octicon-link"></span></a>Tests</h2>
+
+<p>Uses <a href="http://qunitjs.com/">QUnit</a><br>
+Tests are run during the grunt build process or running <code>grunt test</code><br>
+To run tests in browsers, you can simply open tests/index.html in a browser.  </p>
+
+<h2>
+<a name="contributors" class="anchor" href="#contributors"><span class="octicon octicon-link"></span></a>Contributors</h2>
+
+<p>Thanks to the Ember core team and contributors for creating Ember and Ember Data.<br>
+Special thanks to the following for creating &amp; contributing to the ember-restless project:</p>
+
+<ul>
+<li>
+<a href="https://github.com/gdub22">Garth Poitras</a> | <a href="https://twitter.com/papapoitch">twitter</a>
+</li>
+<li><a href="https://github.com/tylr">Tyler Love</a></li>
+<li><a href="https://github.com/nixme">Gopal Patel</a></li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/endlessinc">endlessinc</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-31687651-2");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
