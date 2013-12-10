@@ -51,7 +51,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         ns = this.get('namespace'),
         rootReset = ns && ns.charAt(0) === '/';
 
-    a.href = url ? url : '';
+    a.href = url ? url : '/';
     if(ns) {
       a.pathname = rootReset ? ns : (a.pathname + ns);
     }
