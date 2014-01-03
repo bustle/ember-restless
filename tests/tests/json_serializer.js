@@ -85,3 +85,10 @@ test('deserializing resets state', function() {
   ok( !postGroup.get('featured.isDirty'), 'relationship is clean after deserialize');
   ok( !postGroup.get('isDirty'), 'is clean after deserialize');
 });
+
+test('can optionally include belongsTo properties when serializing', function() {
+  var model = App.Comment.load({ author: { name: 'Garth' } }),
+      serialized = model.serialize({ includeRelationships: true });
+
+  equal( serialized.comment.author.name, 'Garth', 'belongsTo property serialized' );
+});

@@ -2,8 +2,8 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.4.1
- * last modifed: 2013-12-07
+ * version: 0.4.2
+ * last modifed: 2014-01-03
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -28,7 +28,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.4.1'
+    VERSION: '0.4.2'
   });
 
   /*
@@ -51,7 +51,7 @@ if ('undefined' === typeof RESTless) {
   @for RESTless
   @param {String} type the attribute type
   @param {Object} [opts] a hash of options
-  @return {Ember.computed}
+  @return {Ember.computed} attribute
 */
 RESTless.attr = function(type, opts) {
   var meta = Ember.merge({ type: type, isAttribute: true }, opts);
@@ -65,7 +65,7 @@ RESTless.attr = function(type, opts) {
   @for RESTless
   @param {String} type the belongsTo Class type
   @param {Object} [opts] a hash of options
-  @return {Ember.computed}
+  @return {Ember.computed} attribute
 */
 RESTless.belongsTo = function(type, opts) {
   var meta = Ember.merge({ type: type, isRelationship: true, belongsTo: true }, opts);
@@ -79,7 +79,7 @@ RESTless.belongsTo = function(type, opts) {
   @for RESTless
   @param {String} type the hasMany Class type
   @param {Object} [opts] a hash of options
-  @return {Ember.computed}
+  @return {Ember.computed} attribute
 */
 RESTless.hasMany = function(type, opts) {
   var defaultArray = function() {
@@ -350,6 +350,8 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @return {Object} json data
   */
   serialize: function(resource, options) {
+    if(!resource) { return null; }
+
     var fields = get(resource.constructor, 'fields'),
         json = {};
 
@@ -392,7 +394,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     if (opts && opts.hasMany) {
       return this.serializeMany(value.get('content'), opts.type);
     } else if(opts.belongsTo) {
-      return this.serialize(value);
+      return this.serialize(value, { nonEmbedded: true });
     }
 
     //Check for a custom transform
@@ -599,11 +601,10 @@ RESTless.Adapter = Ember.Object.extend({
   /**
     Finds records with specified params.
     A convenience method that can be used to intelligently route to 
-    findAll / findQuery / findByKey based on its params.
+    ```findAll``` ```findQuery``` ```findByKey``` based on its params.
     @method find
     @param {Object} klass Model class type
     @param {Object} [params] a hash of params.
-    @final 
   */
   find: function(klass, params) {
     var primaryKey = get(klass, 'primaryKey'),
@@ -701,8 +702,9 @@ RESTless.Adapter = Ember.Object.extend({
     @param {Object} config config value
     @chainable
     @example
-      ```App.Adapter.map('App.Post', { primaryKey: 'slug' });```  
-      ```App.Adapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });```
+      <pre class="prettyprint">
+      App.Adapter.map('App.Post', { primaryKey: 'slug' });
+      App.Adapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });</pre>
   */
   map: function(modelKey, config) {
     var modelMap = this.get('configurations.models'),
@@ -795,7 +797,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         ns = this.get('namespace'),
         rootReset = ns && ns.charAt(0) === '/';
 
-    a.href = url ? url : '';
+    a.href = url ? url : '/';
     if(ns) {
       a.pathname = rootReset ? ns : (a.pathname + ns);
     }
@@ -1230,8 +1232,8 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
   /**
     Copies the current state to a cloned object
     @method copyState
-    @param {Object}
-    @returns {Object}
+    @param {Object} clone the cloned object
+    @returns {Object} the cloned object with copied state
    */
   copyState: function(clone) {
     var mi = RESTless.State.mixins,

@@ -150,6 +150,8 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @return {Object} json data
   */
   serialize: function(resource, options) {
+    if(!resource) { return null; }
+
     var fields = get(resource.constructor, 'fields'),
         json = {};
 
@@ -192,7 +194,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     if (opts && opts.hasMany) {
       return this.serializeMany(value.get('content'), opts.type);
     } else if(opts.belongsTo) {
-      return this.serialize(value);
+      return this.serialize(value, { nonEmbedded: true });
     }
 
     //Check for a custom transform
