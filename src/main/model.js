@@ -328,5 +328,15 @@ RESTless.Model.reopenClass({
     var array = RESTless.RecordArray.createWithContent().deserializeMany(this.toString(), data);
     array.onLoaded();
     return array;
+  },
+
+  /**
+    Override this method to make changes to any requests made on behalf of this model
+    @method prepareRequest
+    @param {Object} [params] ajax params
+    @return {Object} [params] ajax params
+   */
+  prepareRequest: function(params){
+    return params;
   }
 });

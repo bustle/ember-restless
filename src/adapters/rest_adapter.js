@@ -90,6 +90,8 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         params.data = serializer.prepareData(params.data);
       }
 
+      params = model.prepareRequest(params);
+
       params.success = function(data, textStatus, jqXHR) {
         Ember.run(null, resolve, data);
       };
