@@ -92,3 +92,53 @@ test('allows using content type extension', function() {
 
   equal( path, 'posts/5.json', 'extension added to key' );
 });
+
+asyncTest('can optionally add headers to ajax requests', 1, function() {
+  var adapter = RL.RESTAdapter.create({
+    headers: { 'X-API-KEY': 'abc1234' }
+  });
+  App.set('Client', RL.Client.create({
+    adapter: adapter
+  }));
+
+  App.Person.find(1).currentRequest.abort().always(function() {
+    equal(this.headers['X-API-KEY'], 'abc1234', 'headers added correctly');
+    start();
+  });
+});
+
+asyncTest('can optionally add default parameters to ajax requests', 4, function() {
+  var adapter = RL.RESTAdapter.create({
+    defaultData: { api_key: 'abc1234' }
+  });
+  App.set('Client', RL.Client.create({
+    adapter: adapter
+  }));
+
+  App.Person.find(1).currentRequest.abort().always(function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    equal(a.search, '?api_key=abc1234', 'default data added');
+  });
+
+  App.Person.find({ id: 1, some_param: 'test' }).currentRequest.abort().always(function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    equal(a.search, '?api_key=abc1234&some_param=test', 'default data merges with other params');
+  });
+
+  adapter.defaultData = { api_key: 'abc1234', some_param: 'foo' };
+
+  App.Person.find(1).currentRequest.abort().always(function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    equal(a.search, '?api_key=abc1234&some_param=foo', 'supports multiple default data properties');
+  });
+
+  App.Person.find({ id: 1, some_param: 'test' }).currentRequest.abort().always(function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    equal(a.search, '?api_key=abc1234&some_param=test', 'default data is overwritten by query data');
+    start();
+  });
+});

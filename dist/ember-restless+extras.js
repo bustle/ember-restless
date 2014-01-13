@@ -2,8 +2,8 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.4.2
- * last modifed: 2014-01-03
+ * version: 0.5.0-beta
+ * last modifed: 2014-01-14
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -28,7 +28,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.4.2'
+    VERSION: '0.5.0-beta'
   });
 
   /*
@@ -764,6 +764,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     Base url of REST API
     @property url
     @type String
+    @optional
     @example 'http://api.example.com'
    */
   url: null,
@@ -775,6 +776,26 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @example 'api/v1'
    */
   namespace: null,
+
+  /**
+    If an API requires certain headers to be transmitted, e.g. an api key,
+    you can add a hash of headers to be sent on each request.
+    @property headers
+    @type Object
+    @optional
+    @example '{ "X-API-KEY" : "abc1234" }'
+    */
+  headers: null,
+  /**
+    If an API requires paramters to be set on every request,
+    e.g. an api key, you can add a hash of defaults.
+    @property defaultData
+    @type Object
+    @optional
+    @example '{ api_key: "abc1234" }'
+    */
+  defaultData: null,
+
   /**
     Adds content type extensions to requests.
     @property useContentTypeExtension
@@ -824,31 +845,49 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @return {Ember.RSVP.Promise}
    */
   request: function(model, params, key) {
-    var adapter = this, serializer = this.serializer;
+    var adapter = this,
+        ajaxParams = this.prepareParams(params);
+    ajaxParams.url = this.buildUrl(model, key);
 
     return new Ember.RSVP.Promise(function(resolve, reject) {
-      params = params || {};
-      params.url = adapter.buildUrl(model, key);
-      params.dataType = serializer.dataType;
-      params.contentType = serializer.contentType;
-
-      if(params.data && params.type !== 'GET') {
-        params.data = serializer.prepareData(params.data);
-      }
-
-      params.success = function(data, textStatus, jqXHR) {
+      ajaxParams.success = function(data) {
         Ember.run(null, resolve, data);
       };
-      params.error = function(jqXHR, textStatus, errorThrown) {
+      ajaxParams.error = function(jqXHR, textStatus, errorThrown) {
         var errors = adapter.parseAjaxErrors(jqXHR, textStatus, errorThrown);
         Ember.run(null, reject, errors);
       };
 
-      var ajax = Ember.$.ajax(params);
-
+      var ajax = Ember.$.ajax(ajaxParams);
       // (private) store current ajax request on the model.
-      model.set('currentRequest', ajax);
+      model.currentRequest = ajax;
     });
+  },
+
+  /**
+    Builds ajax request parameters
+    @method prepareParams
+    @param {Object} [params] base ajax params
+    @return {Object}
+    @private
+   */
+  prepareParams: function(params) {
+    var serializer = this.serializer,
+        headers = this.get('headers'),
+        defaultData = this.get('defaultData');
+    params = params || {};
+    params.dataType = serializer.dataType;
+    params.contentType = serializer.contentType;
+    if(headers) {
+      params.headers = headers;
+    }
+    if(defaultData) {
+      params.data = Ember.merge(defaultData, params.data || {});
+    }
+    if(params.data && params.type !== 'GET') {
+      params.data = serializer.prepareData(params.data);
+    }
+    return params;
   },
 
   /**
@@ -860,17 +899,20 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     var resourcePath = this.resourcePath(get(model.constructor, 'resourceName')),
         primaryKey = get(model.constructor, 'primaryKey'),
         urlParts = [this.get('rootPath'), resourcePath],
-        dataType = this.get('serializer.dataType'), url;
+        dataType, url;
 
     if(key) {
       urlParts.push(key);
     } else if(model.get(primaryKey)) {
       urlParts.push(model.get(primaryKey));
     }
-
     url = urlParts.join('/');
-    if(this.get('useContentTypeExtension') && dataType) {
-      url += '.' + dataType;
+
+    if(this.useContentTypeExtension) {
+      dataType = this.serializer.dataType;
+      if(dataType) {
+        url += '.' + dataType;
+      }
     }
     return url;
   },
@@ -1011,21 +1053,6 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     });
 
     return result;
-  },
-
-  /**
-    Fetch wraps `find` in a promise for async find support.
-    @method fetch
-    @param {Object} klass Model class type
-    @param {Object} [params] a hash of query params.
-    @return Ember.RSVP.Promise
-  */
-  fetch: function(klass, params) {
-    var promise = this._super(klass, params);
-    // private: store the current ajax request for aborting, etc.
-    // depreciate: _currentRequest now that find access is directly available.
-    promise._currentRequest = promise._find.get('currentRequest');
-    return promise;
   },
 
   /**

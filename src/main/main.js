@@ -13,7 +13,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.4.2'
+    VERSION: '@@version'
   });
 
   /*

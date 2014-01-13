@@ -76,7 +76,14 @@ module.exports = function(grunt) {
       options: {
         banner: '<%= projectInfo %>\n' + 
                 '<%= wrapClosure.header %>',
-        footer: '<%= wrapClosure.footer %>'
+        footer: '<%= wrapClosure.footer %>',
+        version: '<%= pkg.version %>',
+        process: function(src, filepath) {
+          if(filepath === 'src/main/main.js') {
+            return src.replace('@@version', this.version);
+          }
+          return src;
+        }
       },
 
       dist: {
