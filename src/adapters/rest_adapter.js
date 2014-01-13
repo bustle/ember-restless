@@ -268,21 +268,6 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   },
 
   /**
-    Fetch wraps `find` in a promise for async find support.
-    @method fetch
-    @param {Object} klass Model class type
-    @param {Object} [params] a hash of query params.
-    @return Ember.RSVP.Promise
-  */
-  fetch: function(klass, params) {
-    var promise = this._super(klass, params);
-    // private: store the current ajax request for aborting, etc.
-    // depreciate: _currentRequest now that find access is directly available.
-    promise._currentRequest = promise._find.get('currentRequest');
-    return promise;
-  },
-
-  /**
     Registers custom attribute transforms.
     Fowards creation to serializer.
     @method registerTransform
