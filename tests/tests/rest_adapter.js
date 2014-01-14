@@ -107,7 +107,7 @@ asyncTest('can optionally add headers to ajax requests', 1, function() {
   });
 });
 
-asyncTest('can optionally add default parameters to ajax requests', 4, function() {
+asyncTest('can optionally add default parameters to ajax requests', 5, function() {
   var adapter = RL.RESTAdapter.create({
     defaultData: { api_key: 'abc1234' }
   });
@@ -138,7 +138,13 @@ asyncTest('can optionally add default parameters to ajax requests', 4, function(
   App.Person.find({ id: 1, some_param: 'test' }).currentRequest.abort().always(function() {
     var a = document.createElement('a');
     a.href = this.url;
-    equal(a.search, '?api_key=abc1234&some_param=test', 'default data is overwritten by query data');
+    equal(a.search, '?api_key=abc1234&some_param=test', 'query data has precedence over defaultData');
+  });
+
+  App.Person.find(1).currentRequest.abort().always(function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    equal(a.search, '?api_key=abc1234&some_param=foo', 'default data should not be modified by prior queries');
     start();
   });
 });

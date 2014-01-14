@@ -136,7 +136,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
       params.headers = headers;
     }
     if(defaultData) {
-      params.data = Ember.merge(defaultData, params.data || {});
+      params.data = $.extend({}, defaultData, params.data);
     }
     if(params.data && params.type !== 'GET') {
       params.data = serializer.prepareData(params.data);
