@@ -15,13 +15,21 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   serializer: RESTless.JSONSerializer.create(),
 
   /**
-    Base url of REST API
-    @property url
+    Host url of the REST API if on a different domain than the app.
+    @property host
     @type String
     @optional
     @example 'http://api.example.com'
    */
+  host: Ember.computed.oneWay('url'),
+  /**
+    Deprecated.
+    @property url
+    @type String
+    @deprecated Use: `host`
+   */
   url: null,
+
   /**
     API namespace endpoint path
     @property namespace
@@ -61,23 +69,23 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   useContentTypeExtension: false,
 
   /**
-    Computed path based on url and namespace.
+    Computed path based on host and namespace.
     @property rootPath
     @type String
     @final
    */
   rootPath: Ember.computed(function() {
     var a = document.createElement('a'),
-        url = this.get('url'),
+        host = this.get('host'),
         ns = this.get('namespace'),
         rootReset = ns && ns.charAt(0) === '/';
 
-    a.href = url ? url : '/';
+    a.href = host ? host : '/';
     if(ns) {
       a.pathname = rootReset ? ns : (a.pathname + ns);
     }
     return a.href.replace(/\/+$/, '');
-  }).property('url', 'namespace'),
+  }).property('host', 'namespace'),
 
   /**
     Helper method creates a valid REST path to a resource

@@ -2,11 +2,18 @@ var get = Ember.get, set = Ember.set;
 
 module('RESTAdapter');
 
-test('can set a url', function() {
+test('can set a host', function() {
+  var adapter = RL.RESTAdapter.create({
+    host: 'http://api.com'
+  });
+  ok( adapter.get('rootPath').length, 'host applied to root path' );
+  equal( adapter.get('rootPath'), 'http://api.com', 'root path is valid' );
+});
+
+test('can set a host using the deprecated url property', function() {
   var adapter = RL.RESTAdapter.create({
     url: 'http://api.com'
   });
-  ok( adapter.get('rootPath').length, 'url applied to root path' );
   equal( adapter.get('rootPath'), 'http://api.com', 'root path is valid' );
 });
 
@@ -17,40 +24,40 @@ test('can set a namespace', function() {
   ok( adapter.get('rootPath').length, 'namespace applied to root path' );
 });
 
-test('can set a namespace with url', function() {
+test('can set a namespace with host', function() {
   var adapter = RL.RESTAdapter.create({
-    url: 'http://api.com/',
+    host: 'http://api.com/',
     namespace: '/v1'
   });
   equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
 });
 
-test('various combinations of setting a namespace and/or url is resilient', function() {
+test('various combinations of setting a namespace and/or host is resilient', function() {
   var adapter = RL.RESTAdapter.create({
-    url: 'http://api.com/'
+    host: 'http://api.com/'
   });
   equal( adapter.get('rootPath'), 'http://api.com', 'root path is valid' );
   adapter = RL.RESTAdapter.create({
-    url: 'http://api.com'
+    host: 'http://api.com'
   });
   equal( adapter.get('rootPath'), 'http://api.com', 'root path is valid' );
   adapter = RL.RESTAdapter.create({
-    url: 'http://api.com',
+    host: 'http://api.com',
     namespace: 'v1'
   });
   equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
   adapter = RL.RESTAdapter.create({
-    url: 'http://api.com/',
+    host: 'http://api.com/',
     namespace: 'v1'
   });
   equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
   adapter = RL.RESTAdapter.create({
-    url: 'http://api.com',
+    host: 'http://api.com',
     namespace: '/v1'
   });
   equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
   adapter = RL.RESTAdapter.create({
-    url: 'http://api.com/',
+    host: 'http://api.com/',
     namespace: '/v1'
   });
   equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );

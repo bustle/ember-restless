@@ -9,7 +9,7 @@ RESTless can be extended to support various other data persistence layers. For e
 One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
 
 ## [API Documentation](http://endlessinc.github.io/ember-restless/api/)
-Current version: **0.4.2**  
+Current version: **0.5.0**  
 See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
 
@@ -43,11 +43,11 @@ RESTless can be referenced either with the namespace **RESTless** or the shortha
 ### Defining a RESTAdapter
 
 The REST adapter is responsible for communicating with your backend REST service.
-Here, you can set the url, and optionally a namespace.  
-For example, if your REST API is located at http://api.myservice.com/v1
+Here, you can optionally set the host, and a namespace.  
+For example, if your REST API is located at http://api.example.com/v1
 ``` javascript
 App.RESTAdapter = RL.RESTAdapter.create({
-  url: 'http://api.myservice.com',
+  host: 'http://api.example.com',
   namespace: 'v1'
 });
 ```
@@ -320,11 +320,26 @@ App.RESTAdapter.map('App.Person', {
 });
 ```
 
+### Sending headers and/or data with every request (e.g. api keys)
+To add a header to every ajax request:
+``` javascript
+App.RESTAdapter = RL.RESTAdapter.create({
+  headers: { "X-API-KEY" : "abc1234" }
+});
+```
+To add data to every request url:
+``` javascript
+App.RESTAdapter = RL.RESTAdapter.create({
+  defaultData: { api_key: "abc1234" }
+});
+```
+Results in e.g. ```App.User.find()``` => ```http://api.example.com/users?api_key=abc1234```
+
 ### Forcing content type extentions
 If you want the RESTAdapter to add extentions to requests:
 For example ```/users.json``` and ```/user/1.json```  
 ``` javascript
-App.RESTAdapter = RESTless.RESTAdapter.create({
+App.RESTAdapter = RL.RESTAdapter.create({
   useContentTypeExtension: true
 });
 ```
