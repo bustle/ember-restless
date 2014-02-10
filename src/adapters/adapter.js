@@ -1,30 +1,58 @@
-/*
- * Adapter
- * Base adapter to be subclassed.
- * Handles fetching and saving data to a persistence layer
- * and storing cofiguration options about all models.
- */
+/**
+  Adapters handle sending and fetching data to and from a persistence layer.
+  This is a base class to be subclassed.
+
+  @class Adapter
+  @namespace RESTless
+  @extends Ember.Object
+*/
 RESTless.Adapter = Ember.Object.extend({
-  /*
-   * serializer: Instance of a Serializer used to transform data
-   * i.e. JSONSerializer
+  /**
+    Instance of a Serializer used to transform data
+    @property serializer
+    @type RESTless.Serializer
    */
   serializer: null,
 
-  /* 
-   * Common adapter methods to be implemented in a subclass
-   */
-  saveRecord:           Ember.K,
-  deleteRecord:         Ember.K,
-  findAll:              Ember.K,
-  findQuery:            Ember.K,
-  findByKey:            Ember.K,
-  generateIdForRecord:  Ember.K,
+  /**
+    Saves a record. Abstract - implement in subclass.
+    @method saveRecord
+  */
+  saveRecord: Ember.K,
+  /**
+    Deletes a record. Abstract - implement in subclass.
+    @method deleteRecord
+  */
+  deleteRecord: Ember.K,
+  /**
+    Finds all records. Abstract - implement in subclass.
+    @method findAll
+  */
+  findAll: Ember.K,
+  /**
+    Finds records by query. Abstract - implement in subclass.
+    @method findQuery
+  */
+  findQuery: Ember.K,
+  /**
+    Finds record by primary key. Abstract - implement in subclass.
+    @method findByKey
+  */
+  findByKey: Ember.K,
+  /**
+    Generates a unique id for new records. Abstract - implement in subclass.
+    @method generateIdForRecord
+  */
+  generateIdForRecord: Ember.K,
 
-  /*
-   * find: a convenience method that can be used
-   * to intelligently route to findAll/findQuery/findByKey based on its params
-   */
+  /**
+    Finds records with specified params.
+    A convenience method that can be used to intelligently route to 
+    ```findAll``` ```findQuery``` ```findByKey``` based on its params.
+    @method find
+    @param {Object} klass Model class type
+    @param {Object} [params] a hash of params.
+  */
   find: function(klass, params) {
     var primaryKey = get(klass, 'primaryKey'),
         singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
@@ -41,12 +69,16 @@ RESTless.Adapter = Ember.Object.extend({
     }
   },
 
-  /*
-   * fetch: wraps find method in a promise for async find support
-   */
+  /**
+    Fetch wraps `find` in a promise for async find support.
+    @method fetch
+    @param {Object} klass Model class type
+    @param {Object} [params] a hash of params.
+    @return Ember.RSVP.Promise
+  */
   fetch: function(klass, params) {
-    var adapter = this, find;
-    return new Ember.RSVP.Promise(function(resolve, reject) {
+    var adapter = this, find,
+    promise = new Ember.RSVP.Promise(function(resolve, reject) {
       find = adapter.find(klass, params);
       find.one('didLoad', function(model) {
         resolve(model);
@@ -55,11 +87,17 @@ RESTless.Adapter = Ember.Object.extend({
         reject(error);
       });
     });
+    // private: access to find for subclasses
+    promise._find = find;
+    return promise;
   },
 
-  /*
-   * reloadRecord: refreshes existing record from the data store
-   */
+  /**
+    Refreshes an existing record from the data store.
+    @method reloadRecord
+    @param {RESTless.Model} record The record to relead
+    @return Ember.RSVP.Promise
+  */
   reloadRecord: function(record) {
     var klass = record.constructor,
         primaryKey = get(klass, 'primaryKey'),
@@ -75,19 +113,26 @@ RESTless.Adapter = Ember.Object.extend({
     return this.fetch(klass, key);
   },
 
-  /*
-   * configurations: stores info about custom configurations
-   * plurals - i.e. to set the plural resource name of 'person' to 'people'
-   * models - to set a different primary key for a certain model type
-   */
+  /**
+    Stores info about custom configurations.
+    * plurals - to set the plural resource name ('person' to 'people').
+    * models - to set a different primary key for a model type.
+    @property configurations
+    @type Ember.Object
+  */
   configurations: Ember.Object.create({
     plurals: Ember.Object.create(),
     models: Ember.Map.create()
   }),
 
-  /*
-   * configure: helper method to set allowed configurations
-   */
+
+  /**
+    Helper method to set allowed configurations.
+    @method configure
+    @param {Object} type config key
+    @param {Object} value config value
+    @chainable
+  */
   configure: function(type, value) {
     var configs = this.get('configurations'),
         configForType = configs.get(type);
@@ -97,12 +142,17 @@ RESTless.Adapter = Ember.Object.extend({
     return this;
   },
 
-  /*
-   * map: helper to map configurations for model types
-   * examples:
-   * App.Adapter.map('App.Post', { primaryKey: 'slug' });
-   * App.Adapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });
-   */
+  /**
+    Helper to map configurations for model types.
+    @method map
+    @param {String} modelKey Model type
+    @param {Object} config config value
+    @chainable
+    @example
+      <pre class="prettyprint">
+      App.Adapter.map('App.Post', { primaryKey: 'slug' });
+      App.Adapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });</pre>
+  */
   map: function(modelKey, config) {
     var modelMap = this.get('configurations.models'),
         modelConfig = modelMap.get(modelKey), 
@@ -128,10 +178,13 @@ RESTless.Adapter = Ember.Object.extend({
     return this;
   },
 
-  /*
-   * pluralize: helper to pluralize model resource names.
-   * Checks custom configs or simply appends a 's'
-   */
+  /**
+    Helper to pluralize a model resource names.
+    Checks custom configs or simply appends a 's'.
+    @method pluralize
+    @param {String} resourceName Name of model class
+    @return {String} plural name
+  */
   pluralize: function(resourceName) {
     var plurals = this.get('configurations.plurals');
     return (plurals && plurals[resourceName]) || resourceName + 's';

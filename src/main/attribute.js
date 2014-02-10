@@ -1,21 +1,41 @@
 /**
- * Attributes
- * Model property definitions
- */
+  Defines an attribute on a Model.
+  Supports types: 'string', 'number', 'boolean', 'date'.
 
-// Standard attribute
+  @method attr
+  @for RESTless
+  @param {String} type the attribute type
+  @param {Object} [opts] a hash of options
+  @return {Ember.computed} attribute
+*/
 RESTless.attr = function(type, opts) {
   var meta = Ember.merge({ type: type, isAttribute: true }, opts);
   return makeComputedAttribute(meta);
 };
 
-// belongsTo: One-to-one relationships
+/**
+  Defines a one-to-one relationship attribute on a Model.
+
+  @method belongsTo
+  @for RESTless
+  @param {String} type the belongsTo Class type
+  @param {Object} [opts] a hash of options
+  @return {Ember.computed} attribute
+*/
 RESTless.belongsTo = function(type, opts) {
   var meta = Ember.merge({ type: type, isRelationship: true, belongsTo: true }, opts);
   return makeComputedAttribute(meta);
 };
 
-// hasMany: One-to-many & many-to-many relationships
+/**
+  Defines a one-to-many relationship attribute on a Model.
+
+  @method hasMany
+  @for RESTless
+  @param {String} type the hasMany Class type
+  @param {Object} [opts] a hash of options
+  @return {Ember.computed} attribute
+*/
 RESTless.hasMany = function(type, opts) {
   var defaultArray = function() {
     return RESTless.RecordArray.createWithContent();

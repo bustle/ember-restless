@@ -63,8 +63,7 @@ test('creates valid path for multi-word model classes', function() {
 });
 
 asyncTest('can optionally add query params to a findByKey request', 1, function() {
-  var personFetch = App.Person.fetch({ id: 1, some_param: 'test' });
-  personFetch._currentRequest.abort().always(function() {
+  App.Person.find({ id: 1, some_param: 'test' }).currentRequest.abort().always(function() {
     var urlParts = this.url.split('/');
     var path = urlParts[urlParts.length-1];
     equal( path, '1?some_param=test', 'findByKey with parameters requests expected url' );
@@ -92,4 +91,60 @@ test('allows using content type extension', function() {
   path = [urlParts[urlParts.length-2], urlParts[urlParts.length-1]].join('/');
 
   equal( path, 'posts/5.json', 'extension added to key' );
+});
+
+asyncTest('can optionally add headers to ajax requests', 1, function() {
+  var adapter = RL.RESTAdapter.create({
+    headers: { 'X-API-KEY': 'abc1234' }
+  });
+  App.set('Client', RL.Client.create({
+    adapter: adapter
+  }));
+
+  App.Person.find(1).currentRequest.abort().always(function() {
+    equal(this.headers['X-API-KEY'], 'abc1234', 'headers added correctly');
+    start();
+  });
+});
+
+asyncTest('can optionally add default parameters to ajax requests', 5, function() {
+  var adapter = RL.RESTAdapter.create({
+    defaultData: { api_key: 'abc1234' }
+  });
+  App.set('Client', RL.Client.create({
+    adapter: adapter
+  }));
+
+  App.Person.find(1).currentRequest.abort().always(function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    equal(a.search, '?api_key=abc1234', 'default data added');
+  });
+
+  App.Person.find({ id: 1, some_param: 'test' }).currentRequest.abort().always(function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    equal(a.search, '?api_key=abc1234&some_param=test', 'default data merges with other params');
+  });
+
+  adapter.defaultData = { api_key: 'abc1234', some_param: 'foo' };
+
+  App.Person.find(1).currentRequest.abort().always(function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    equal(a.search, '?api_key=abc1234&some_param=foo', 'supports multiple default data properties');
+  });
+
+  App.Person.find({ id: 1, some_param: 'test' }).currentRequest.abort().always(function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    equal(a.search, '?api_key=abc1234&some_param=test', 'query data has precedence over defaultData');
+  });
+
+  App.Person.find(1).currentRequest.abort().always(function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    equal(a.search, '?api_key=abc1234&some_param=foo', 'default data should not be modified by prior queries');
+    start();
+  });
 });

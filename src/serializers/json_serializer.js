@@ -1,15 +1,34 @@
-/*
- * JSONSerializer
- * Serializes and deserializes data to and from json
- */
+/**
+  Handles transforming json data to Models and Models to json data.
+
+  @class JSONSerializer
+  @namespace RESTless
+  @extends RESTless.Serializer
+*/
 RESTless.JSONSerializer = RESTless.Serializer.extend({
 
+  /**
+    Type of data to serialize.
+    @property dataType
+    @type String
+    @default 'json'
+  */
   dataType: 'json',
+  /**
+    Additional content type headers when transmitting data.
+    @property contentType
+    @type String
+    @default 'application/json; charset=utf-8'
+  */
   contentType: 'application/json; charset=utf-8',
 
-  /* 
-   * deserialize: translates json object into a model object
-   */
+  /**
+    Transforms json object into model
+    @method deserialize
+    @param {RESTless.Model} resource model resource
+    @param {Object} data json data
+    @return {RESTless.Model}
+  */
   deserialize: function(resource, data) {
     if(!data) { return resource; }
 
@@ -35,15 +54,20 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
         this.deserializeProperty(resource, prop, data[prop]);
       }
     }
+    resource.setProperties({ isLoaded: true, isDirty: false });
     Ember.endPropertyChanges(resource);
     return resource;
   },
 
-  /* 
-   * deserializeProperty: sets model object properties from json
-   */
+  /**
+    Transforms json key/value into model property
+    @method deserializeProperty
+    @param {RESTless.Model} resource model resource
+    @param {Object} prop json data key
+    @param {Object} value json data value
+  */
   deserializeProperty: function(resource, prop, value) {
-    var attrName = this.attributeNameForKey(resource, prop),
+    var attrName = this.attributeNameForKey(resource.constructor, prop),
         fields = get(resource.constructor, 'fields'),
         field = fields.get(attrName), type, klass;
 
@@ -60,8 +84,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     } 
     // If property is a belongsTo relationship, deserialze that model
     else if (field.belongsTo && klass && value) {
-      var belongsToModel = klass.create({ isNew: false }).deserialize(value);
-      belongsToModel.onLoaded();
+      var belongsToModel = klass.create({ isNew: false, isLoaded: true }).deserialize(value);
       resource.set(attrName, belongsToModel);
     }
     else {
@@ -73,55 +96,62 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     }
   },
 
-  /* 
-   * deserializeMany: deserializes an array of json objects
-   */
+  /**
+    Transforms json array into a record array
+    @method deserializeMany
+    @param {RESTless.RecordArray} recordArray RecordArray
+    @param {String} type records class name
+    @param {Object} data json data
+    @return {RESTless.RecordArray}
+  */
   deserializeMany: function(recordArray, type, data) {
     if(!data) { return recordArray; }
 
-    var klass = get(Ember.lookup, type), meta, keyPlural, len, i, item;
+    var klass = get(Ember.lookup, type),
+        arrayData = this._arrayDataForType(type, data),
+        meta, i, len, item, content;
 
-    // extract any meta info
-    meta = this.extractMeta(data);
-    if(meta) { recordArray.set('meta', meta); }
-
-    // Check for wrapped array by resource name: { posts: [...] }
-    // This is the default from ActiveRecord on direct finds
-    if(!Ember.isArray(data)) {
-      keyPlural = this._keyPluralForResourceType(type);
-      if(data[keyPlural]) {
-        data = data[keyPlural];
-      } else {
-        return recordArray;
-      }
-    }
+    if(!arrayData) { return recordArray; }
 
     if(recordArray) {
+      recordArray.set('isLoaded', false);
       recordArray.clear();
     } else {
       recordArray = RESTless.RecordArray.createWithContent();
     }
 
-    len = data.length;
+    len = arrayData.length;
     if(len) {
-      Ember.beginPropertyChanges(recordArray);
+      content = [];
       for(i=0; i<len; i++) {
-        item = data[i];
+        item = arrayData[i];
         if(klass && typeof item === 'object') {
           item = klass.create({ isNew: false }).deserialize(item);
         }
-        recordArray.pushObject(item);
+        content.push(item);
       }
-      Ember.endPropertyChanges(recordArray);
+      recordArray.pushObjects(content);
     }
-    recordArray.onLoaded();
+
+    // extract any meta info
+    meta = this.extractMeta(data);
+    if(meta) { recordArray.set('meta', meta); }
+
+    recordArray.setProperties({ isLoaded: true, isDirty: false });
+
     return recordArray;
   },
 
-  /* 
-   * serialize: turns model into json
-   */
+  /**
+    Transforms a Model into json
+    @method serialize
+    @param {RESTless.Model} resource Model to serialize
+    @param {Object} [options] additional serialization options
+    @return {Object} json data
+  */
   serialize: function(resource, options) {
+    if(!resource) { return null; }
+
     var fields = get(resource.constructor, 'fields'),
         json = {};
 
@@ -147,9 +177,14 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     }
   },
 
-  /* 
-   * serializeProperty: transform model property into json
-   */
+  /**
+    Transforms a Model property into json value
+    @method serializeProperty
+    @param {RESTless.Model} resource Model to serialize
+    @param {String} prop property to serialize
+    @param {Object} [opts] Model metadata
+    @return {Object} json value
+  */
   serializeProperty: function(resource, prop, opts) {
     var value = resource.get(prop);
 
@@ -159,7 +194,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     if (opts && opts.hasMany) {
       return this.serializeMany(value.get('content'), opts.type);
     } else if(opts.belongsTo) {
-      return this.serialize(value);
+      return this.serialize(value, { nonEmbedded: true });
     }
 
     //Check for a custom transform
@@ -169,9 +204,13 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     return value;
   },
 
-  /* 
-   * serializeMany: serializes an array of models into json
-   */
+  /**
+    Transforms a RecordArray into a json array
+    @method serializeMany
+    @param {RESTless.RecordArray} recordArray RecordArray
+    @param {String} type records class name
+    @return {Object} json array
+  */
   serializeMany: function(recordArray, type) {
     var key = this._keyForResourceType(type),
         len = recordArray.length,
@@ -186,33 +225,20 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     return result;
   },
 
-  /*
-   * (private) shortcut helpers
-   */
-  _keyForResource: function(resource) {
-    return this.keyForResourceName(get(resource.constructor, 'resourceName'));
-  },
-  _keyForResourceType: function(type) {
-    var klass = get(Ember.lookup, type);
-    return klass ? this._keyForResource(klass.create()) : null;
-  },
-  _keyPluralForResourceType: function(type) {
-    var klass = get(Ember.lookup, type), adapter, resourceName;
-    if(klass) {
-      adapter = get(klass, 'adapter');
-      resourceName = get(klass, 'resourceName');
-      return adapter.pluralize(this.keyForResourceName(resourceName));
-    }
-    return null;
-  },
-  /*
-   * keyForResourceName: helper to transform resource name to valid json key
+  /**
+    Helper to transform resource name to valid json key
+    @method keyForResourceName
+    @param {String} name Model class name 
+    @return {String} json key name
    */
   keyForResourceName: function(name) {
     return name ? Ember.String.decamelize(name) : null;
   },
-  /*
-   * keyForAttributeName: helper to transform attribute name to valid json key
+  /**
+    Helper to transform attribute name to valid json key
+    @method keyForAttributeName
+    @param {String} name Model property name
+    @return {String} json key name
    */
   keyForAttributeName: function(name) {
     return name ? Ember.String.decamelize(name) : null;
@@ -220,48 +246,107 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   /*
    * attributeNameForKey: returns ember property name based on json key
    */
-  attributeNameForKey: function(resource, key) {
+  /**
+    Helper to get Model property name from json key name
+    @method attributeNameForKey
+    @param {RESTless.Model} klass Model class
+    @param {String} key Model property name
+    @return {String} Model property name
+   */
+  attributeNameForKey: function(klass, key) {
     // check if a custom key was configured for this property
-    var modelConfig = get(RESTless, 'client._modelConfigs').get(resource.constructor.toString());
+    var modelConfig = get(RESTless, 'client._modelConfigs').get(klass.toString());
     if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[key]) {
       return modelConfig.propertyKeys[key];
     }
     return Ember.String.camelize(key);
   },
 
-  /* 
-   * prepareData: json must be stringified before transmitting to most backends
-   */
+  /**
+    JSON should be stringified before transmitting.
+    @method prepareData
+    @return Object
+  */
   prepareData: function(data) {
     return JSON.stringify(data);
   },
-  /* 
-   * parseError: transform error response text into json
-   */
+  /**
+    Transforms error response text into json.
+    @method parseError
+    @return Object
+  */
   parseError: function(error) {
     var errorData = null;
     try { errorData = JSON.parse(error); } catch(e){}
     return errorData;
   },
-  /*
-   * extractMeta: attempts to extract metadata on json responses
-   */
+  /**
+    Attempts to extract metadata on json responses
+    @method extractMeta
+    @return Object
+  */
   extractMeta: function(json) {
     if(json && json.meta) {
       return json.meta;
     }
   },
-  /*
-   * registerTransform: adds a custom tranform to JSONTransforms
-   */
+  /**
+    To register a custom attribute transform. Adds to JSONTransforms.
+    @method registerTransform
+    @param {String} type attribute type name
+    @parma {Object} custom serialize and deserialize method hash
+  */
   registerTransform: function(type, transform) {
     RESTless.JSONTransforms[type] = transform;
+  },
+
+  /**
+    @method _keyForResource
+    @private
+  */
+  _keyForResource: function(resource) {
+    return this.keyForResourceName(get(resource.constructor, 'resourceName'));
+  },
+  /**
+    @method _keyForResourceType
+    @private
+  */
+  _keyForResourceType: function(type) {
+    var klass = get(Ember.lookup, type);
+    return klass ? this.keyForResourceName(get(klass, 'resourceName')) : null;
+  },
+  /**
+    @method _keyPluralForResourceType
+    @private
+  */
+  _keyPluralForResourceType: function(type) {
+    var klass = get(Ember.lookup, type);
+    return klass ? get(klass, 'resourceNamePlural') : null;
+  },
+  /**
+    Checks for wrapped array data by resource name: { posts: [...] }
+    This is the default from ActiveRecord on direct finds
+    @method _arrayDataForType
+    @private
+  */
+  _arrayDataForType: function(type, data) {
+    if(Ember.isArray(data)) {
+      return data;
+    } else {
+      var keyPlural = this._keyPluralForResourceType(type);
+      if(data[keyPlural]) {
+        return data[keyPlural];
+      }
+    }
+    return null;
   }
 });
 
-/*
- * JSONTransforms
- * Hash for custom json transforms
- * Bulding with json_transforms.js is optional, and will overwrite this
- */
+/**
+  Hash for custom json transforms
+
+  @property JSONTransforms
+  @type Object
+  @for RESTless
+*/
 RESTless.JSONTransforms = {};

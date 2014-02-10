@@ -1,19 +1,22 @@
 /**
- The FixtureAdapter is used for working with predefined
- javascript data stored in memory.
+  The FixtureAdapter is used for working with predefined
+  javascript data stored in memory.
 
- @class FixtureAdapter
- @namespace RESTless
- @extends RESTless.Adapter
+  @class FixtureAdapter
+  @beta
+  @namespace RESTless
+  @extends RESTless.Adapter
 */
 RESTless.FixtureAdapter = RESTless.Adapter.extend({
 
   serializer: RESTless.JSONSerializer.create(),
 
   /**
+    Saves a record. Pushes a new record to fixtures, or updates an existing record.
     @method saveRecord
-    @param  record
-  */
+    @param {RESTless.Model} record record to be saved
+    @return {Ember.RSVP.Promise}
+   */
   saveRecord: function(record) {
     var isNew = record.get('isNew'),
         fixtures = record.constructor.FIXTURES,
@@ -63,9 +66,11 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
   },
 
   /**
+    Deletes a record from fixtures array
     @method deleteRecord
-    @param  record
-  */
+    @param {RESTless.Model} record record to be deleted
+    @return {Ember.RSVP.Promise}
+   */
   deleteRecord: function(record) {
     var adapter = this;
     return new Ember.RSVP.Promise(function(resolve, reject){
@@ -86,18 +91,22 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
   },
 
   /**
+    Finds all records of specified class in fixtures array
     @method findAll
-    @param  klass
-  */
+    @param {RESTless.Model} klass model type to find
+    @return {RESTless.RecordArray}
+   */
   findAll: function(klass) {
     return this.findQuery(klass);
   },
 
   /**
+    Finds records with specified query params in fixtures array
     @method findQuery
-    @param  klass
-    @param  queryParams
-  */
+    @param {RESTless.Model} klass model type to find
+    @param {Object} queryParams hash of query params
+    @return {RESTless.RecordArray}
+   */
   findQuery: function(klass, queryParams) {
     var fixtures = klass.FIXTURES,
         result = null, fixturesA;
@@ -125,10 +134,12 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
   },
 
   /**
+    Finds record with specified primary key in fixtures
     @method findByKey
-    @param  klass
-    @param  key
-  */
+    @param {RESTless.Model} klass model type to find
+    @param {Number|String} key primary key value
+    @return {RESTless.Model}
+   */
   findByKey: function(klass, key) {
     var fixtures = klass.FIXTURES,
         primaryKey = get(klass, 'primaryKey'),
@@ -151,8 +162,10 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
   },
 
   /**
+    Generates a uuid for a new record.
     @method generateIdForRecord
-    @param  record
+    @param {Object} record
+    @return {String} uuid
   */
   generateIdForRecord: function(record) {
     return parseInt(Ember.guidFor(record).match(/(\d+)$/)[0], 10);
@@ -161,7 +174,6 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
   /**
     @method _findFixtureRecordIndex
     @private
-    @param  record
   */
   _findFixtureRecordIndex: function(record) {
     var klass = record.constructor,

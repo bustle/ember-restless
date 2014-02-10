@@ -56,3 +56,39 @@ test('null belongsTo relationship values do not create empty models', function()
   equal( null ,   comment.get('post') );
   equal( null ,   comment.get('author') );
 });
+
+test('deserializing into an existing record array triggers isLoaded observer', function() {
+  var serializer = RL.JSONSerializer.create(),
+      testJson = [ { name: 'tag1' }, { name: 'tag2' } ],
+      arr = App.Tag.loadMany(testJson);
+
+  serializer.deserializeMany(arr, 'App.Tag', testJson);
+  arr.forEach(function(item) {
+    equal(item.get('isLoaded'), true);
+  });
+});
+
+test('deserializing resets state', function() {
+  var data = {
+    id: 1,
+    featured: [ { id: 1, title: 'hello' } ]
+  };
+
+  var postGroup = App.PostGroup.load(data);
+
+  // dirty a relationship
+  postGroup.get('featured').objectAt(0).set('title', 'goodbye');
+  ok( postGroup.get('featured.isDirty'), 'relationship was dirtied');
+  ok( postGroup.get('isDirty'), 'parent was dirtied');
+
+  postGroup.deserialize(data);
+  ok( !postGroup.get('featured.isDirty'), 'relationship is clean after deserialize');
+  ok( !postGroup.get('isDirty'), 'is clean after deserialize');
+});
+
+test('can optionally include belongsTo properties when serializing', function() {
+  var model = App.Comment.load({ author: { name: 'Garth' } }),
+      serialized = model.serialize({ includeRelationships: true });
+
+  equal( serialized.comment.author.name, 'Garth', 'belongsTo property serialized' );
+});

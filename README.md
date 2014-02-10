@@ -8,10 +8,12 @@ RESTless can be extended to support various other data persistence layers. For e
 
 One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
 
-Current version: **0.4**  
+## [API Documentation](http://endlessinc.github.io/ember-restless/api/)
+Current version: **0.4.2**  
 See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
-### Table of Contents
+
+## Guide
 - [Getting started](#getting-started)
 - [Defining a RESTAdapter](#defining-a-restadapter)
 - [Defining a 'Client'](#defining-a-client)
@@ -127,7 +129,7 @@ To find all records:
 var posts = App.Post.find();
 ```
 
-The find method supports all query types, however, explicit methods are also available:  
+```find()``` automatically handles all query types, however, explicit methods are also available:  
 ```findAll()```, ```findQuery()```, ```findByKey()``` / ```findById()```
 
 
@@ -182,13 +184,13 @@ Use the ```load``` and ```loadMany``` convenience methods:
 var post = App.Post.create();
 
 // The following could have been retrieved from a separate ajax request
-var commentData = { comment: { "id": 101, message: "Some comment" } };
+var commentData = { comment: { id: 101, message: 'This is awesome!' } };
 var comment = App.Comment.load(commentData);
 post.set('comment', comment);
 
 var postTagData = [
-  { "id": 1, "name": "technology", "count": 50 },
-  { "id": 2, "name": "entertainment", "count": 11 }
+  { id: 1, name: 'technology', count: 50 },
+  { id: 2, name: 'entertainment', count: 11 }
 ];
 var tags = App.Tag.loadMany(postTagData);
 post.set('tags', tags);
@@ -237,7 +239,7 @@ allPosts.on('becameError', function(error) {
 
 ### Promises
 
-CRUD actions return promises (```saveRecord()```, ```deleteRecord()``` and ```reloadRecord()```), allowing you to do the following:
+CRUD actions return promises (```saveRecord()```, ```deleteRecord()```, ```reloadRecord()```), allowing you to do the following:
 ``` javascript
 var post = App.Post.create({
   title: 'My First Post'
@@ -252,12 +254,19 @@ post.saveRecord().then(function(record) {
 
 **To take advantage of promises when finding records, use ```fetch()``` instead of ```find()```**  
 ```fetch()``` returns a promise, while ```find()``` will return entities that will update when resolved.  
-_Promises allows you to take advantage of the new Ember Router hooks introduced in RC6._
 ``` javascript
 var posts = App.Post.fetch().then(function(records) {
   // Success!
 }, function(error) {
   // Error!
+});
+```
+Using the router:
+``` javascript
+App.PostIndexRoute = Ember.Route.extend({
+  model: function() {
+    App.Post.fetch();
+  }
 });
 ```
 
@@ -390,8 +399,8 @@ If you wish to build ember-restless yourself, you will need node.js and Grunt.
 1. Install node: <a href="http://nodejs.org/">http://nodejs.org/</a>
 2. Open a terminal window
 3. Install dependencies: ```npm install```
-4. Build: ```grunt```
-5. Output will be ```dist/ember-restless.js``` and ```dist/ember-restless.min.js```
+4. To build and run tests: ```grunt```
+5. Output will be in ```dist/```
 
 ### Custom Builds
 
@@ -403,13 +412,9 @@ grunt custom:-transforms
 
 ## Tests
 
-Uses QUnit.  
-Tests are run during the grunt build process.  
-To run tests manually, you can open tests/index.html in a browser.  
-
-## Example Apps
-
-Coming soon.
+Uses <a href="http://qunitjs.com/">QUnit</a>  
+Tests are run during the grunt build process or running ```grunt test```  
+To run tests in browsers, you can simply open tests/index.html in a browser.  
 
 
 ## Contributors

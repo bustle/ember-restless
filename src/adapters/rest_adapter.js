@@ -1,34 +1,70 @@
-/*
- * RESTAdapter
- * Builds REST urls to resources
- * Builds and handles remote ajax requests
- */
+/**
+  The REST Adapter handles sending and fetching data to and from a REST API.
+
+  @class RESTAdapter
+  @namespace RESTless
+  @extends RESTless.Adapter
+*/
 RESTless.RESTAdapter = RESTless.Adapter.extend({
-  /*
-   * serializer: default to a JSON serializer
+  /**
+    Serializer used to transform data.
+    @property serializer
+    @type RESTless.Serializer
+    @default RESTless.JSONSerializer
    */
   serializer: RESTless.JSONSerializer.create(),
 
-  /*
-   * url: base url of backend REST service
-   * example: 'https://api.example.com'
+  /**
+    Base url of REST API
+    @property url
+    @type String
+    @optional
+    @example 'http://api.example.com'
    */
   url: null,
-  /*
-   * namespace: endpoint path
-   * example: 'api/v1'
+  /**
+    API namespace endpoint path
+    @property namespace
+    @type String
+    @optional
+    @example 'api/v1'
    */
   namespace: null,
-  /*
-   * useContentTypeExtension: forces content type extensions on resource requests
-   * i.e. /posts.json vs /posts | /posts/115.json vs /posts/115
-   * Useful for conforming to 3rd party apis
-   * or returning correct content-type headers with Rails caching
+
+  /**
+    If an API requires certain headers to be transmitted, e.g. an api key,
+    you can add a hash of headers to be sent on each request.
+    @property headers
+    @type Object
+    @optional
+    @example '{ "X-API-KEY" : "abc1234" }'
+    */
+  headers: null,
+  /**
+    If an API requires paramters to be set on every request,
+    e.g. an api key, you can add a hash of defaults.
+    @property defaultData
+    @type Object
+    @optional
+    @example '{ api_key: "abc1234" }'
+    */
+  defaultData: null,
+
+  /**
+    Adds content type extensions to requests.
+    @property useContentTypeExtension
+    @type Boolean
+    @default false
+    @example
+      When `true` will make requests `/posts.json` instead of `/posts` or `/posts/115.json` instead of `/posts/115`
    */
   useContentTypeExtension: false,
 
-  /*
-   * rootPath: computed path based on url and namespace
+  /**
+    Computed path based on url and namespace.
+    @property rootPath
+    @type String
+    @final
    */
   rootPath: Ember.computed(function() {
     var a = document.createElement('a'),
@@ -36,76 +72,110 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         ns = this.get('namespace'),
         rootReset = ns && ns.charAt(0) === '/';
 
-    a.href = url ? url : '';
+    a.href = url ? url : '/';
     if(ns) {
       a.pathname = rootReset ? ns : (a.pathname + ns);
     }
     return a.href.replace(/\/+$/, '');
   }).property('url', 'namespace'),
 
-  /*
-   * resourcePath: helper method creates a valid REST path to a resource
-   * App.Post => 'posts',  App.PostGroup => 'post_groups'
+  /**
+    Helper method creates a valid REST path to a resource
+    @method resourcePath
+    @param {String} resourceName Type of Model
+    @return {String} the resource path
+    @example App.Post => 'posts',  App.PostGroup => 'post_groups'
    */
   resourcePath: function(resourceName) {
     return this.pluralize(Ember.String.decamelize(resourceName));
   },
 
-  /*
-   * request: creates and executes an ajax request wrapped in a promise
+  /**
+    Creates and executes an ajax request wrapped in a promise.
+    @method request
+    @param {RESTless.Model} model model to use to build the request
+    @param {Object} [params] Additional ajax params
+    @param {Object} [key] optional resource primary key value
+    @return {Ember.RSVP.Promise}
    */
   request: function(model, params, key) {
-    var adapter = this, serializer = this.serializer;
+    var adapter = this,
+        ajaxParams = this.prepareParams(params);
+    ajaxParams.url = this.buildUrl(model, key);
 
     return new Ember.RSVP.Promise(function(resolve, reject) {
-      params = params || {};
-      params.url = adapter.buildUrl(model, key);
-      params.dataType = serializer.dataType;
-      params.contentType = serializer.contentType;
-
-      if(params.data && params.type !== 'GET') {
-        params.data = serializer.prepareData(params.data);
-      }
-
-      params.success = function(data, textStatus, jqXHR) {
+      ajaxParams.success = function(data) {
         Ember.run(null, resolve, data);
       };
-      params.error = function(jqXHR, textStatus, errorThrown) {
+      ajaxParams.error = function(jqXHR, textStatus, errorThrown) {
         var errors = adapter.parseAjaxErrors(jqXHR, textStatus, errorThrown);
         Ember.run(null, reject, errors);
       };
 
-      var ajax = Ember.$.ajax(params);
-
+      var ajax = Ember.$.ajax(ajaxParams);
       // (private) store current ajax request on the model.
-      model.set('currentRequest', ajax);
+      model.currentRequest = ajax;
     });
   },
 
-  /*
-   * buildUrl (private): constructs request url and dynamically adds the a resource key if specified
+  /**
+    Builds ajax request parameters
+    @method prepareParams
+    @param {Object} [params] base ajax params
+    @return {Object}
+    @private
+   */
+  prepareParams: function(params) {
+    var serializer = this.serializer,
+        headers = this.get('headers'),
+        defaultData = this.get('defaultData');
+    params = params || {};
+    params.dataType = serializer.dataType;
+    params.contentType = serializer.contentType;
+    if(headers) {
+      params.headers = headers;
+    }
+    if(defaultData) {
+      params.data = $.extend({}, defaultData, params.data);
+    }
+    if(params.data && params.type !== 'GET') {
+      params.data = serializer.prepareData(params.data);
+    }
+    return params;
+  },
+
+  /**
+    Constructs request url and dynamically adds the resource key if specified
+    @method buildUrl
+    @private
    */
   buildUrl: function(model, key) {
     var resourcePath = this.resourcePath(get(model.constructor, 'resourceName')),
         primaryKey = get(model.constructor, 'primaryKey'),
         urlParts = [this.get('rootPath'), resourcePath],
-        dataType = this.get('serializer.dataType'), url;
+        dataType, url;
 
     if(key) {
       urlParts.push(key);
     } else if(model.get(primaryKey)) {
       urlParts.push(model.get(primaryKey));
     }
-
     url = urlParts.join('/');
-    if(this.get('useContentTypeExtension') && dataType) {
-      url += '.' + dataType;
+
+    if(this.useContentTypeExtension) {
+      dataType = this.serializer.dataType;
+      if(dataType) {
+        url += '.' + dataType;
+      }
     }
     return url;
   },
 
-  /*
-   * saveRecord: POSTs a new record, or PUTs an updated record to REST service
+  /**
+    Saves a record. POSTs a new record, or PUTs an updated record to REST API
+    @method saveRecord
+    @param {RESTless.Model} record record to be saved
+    @return {Ember.RSVP.Promise}
    */
   saveRecord: function(record) {
     var isNew = record.get('isNew'), method, ajaxPromise;
@@ -134,6 +204,12 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return ajaxPromise;
   },
 
+  /**
+    Deletes a record from REST API using DELETE
+    @method deleteRecord
+    @param {RESTless.Model} record record to be deleted
+    @return {Ember.RSVP.Promise}
+   */
   deleteRecord: function(record) {
     var ajaxPromise = this.request(record, { type: 'DELETE', data: record.serialize() });
 
@@ -148,6 +224,12 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return ajaxPromise;
   },
 
+  /**
+    Reloads a record from REST API
+    @method reloadRecord
+    @param {RESTless.Model} record record to be reloaded
+    @return {Ember.RSVP.Promise}
+   */
   reloadRecord: function(record) {
     var klass = record.constructor,
         primaryKey = get(klass, 'primaryKey'),
@@ -172,10 +254,23 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return ajaxPromise;
   },
 
+  /**
+    Finds all records of specified class using GET
+    @method findAll
+    @param {RESTless.Model} klass model type to find
+    @return {RESTless.RecordArray}
+   */
   findAll: function(klass) {
     return this.findQuery(klass);
   },
 
+  /**
+    Finds records with specified query params using GET
+    @method findQuery
+    @param {RESTless.Model} klass model type to find
+    @param {Object} queryParams hash of query params
+    @return {RESTless.RecordArray}
+   */
   findQuery: function(klass, queryParams) {
     var type = klass.toString(),
         resourceInstance = klass.create({ isNew: false }),
@@ -192,6 +287,14 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return result;
   },
 
+  /**
+    Finds record with specified primary key using GET
+    @method findByKey
+    @param {RESTless.Model} klass model type to find
+    @param {Number|String} key primary key value
+    @param {Object} [queryParams] hash of additional query params
+    @return {RESTless.Model}
+   */
   findByKey: function(klass, key, queryParams) {
     var result = klass.create({ isNew: false }),
         ajaxPromise = this.request(result, { type: 'GET', data: queryParams }, key);
@@ -206,29 +309,20 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     return result;
   },
 
-  /*
-   * fetch: wraps find method in a promise for async find support
-   * Overridden to add currentRequest
-   */
-  fetch: function(klass, params) {
-    var adapter = this, find, promise;
-    promise = new Ember.RSVP.Promise(function(resolve, reject) {
-      find = adapter.find(klass, params);
-      find.one('didLoad', function(model) {
-        resolve(model);
-      });
-      find.one('becameError', function(error) {
-        reject(error);
-      });
-    });
-    // private: store the ajax request for aborting, etc.
-    promise._currentRequest = find.get('currentRequest');
-    return promise;
+  /**
+    Registers custom attribute transforms.
+    Fowards creation to serializer.
+    @method registerTransform
+  */
+  registerTransform: function(type, transform) {
+    this.get('serializer').registerTransform(type, transform);
   },
 
-  /*
-   * parseAjaxErrors: builds a robust error object using the serializer and xhr data
-   */
+  /**
+    Builds a robust error object using the serializer and xhr data
+    @method parseAjaxErrors
+    @private
+  */
   parseAjaxErrors: function(jqXHR, textStatus, errorThrown) {
     // use serializer to parse error messages from server
     var errors = this.get('serializer').parseError(jqXHR.responseText) || {};
@@ -238,12 +332,5 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     errors.textStatus = textStatus;
     errors.errorThrown = errorThrown;
     return errors;
-  },
-
-  /*
-   * registerTransform: fowards custom tranform creation to serializer
-   */
-  registerTransform: function(type, transform) {
-    this.get('serializer').registerTransform(type, transform);
   }
 });
