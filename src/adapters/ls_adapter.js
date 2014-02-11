@@ -67,7 +67,9 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         modelMeta = this._getModelMeta(record);
 
     if(dataStore[key]) {
-      modelMeta.splice(modelMeta.indexOf(key), 1);
+      if (modelMeta && modelMeta.indexOf) {
+        modelMeta.splice(modelMeta.indexOf(key), 1);
+      }
       delete(dataStore[key]);
       try{
         // Put the array back in LS
