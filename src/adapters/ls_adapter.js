@@ -39,8 +39,11 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
       dataStore = this._itemInsert(record);
     } else {
       dataStore[record.get(primaryKey)] = record.__data;
-      modelMeta.keys.push(record.get(primaryKey));
-      this._updateModelMeta(modelMeta, dataStoreName);
+      // If key is not already stored, save it
+      if(modelMeta.keys.indexOf(record.get(primaryKey)) === -1) {
+        modelMeta.keys.push(record.get(primaryKey));
+        this._updateModelMeta(modelMeta, dataStoreName);
+      }
     }
 
     try{
