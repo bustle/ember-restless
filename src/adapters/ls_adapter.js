@@ -67,8 +67,8 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         modelMeta = this._getModelMeta(record);
 
     if(dataStore[key]) {
-      if (modelMeta && modelMeta.indexOf) {
-        modelMeta.splice(modelMeta.indexOf(key), 1);
+      if(modelMeta && modelMeta.keys) {
+        modelMeta.keys.splice(modelMeta.keys.indexOf(key), 1);
       }
       delete(dataStore[key]);
       try{
@@ -127,7 +127,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         items = [], itemsA;
 
     for(var key in dataStore) {
-      if (dataStore[key]) {
+      if(dataStore[key]) {
         items.push(dataStore[key]);
       }
     }
@@ -201,6 +201,35 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
   },
 
   /*
+   * Modifies circularLimit value. If we have more items, this will truncate
+   * the dataStore. -1 is for unlimited storage
+   */
+  setCircularLimit: function(model, climit) {
+    var record = model.create({isNew: true}),
+        dataStoreName = this._getDSName(record),
+        dataStore = this._getDataStore(record),
+        modelMeta = this._getModelMeta(record),
+        keys = modelMeta.keys,
+        circularLimit = modelMeta.circularLimit;
+
+    if(climit <= 0) { 
+      modelMeta.circularLimit = -1;
+    } else {
+      // If we have more data than new limit, delete overflowing data
+      if(keys.length > climit) {
+        for(var i = 0; i < keys.length - climit; i++) {
+          delete(dataStore[keys[i]]);
+        }
+        localStorage.setItem(dataStoreName, JSON.stringify(dataStore));
+        keys.splice(0, keys.length - climit);
+        modelMeta.keys = keys;
+        modelMeta.circularLimit = climit;
+      }
+    }
+    this._updateModelMeta(modelMeta, dataStoreName);
+  },
+
+  /*
    * getDSName: Returns dataStore name for this resource in localStorage
    */
   _getDSName: function(record) {
@@ -262,7 +291,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
     var dataStoreName = this._getDSName(record),
         dataStore = this._getDataStore(record);
 
-    // Get meta data for this model. Insert if not available already
+    // Get meta data for this model. Insert f not available already
     var modelsMeta = localStorage.getItem('_modelsMeta');
 
     if(Ember.isNone(modelsMeta)) {
@@ -311,7 +340,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
 });
 
 /*
- * reopenClass to add deleteAll and updateCircularLimit as properties
+ * reopenClass to add deleteAll and setCircularLimit as properties
  */
 RESTless.Model.reopenClass({
   /*
@@ -319,6 +348,13 @@ RESTless.Model.reopenClass({
    */
   deleteAll: function(params) {
     return get(this, 'adapter').deleteAll(this, params);
+  },
+
+  /*
+   * setCircularLimit: Updates circular limit value
+   */
+  setCircularLimit: function(climit) {
+    return get(this, 'adapter').setCircularLimit(this, climit);
   }
 });
 
