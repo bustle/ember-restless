@@ -173,8 +173,12 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
   deleteAll: function(model) {
     var deferred = Ember.RSVP.defer(),
         resourceName = get(model, 'resourceName'),
-        dataStore = localStorage.getItem(resourceName);
+        dataStore = localStorage.getItem(resourceName),
+        record = model.create({isNew: true}),
+        modelMeta = this._getModelMeta(record);
 
+    modelMeta.keys = [];
+    this._updateModelMeta(modelMeta, resourceName);
     if(dataStore) {
       try{
         delete(localStorage[resourceName]);
@@ -291,7 +295,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
     var dataStoreName = this._getDSName(record),
         dataStore = this._getDataStore(record);
 
-    // Get meta data for this model. Insert f not available already
+    // Get meta data for this model. Insert if not available already
     var modelsMeta = localStorage.getItem('_modelsMeta');
 
     if(Ember.isNone(modelsMeta)) {
