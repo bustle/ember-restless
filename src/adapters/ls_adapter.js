@@ -74,7 +74,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         localStorage.setItem(dataStoreName, JSON.stringify(dataStore));
         this._updateModelMeta(modelMeta, dataStoreName);
         record.onDeleted();
-        deferred.resolve();
+        deferred.resolve(record);
       } catch (err) {
         record.onError(err);
         deferred.reject(err);
@@ -141,7 +141,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         return true;
       }); 
     }
-    result.deserializeMany(model.toString(), items);
+    result.deserializeMany(model.toString(), itemsA);
     result.onLoaded();
     return result;
   },
