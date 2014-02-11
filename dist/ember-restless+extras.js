@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.5.0-beta
- * last modifed: 2014-01-14
+ * last modifed: 2014-02-11
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -28,7 +28,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.5.0-beta'
+    VERSION: '@@version'
   });
 
   /*
@@ -2129,8 +2129,11 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
       dataStore = this._itemInsert(record);
     } else {
       dataStore[record.get(primaryKey)] = record.__data;
-      modelMeta.keys.push(record.get(primaryKey));
-      this._updateModelMeta(modelMeta, dataStoreName);
+      // If key is not already stored, save it
+      if(modelMeta.keys.indexOf(record.get(primaryKey)) === -1) {
+        modelMeta.keys.push(record.get(primaryKey));
+        this._updateModelMeta(modelMeta, dataStoreName);
+      }
     }
 
     try{
@@ -2157,14 +2160,16 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         modelMeta = this._getModelMeta(record);
 
     if(dataStore[key]) {
-      modelMeta.splice(modelMeta.indexOf(key), 1);
+      if(modelMeta && modelMeta.keys) {
+        modelMeta.keys.splice(modelMeta.keys.indexOf(key), 1);
+      }
       delete(dataStore[key]);
       try{
         // Put the array back in LS
         localStorage.setItem(dataStoreName, JSON.stringify(dataStore));
         this._updateModelMeta(modelMeta, dataStoreName);
         record.onDeleted();
-        deferred.resolve();
+        deferred.resolve(record);
       } catch (err) {
         record.onError(err);
         deferred.reject(err);
@@ -2215,7 +2220,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         items = [], itemsA;
 
     for(var key in dataStore) {
-      if (dataStore[key]) {
+      if(dataStore[key]) {
         items.push(dataStore[key]);
       }
     }
@@ -2231,7 +2236,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         return true;
       }); 
     }
-    result.deserializeMany(model.toString(), items);
+    result.deserializeMany(model.toString(), itemsA);
     result.onLoaded();
     return result;
   },
@@ -2261,8 +2266,12 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
   deleteAll: function(model) {
     var deferred = Ember.RSVP.defer(),
         resourceName = get(model, 'resourceName'),
-        dataStore = localStorage.getItem(resourceName);
+        dataStore = localStorage.getItem(resourceName),
+        record = model.create({isNew: true}),
+        modelMeta = this._getModelMeta(record);
 
+    modelMeta.keys = [];
+    this._updateModelMeta(modelMeta, resourceName);
     if(dataStore) {
       try{
         delete(localStorage[resourceName]);
@@ -2286,6 +2295,35 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
     } else {
       return null;
     }
+  },
+
+  /*
+   * Modifies circularLimit value. If we have more items, this will truncate
+   * the dataStore. -1 is for unlimited storage
+   */
+  setCircularLimit: function(model, climit) {
+    var record = model.create({isNew: true}),
+        dataStoreName = this._getDSName(record),
+        dataStore = this._getDataStore(record),
+        modelMeta = this._getModelMeta(record),
+        keys = modelMeta.keys,
+        circularLimit = modelMeta.circularLimit;
+
+    if(climit <= 0) { 
+      modelMeta.circularLimit = -1;
+    } else {
+      // If we have more data than new limit, delete overflowing data
+      if(keys.length > climit) {
+        for(var i = 0; i < keys.length - climit; i++) {
+          delete(dataStore[keys[i]]);
+        }
+        localStorage.setItem(dataStoreName, JSON.stringify(dataStore));
+        keys.splice(0, keys.length - climit);
+        modelMeta.keys = keys;
+        modelMeta.circularLimit = climit;
+      }
+    }
+    this._updateModelMeta(modelMeta, dataStoreName);
   },
 
   /*
@@ -2399,7 +2437,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
 });
 
 /*
- * reopenClass to add deleteAll and updateCircularLimit as properties
+ * reopenClass to add deleteAll and setCircularLimit as properties
  */
 RESTless.Model.reopenClass({
   /*
@@ -2407,6 +2445,13 @@ RESTless.Model.reopenClass({
    */
   deleteAll: function(params) {
     return get(this, 'adapter').deleteAll(this, params);
+  },
+
+  /*
+   * setCircularLimit: Updates circular limit value
+   */
+  setCircularLimit: function(climit) {
+    return get(this, 'adapter').setCircularLimit(this, climit);
   }
 });
 
