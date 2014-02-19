@@ -24,12 +24,12 @@
                 <li class="divider-vertical"></li>
                 <li>
                     <p class="navbar-text">
-                        API Docs for Version: <b>0.4.1</b>
+                        API Docs for Version: <b>0.5.0</b>
                     </p>
                 </li>
             </ul>
             <form class="navbar-form pull-right" style="line-height: 40px; height: 40px;">
-                <input style="margin-top: 0;" type="text" class="search-query" placeholder="Search for classes/modules..." data-obj='["classes/RESTless", "classes/RESTless.Adapter", "classes/RESTless.Client", "classes/RESTless.FixtureAdapter", "classes/RESTless.JSONSerializer", "classes/RESTless.Model", "classes/RESTless.ReadOnlyModel", "classes/RESTless.RecordArray", "classes/RESTless.RESTAdapter", "classes/RESTless.Serializer", "classes/RESTless.State", "modules/ember-restless"]'>
+                <input style="margin-top: 0;" type="text" class="search-query" placeholder="Search for classes/modules..." data-obj='["classes/RESTless", "classes/RESTless.Adapter", "classes/RESTless.Client", "classes/RESTless.FixtureAdapter", "classes/RESTless.JSONSerializer", "classes/RESTless.LSAdapter", "classes/RESTless.Model", "classes/RESTless.ReadOnlyModel", "classes/RESTless.RecordArray", "classes/RESTless.RESTAdapter", "classes/RESTless.Serializer", "classes/RESTless.State", "modules/ember-restless"]'>
             </form>
         </div>
     </div>
@@ -62,6 +62,8 @@
                         <li><a href="../classes/RESTless.FixtureAdapter.html">RESTless.FixtureAdapter</a></li>
                     
                         <li><a href="../classes/RESTless.JSONSerializer.html">RESTless.JSONSerializer</a></li>
+                    
+                        <li><a href="../classes/RESTless.LSAdapter.html">RESTless.LSAdapter</a></li>
                     
                         <li><a href="../classes/RESTless.Model.html">RESTless.Model</a></li>
                     
@@ -276,6 +278,8 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @return {Object} json data
   */
   serialize: function(resource, options) {
+    if(!resource) { return null; }
+
     var fields = get(resource.constructor, &#x27;fields&#x27;),
         json = {};
 
@@ -318,7 +322,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     if (opts &amp;&amp; opts.hasMany) {
       return this.serializeMany(value.get(&#x27;content&#x27;), opts.type);
     } else if(opts.belongsTo) {
-      return this.serialize(value);
+      return this.serialize(value, { nonEmbedded: true });
     }
 
     //Check for a custom transform

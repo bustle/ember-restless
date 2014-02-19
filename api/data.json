@@ -2,7 +2,7 @@
     "project": {
         "name": "ember-restless",
         "description": "A lightweight data persistence library for Ember.js",
-        "version": "0.4.1",
+        "version": "0.5.0",
         "url": "https://github.com/endlessinc/ember-restless"
     },
     "files": {
@@ -103,6 +103,17 @@
                 "RESTless": 1
             }
         },
+        "src/adapters/ls_adapter.js": {
+            "name": "src/adapters/ls_adapter.js",
+            "modules": {},
+            "classes": {
+                "RESTless.LSAdapter": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "RESTless": 1
+            }
+        },
         "src/adapters/rest_adapter.js": {
             "name": "src/adapters/rest_adapter.js",
             "modules": {},
@@ -152,6 +163,7 @@
                 "RESTless.State": 1,
                 "RESTless.Adapter": 1,
                 "RESTless.FixtureAdapter": 1,
+                "RESTless.LSAdapter": 1,
                 "RESTless.RESTAdapter": 1,
                 "RESTless.JSONSerializer": 1,
                 "RESTless.Serializer": 1
@@ -266,7 +278,7 @@
             "line": 1,
             "description": "The State Mixin is responsible for keeping state and\nhandling state events for Models.",
             "uses": [
-                "<a href=\"http://emberjs.com/api/classes/Ember.Evented.html\">Ember.Evented</a>"
+                "Ember.Evented"
             ]
         },
         "RESTless.Adapter": {
@@ -298,6 +310,21 @@
             "line": 1,
             "description": "The FixtureAdapter is used for working with predefined\njavascript data stored in memory.",
             "beta": 1,
+            "extends": "RESTless.Adapter"
+        },
+        "RESTless.LSAdapter": {
+            "name": "RESTless.LSAdapter",
+            "shortname": "RESTless.LSAdapter",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember-restless",
+            "namespace": "RESTless",
+            "file": "src/adapters/ls_adapter.js",
+            "line": 1,
+            "description": "The LocalStorageAdapter uses browser's localStorage as persistence storage\n\nWe save the following metadata per model in _modelsMeta array\n{\n  keys: []          //Array of all the keys generated in order\n  circularLimit: <> //Maximum number of items that can be saved (-1 for \n                    //unlimited items)\n}",
             "extends": "RESTless.Adapter"
         },
         "RESTless.RESTAdapter": {
@@ -1610,10 +1637,11 @@
         {
             "file": "src/adapters/rest_adapter.js",
             "line": 17,
-            "description": "Base url of REST API",
+            "description": "Host url of the REST API if on a different domain than the app.",
             "itemtype": "property",
-            "name": "url",
+            "name": "host",
             "type": "String",
+            "optional": 1,
             "example": [
                 " 'http://api.example.com'"
             ],
@@ -1623,7 +1651,20 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 24,
+            "line": 25,
+            "description": "Deprecated.",
+            "itemtype": "property",
+            "name": "url",
+            "type": "String",
+            "deprecated": true,
+            "deprecationMessage": "Use: `host`",
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 33,
             "description": "API namespace endpoint path",
             "itemtype": "property",
             "name": "namespace",
@@ -1638,7 +1679,37 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 32,
+            "line": 42,
+            "description": "If an API requires certain headers to be transmitted, e.g. an api key,\nyou can add a hash of headers to be sent on each request.",
+            "itemtype": "property",
+            "name": "headers",
+            "type": "Object",
+            "optional": 1,
+            "example": [
+                " '{ \"X-API-KEY\" : \"abc1234\" }'"
+            ],
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 51,
+            "description": "If an API requires paramters to be set on every request,\ne.g. an api key, you can add a hash of defaults.",
+            "itemtype": "property",
+            "name": "defaultData",
+            "type": "Object",
+            "optional": 1,
+            "example": [
+                " '{ api_key: \"abc1234\" }'"
+            ],
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 61,
             "description": "Adds content type extensions to requests.",
             "itemtype": "property",
             "name": "useContentTypeExtension",
@@ -1653,8 +1724,8 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 42,
-            "description": "Computed path based on url and namespace.",
+            "line": 71,
+            "description": "Computed path based on host and namespace.",
             "itemtype": "property",
             "name": "rootPath",
             "type": "String",
@@ -1665,7 +1736,7 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 61,
+            "line": 90,
             "description": "Helper method creates a valid REST path to a resource",
             "itemtype": "method",
             "name": "resourcePath",
@@ -1689,7 +1760,7 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 72,
+            "line": 101,
             "description": "Creates and executes an ajax request wrapped in a promise.",
             "itemtype": "method",
             "name": "request",
@@ -1722,7 +1793,31 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 108,
+            "line": 129,
+            "description": "Builds ajax request parameters",
+            "itemtype": "method",
+            "name": "prepareParams",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "base ajax params",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "RESTless.RESTAdapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/rest_adapter.js",
+            "line": 155,
             "description": "Constructs request url and dynamically adds the resource key if specified",
             "itemtype": "method",
             "name": "buildUrl",
@@ -1734,7 +1829,7 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 132,
+            "line": 182,
             "description": "Saves a record. POSTs a new record, or PUTs an updated record to REST API",
             "itemtype": "method",
             "name": "saveRecord",
@@ -1755,7 +1850,7 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 165,
+            "line": 215,
             "description": "Deletes a record from REST API using DELETE",
             "itemtype": "method",
             "name": "deleteRecord",
@@ -1776,7 +1871,7 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 185,
+            "line": 235,
             "description": "Reloads a record from REST API",
             "itemtype": "method",
             "name": "reloadRecord",
@@ -1797,7 +1892,7 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 215,
+            "line": 265,
             "description": "Finds all records of specified class using GET",
             "itemtype": "method",
             "name": "findAll",
@@ -1818,7 +1913,7 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 225,
+            "line": 275,
             "description": "Finds records with specified query params using GET",
             "itemtype": "method",
             "name": "findQuery",
@@ -1844,7 +1939,7 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 248,
+            "line": 298,
             "description": "Finds record with specified primary key using GET",
             "itemtype": "method",
             "name": "findByKey",
@@ -1876,33 +1971,7 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 270,
-            "description": "Fetch wraps `find` in a promise for async find support.",
-            "itemtype": "method",
-            "name": "fetch",
-            "params": [
-                {
-                    "name": "klass",
-                    "description": "Model class type",
-                    "type": "Object"
-                },
-                {
-                    "name": "params",
-                    "description": "a hash of query params.",
-                    "type": "Object",
-                    "optional": true
-                }
-            ],
-            "return": {
-                "description": "Ember.RSVP.Promise"
-            },
-            "class": "RESTless.RESTAdapter",
-            "module": "ember-restless",
-            "namespace": "RESTless"
-        },
-        {
-            "file": "src/adapters/rest_adapter.js",
-            "line": 285,
+            "line": 320,
             "description": "Registers custom attribute transforms.\nFowards creation to serializer.",
             "itemtype": "method",
             "name": "registerTransform",
@@ -1912,7 +1981,7 @@
         },
         {
             "file": "src/adapters/rest_adapter.js",
-            "line": 294,
+            "line": 329,
             "description": "Builds a robust error object using the serializer and xhr data",
             "itemtype": "method",
             "name": "parseAjaxErrors",
@@ -2059,7 +2128,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 178,
+            "line": 180,
             "description": "Transforms a Model property into json value",
             "itemtype": "method",
             "name": "serializeProperty",
@@ -2091,7 +2160,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 205,
+            "line": 207,
             "description": "Transforms a RecordArray into a json array",
             "itemtype": "method",
             "name": "serializeMany",
@@ -2117,7 +2186,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 226,
+            "line": 228,
             "description": "Helper to transform resource name to valid json key",
             "itemtype": "method",
             "name": "keyForResourceName",
@@ -2138,7 +2207,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 235,
+            "line": 237,
             "description": "Helper to transform attribute name to valid json key",
             "itemtype": "method",
             "name": "keyForAttributeName",
@@ -2159,7 +2228,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 247,
+            "line": 249,
             "description": "Helper to get Model property name from json key name",
             "itemtype": "method",
             "name": "attributeNameForKey",
@@ -2185,7 +2254,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 263,
+            "line": 265,
             "description": "JSON should be stringified before transmitting.",
             "itemtype": "method",
             "name": "prepareData",
@@ -2198,7 +2267,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 271,
+            "line": 273,
             "description": "Transforms error response text into json.",
             "itemtype": "method",
             "name": "parseError",
@@ -2211,7 +2280,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 281,
+            "line": 283,
             "description": "Attempts to extract metadata on json responses",
             "itemtype": "method",
             "name": "extractMeta",
@@ -2224,7 +2293,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 291,
+            "line": 293,
             "description": "To register a custom attribute transform. Adds to JSONTransforms.",
             "itemtype": "method",
             "name": "registerTransform",
@@ -2246,7 +2315,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 301,
+            "line": 303,
             "itemtype": "method",
             "name": "_keyForResource",
             "access": "private",
@@ -2257,7 +2326,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 308,
+            "line": 310,
             "itemtype": "method",
             "name": "_keyForResourceType",
             "access": "private",
@@ -2268,7 +2337,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 316,
+            "line": 318,
             "itemtype": "method",
             "name": "_keyPluralForResourceType",
             "access": "private",
@@ -2279,7 +2348,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 324,
+            "line": 326,
             "description": "Checks for wrapped array data by resource name: { posts: [...] }\nThis is the default from ActiveRecord on direct finds",
             "itemtype": "method",
             "name": "_arrayDataForType",
@@ -2291,7 +2360,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 343,
+            "line": 345,
             "description": "Hash for custom json transforms",
             "itemtype": "property",
             "name": "JSONTransforms",
@@ -2452,7 +2521,7 @@
         },
         {
             "message": "replacing incorrect tag: parma with param",
-            "line": " src/serializers/json_serializer.js:291"
+            "line": " src/serializers/json_serializer.js:293"
         },
         {
             "message": "Missing item type\nShortcut alias to model configurations",

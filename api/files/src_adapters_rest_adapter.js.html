@@ -24,12 +24,12 @@
                 <li class="divider-vertical"></li>
                 <li>
                     <p class="navbar-text">
-                        API Docs for Version: <b>0.4.1</b>
+                        API Docs for Version: <b>0.5.0</b>
                     </p>
                 </li>
             </ul>
             <form class="navbar-form pull-right" style="line-height: 40px; height: 40px;">
-                <input style="margin-top: 0;" type="text" class="search-query" placeholder="Search for classes/modules..." data-obj='["classes/RESTless", "classes/RESTless.Adapter", "classes/RESTless.Client", "classes/RESTless.FixtureAdapter", "classes/RESTless.JSONSerializer", "classes/RESTless.Model", "classes/RESTless.ReadOnlyModel", "classes/RESTless.RecordArray", "classes/RESTless.RESTAdapter", "classes/RESTless.Serializer", "classes/RESTless.State", "modules/ember-restless"]'>
+                <input style="margin-top: 0;" type="text" class="search-query" placeholder="Search for classes/modules..." data-obj='["classes/RESTless", "classes/RESTless.Adapter", "classes/RESTless.Client", "classes/RESTless.FixtureAdapter", "classes/RESTless.JSONSerializer", "classes/RESTless.LSAdapter", "classes/RESTless.Model", "classes/RESTless.ReadOnlyModel", "classes/RESTless.RecordArray", "classes/RESTless.RESTAdapter", "classes/RESTless.Serializer", "classes/RESTless.State", "modules/ember-restless"]'>
             </form>
         </div>
     </div>
@@ -62,6 +62,8 @@
                         <li><a href="../classes/RESTless.FixtureAdapter.html">RESTless.FixtureAdapter</a></li>
                     
                         <li><a href="../classes/RESTless.JSONSerializer.html">RESTless.JSONSerializer</a></li>
+                    
+                        <li><a href="../classes/RESTless.LSAdapter.html">RESTless.LSAdapter</a></li>
                     
                         <li><a href="../classes/RESTless.Model.html">RESTless.Model</a></li>
                     
@@ -141,12 +143,21 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   serializer: RESTless.JSONSerializer.create(),
 
   /**
-    Base url of REST API
-    @property url
+    Host url of the REST API if on a different domain than the app.
+    @property host
     @type String
+    @optional
     @example &#x27;http://api.example.com&#x27;
    */
+  host: Ember.computed.oneWay(&#x27;url&#x27;),
+  /**
+    Deprecated.
+    @property url
+    @type String
+    @deprecated Use: &#x60;host&#x60;
+   */
   url: null,
+
   /**
     API namespace endpoint path
     @property namespace
@@ -155,6 +166,26 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @example &#x27;api/v1&#x27;
    */
   namespace: null,
+
+  /**
+    If an API requires certain headers to be transmitted, e.g. an api key,
+    you can add a hash of headers to be sent on each request.
+    @property headers
+    @type Object
+    @optional
+    @example &#x27;{ &quot;X-API-KEY&quot; : &quot;abc1234&quot; }&#x27;
+    */
+  headers: null,
+  /**
+    If an API requires paramters to be set on every request,
+    e.g. an api key, you can add a hash of defaults.
+    @property defaultData
+    @type Object
+    @optional
+    @example &#x27;{ api_key: &quot;abc1234&quot; }&#x27;
+    */
+  defaultData: null,
+
   /**
     Adds content type extensions to requests.
     @property useContentTypeExtension
@@ -166,23 +197,23 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   useContentTypeExtension: false,
 
   /**
-    Computed path based on url and namespace.
+    Computed path based on host and namespace.
     @property rootPath
     @type String
     @final
    */
   rootPath: Ember.computed(function() {
     var a = document.createElement(&#x27;a&#x27;),
-        url = this.get(&#x27;url&#x27;),
+        host = this.get(&#x27;host&#x27;),
         ns = this.get(&#x27;namespace&#x27;),
         rootReset = ns &amp;&amp; ns.charAt(0) === &#x27;/&#x27;;
 
-    a.href = url ? url : &#x27;&#x27;;
+    a.href = host ? host : &#x27;/&#x27;;
     if(ns) {
       a.pathname = rootReset ? ns : (a.pathname + ns);
     }
     return a.href.replace(/\/+$/, &#x27;&#x27;);
-  }).property(&#x27;url&#x27;, &#x27;namespace&#x27;),
+  }).property(&#x27;host&#x27;, &#x27;namespace&#x27;),
 
   /**
     Helper method creates a valid REST path to a resource
@@ -204,31 +235,49 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @return {Ember.RSVP.Promise}
    */
   request: function(model, params, key) {
-    var adapter = this, serializer = this.serializer;
+    var adapter = this,
+        ajaxParams = this.prepareParams(params);
+    ajaxParams.url = this.buildUrl(model, key);
 
     return new Ember.RSVP.Promise(function(resolve, reject) {
-      params = params || {};
-      params.url = adapter.buildUrl(model, key);
-      params.dataType = serializer.dataType;
-      params.contentType = serializer.contentType;
-
-      if(params.data &amp;&amp; params.type !== &#x27;GET&#x27;) {
-        params.data = serializer.prepareData(params.data);
-      }
-
-      params.success = function(data, textStatus, jqXHR) {
+      ajaxParams.success = function(data) {
         Ember.run(null, resolve, data);
       };
-      params.error = function(jqXHR, textStatus, errorThrown) {
+      ajaxParams.error = function(jqXHR, textStatus, errorThrown) {
         var errors = adapter.parseAjaxErrors(jqXHR, textStatus, errorThrown);
         Ember.run(null, reject, errors);
       };
 
-      var ajax = Ember.$.ajax(params);
-
+      var ajax = Ember.$.ajax(ajaxParams);
       // (private) store current ajax request on the model.
-      model.set(&#x27;currentRequest&#x27;, ajax);
+      model.currentRequest = ajax;
     });
+  },
+
+  /**
+    Builds ajax request parameters
+    @method prepareParams
+    @param {Object} [params] base ajax params
+    @return {Object}
+    @private
+   */
+  prepareParams: function(params) {
+    var serializer = this.serializer,
+        headers = this.get(&#x27;headers&#x27;),
+        defaultData = this.get(&#x27;defaultData&#x27;);
+    params = params || {};
+    params.dataType = serializer.dataType;
+    params.contentType = serializer.contentType;
+    if(headers) {
+      params.headers = headers;
+    }
+    if(defaultData) {
+      params.data = $.extend({}, defaultData, params.data);
+    }
+    if(params.data &amp;&amp; params.type !== &#x27;GET&#x27;) {
+      params.data = serializer.prepareData(params.data);
+    }
+    return params;
   },
 
   /**
@@ -240,17 +289,20 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     var resourcePath = this.resourcePath(get(model.constructor, &#x27;resourceName&#x27;)),
         primaryKey = get(model.constructor, &#x27;primaryKey&#x27;),
         urlParts = [this.get(&#x27;rootPath&#x27;), resourcePath],
-        dataType = this.get(&#x27;serializer.dataType&#x27;), url;
+        dataType, url;
 
     if(key) {
       urlParts.push(key);
     } else if(model.get(primaryKey)) {
       urlParts.push(model.get(primaryKey));
     }
-
     url = urlParts.join(&#x27;/&#x27;);
-    if(this.get(&#x27;useContentTypeExtension&#x27;) &amp;&amp; dataType) {
-      url += &#x27;.&#x27; + dataType;
+
+    if(this.useContentTypeExtension) {
+      dataType = this.serializer.dataType;
+      if(dataType) {
+        url += &#x27;.&#x27; + dataType;
+      }
     }
     return url;
   },
@@ -391,21 +443,6 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     });
 
     return result;
-  },
-
-  /**
-    Fetch wraps &#x60;find&#x60; in a promise for async find support.
-    @method fetch
-    @param {Object} klass Model class type
-    @param {Object} [params] a hash of query params.
-    @return Ember.RSVP.Promise
-  */
-  fetch: function(klass, params) {
-    var promise = this._super(klass, params);
-    // private: store the current ajax request for aborting, etc.
-    // depreciate: _currentRequest now that find access is directly available.
-    promise._currentRequest = promise._find.get(&#x27;currentRequest&#x27;);
-    return promise;
   },
 
   /**

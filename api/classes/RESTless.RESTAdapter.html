@@ -24,12 +24,12 @@
                 <li class="divider-vertical"></li>
                 <li>
                     <p class="navbar-text">
-                        API Docs for Version: <b>0.4.1</b>
+                        API Docs for Version: <b>0.5.0</b>
                     </p>
                 </li>
             </ul>
             <form class="navbar-form pull-right" style="line-height: 40px; height: 40px;">
-                <input style="margin-top: 0;" type="text" class="search-query" placeholder="Search for classes/modules..." data-obj='["classes/RESTless", "classes/RESTless.Adapter", "classes/RESTless.Client", "classes/RESTless.FixtureAdapter", "classes/RESTless.JSONSerializer", "classes/RESTless.Model", "classes/RESTless.ReadOnlyModel", "classes/RESTless.RecordArray", "classes/RESTless.RESTAdapter", "classes/RESTless.Serializer", "classes/RESTless.State", "modules/ember-restless"]'>
+                <input style="margin-top: 0;" type="text" class="search-query" placeholder="Search for classes/modules..." data-obj='["classes/RESTless", "classes/RESTless.Adapter", "classes/RESTless.Client", "classes/RESTless.FixtureAdapter", "classes/RESTless.JSONSerializer", "classes/RESTless.LSAdapter", "classes/RESTless.Model", "classes/RESTless.ReadOnlyModel", "classes/RESTless.RecordArray", "classes/RESTless.RESTAdapter", "classes/RESTless.Serializer", "classes/RESTless.State", "modules/ember-restless"]'>
             </form>
         </div>
     </div>
@@ -62,6 +62,8 @@
                         <li><a href="../classes/RESTless.FixtureAdapter.html">RESTless.FixtureAdapter</a></li>
                     
                         <li><a href="../classes/RESTless.JSONSerializer.html">RESTless.JSONSerializer</a></li>
+                    
+                        <li><a href="../classes/RESTless.LSAdapter.html">RESTless.LSAdapter</a></li>
                     
                         <li><a href="../classes/RESTless.Model.html">RESTless.Model</a></li>
                     
@@ -263,6 +265,13 @@
                                 
                             </li>
                         
+                            <li class="index-item method private">
+                                <a href="#" data-tabid="#methods" data-anchor="#method_prepareParams" data-tablink="prepareParams">prepareParams</a>
+
+                                
+                                
+                            </li>
+                        
                             <li class="index-item method">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_registerTransform" data-tablink="registerTransform">registerTransform</a>
 
@@ -316,6 +325,27 @@
                             </li>
                         
                             <li class="index-item property">
+                                <a href="#" data-tabid="#properties" data-anchor="#property_defaultData" data-tablink="defaultData">defaultData</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#" data-tabid="#properties" data-anchor="#property_headers" data-tablink="headers">headers</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#" data-tabid="#properties" data-anchor="#property_host" data-tablink="host">host</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
                                 <a href="#" data-tabid="#properties" data-anchor="#property_namespace" data-tablink="namespace">namespace</a>
 
                                 
@@ -336,10 +366,12 @@
                                 
                             </li>
                         
-                            <li class="index-item property">
+                            <li class="index-item property deprecated">
                                 <a href="#" data-tabid="#properties" data-anchor="#property_url" data-tablink="url">url</a>
 
                                 
+                                
+                                    <span class="flag deprecated">deprecated</span>
                                 
                             </li>
                         
@@ -398,7 +430,7 @@
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l108"><code>src&#x2F;adapters&#x2F;rest_adapter.js:108</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l155"><code>src&#x2F;adapters&#x2F;rest_adapter.js:155</code></a>
         
         </p>
 
@@ -577,7 +609,7 @@
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l165"><code>src&#x2F;adapters&#x2F;rest_adapter.js:165</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l215"><code>src&#x2F;adapters&#x2F;rest_adapter.js:215</code></a>
         
         </p>
 
@@ -636,7 +668,7 @@
 </div>
 
                 
-                    <div id="method_fetch" class="method item">
+                    <div id="method_fetch" class="method item inherited">
     <h3 class="name"><code>fetch</code></h3>
 
     
@@ -679,16 +711,13 @@
 
     <div class="meta">
         
-            <p>Inherited from
-            <a href="../classes/RESTless.Adapter.html#method_fetch">
-                RESTless.Adapter
-            </a>
             
-            but overwritten in
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_fetch">RESTless.Adapter</a>:
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l270"><code>src&#x2F;adapters&#x2F;rest_adapter.js:270</code></a>
+        <a href="../files/src_adapters_adapter.js.html#l72"><code>src&#x2F;adapters&#x2F;adapter.js:72</code></a>
         
         </p>
 
@@ -735,7 +764,7 @@
                     
 
                     <div class="param-description">
-                        <p>a hash of query params.</p>
+                        <p>a hash of params.</p>
 
                     </div>
 
@@ -921,7 +950,7 @@ A convenience method that can be used to intelligently route to
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l215"><code>src&#x2F;adapters&#x2F;rest_adapter.js:215</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l265"><code>src&#x2F;adapters&#x2F;rest_adapter.js:265</code></a>
         
         </p>
 
@@ -1038,7 +1067,7 @@ A convenience method that can be used to intelligently route to
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l248"><code>src&#x2F;adapters&#x2F;rest_adapter.js:248</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l298"><code>src&#x2F;adapters&#x2F;rest_adapter.js:298</code></a>
         
         </p>
 
@@ -1182,7 +1211,7 @@ A convenience method that can be used to intelligently route to
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l225"><code>src&#x2F;adapters&#x2F;rest_adapter.js:225</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l275"><code>src&#x2F;adapters&#x2F;rest_adapter.js:275</code></a>
         
         </p>
 
@@ -1463,7 +1492,7 @@ A convenience method that can be used to intelligently route to
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l294"><code>src&#x2F;adapters&#x2F;rest_adapter.js:294</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l329"><code>src&#x2F;adapters&#x2F;rest_adapter.js:329</code></a>
         
         </p>
 
@@ -1591,6 +1620,114 @@ Checks custom configs or simply appends a &#39;s&#39;.</p>
 </div>
 
                 
+                    <div id="method_prepareParams" class="method item private">
+    <h3 class="name"><code>prepareParams</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code class="optional">[params]</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_adapters_rest_adapter.js.html#l129"><code>src&#x2F;adapters&#x2F;rest_adapter.js:129</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Builds ajax request parameters</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name optional">[params]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>base ajax params</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
                     <div id="method_registerTransform" class="method item">
     <h3 class="name"><code>registerTransform</code></h3>
 
@@ -1623,7 +1760,7 @@ Checks custom configs or simply appends a &#39;s&#39;.</p>
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l285"><code>src&#x2F;adapters&#x2F;rest_adapter.js:285</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l320"><code>src&#x2F;adapters&#x2F;rest_adapter.js:320</code></a>
         
         </p>
 
@@ -1693,7 +1830,7 @@ Fowards creation to serializer.</p>
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l185"><code>src&#x2F;adapters&#x2F;rest_adapter.js:185</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l235"><code>src&#x2F;adapters&#x2F;rest_adapter.js:235</code></a>
         
         </p>
 
@@ -1810,7 +1947,7 @@ Fowards creation to serializer.</p>
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l72"><code>src&#x2F;adapters&#x2F;rest_adapter.js:72</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l101"><code>src&#x2F;adapters&#x2F;rest_adapter.js:101</code></a>
         
         </p>
 
@@ -1949,7 +2086,7 @@ Fowards creation to serializer.</p>
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l61"><code>src&#x2F;adapters&#x2F;rest_adapter.js:61</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l90"><code>src&#x2F;adapters&#x2F;rest_adapter.js:90</code></a>
         
         </p>
 
@@ -2065,7 +2202,7 @@ Fowards creation to serializer.</p>
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l132"><code>src&#x2F;adapters&#x2F;rest_adapter.js:132</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l182"><code>src&#x2F;adapters&#x2F;rest_adapter.js:182</code></a>
         
         </p>
 
@@ -2178,6 +2315,170 @@ Fowards creation to serializer.</p>
 </div>
 
                 
+                    <div id="property_defaultData" class="property item">
+    <h3 class="name"><code>defaultData</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_adapters_rest_adapter.js.html#l51"><code>src&#x2F;adapters&#x2F;rest_adapter.js:51</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If an API requires paramters to be set on every request,
+e.g. an api key, you can add a hash of defaults.</p>
+
+    </div>
+
+    
+
+    
+        <div class="example">
+            <h4>Example:</h4>
+
+            <div class="example-content">
+                <p> &#39;{ api_key: "abc1234" }&#39;</p>
+
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="property_headers" class="property item">
+    <h3 class="name"><code>headers</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_adapters_rest_adapter.js.html#l42"><code>src&#x2F;adapters&#x2F;rest_adapter.js:42</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If an API requires certain headers to be transmitted, e.g. an api key,
+you can add a hash of headers to be sent on each request.</p>
+
+    </div>
+
+    
+
+    
+        <div class="example">
+            <h4>Example:</h4>
+
+            <div class="example-content">
+                <p> &#39;{ "X-API-KEY" : "abc1234" }&#39;</p>
+
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="property_host" class="property item">
+    <h3 class="name"><code>host</code></h3>
+    <span class="type">String</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_adapters_rest_adapter.js.html#l17"><code>src&#x2F;adapters&#x2F;rest_adapter.js:17</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Host url of the REST API if on a different domain than the app.</p>
+
+    </div>
+
+    
+
+    
+        <div class="example">
+            <h4>Example:</h4>
+
+            <div class="example-content">
+                <p> &#39;<a href="http://api.example.com">http://api.example.com</a>&#39;</p>
+
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
                     <div id="property_namespace" class="property item">
     <h3 class="name"><code>namespace</code></h3>
     <span class="type">String</span>
@@ -2201,7 +2502,7 @@ Fowards creation to serializer.</p>
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l24"><code>src&#x2F;adapters&#x2F;rest_adapter.js:24</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l33"><code>src&#x2F;adapters&#x2F;rest_adapter.js:33</code></a>
         
         </p>
 
@@ -2257,7 +2558,7 @@ Fowards creation to serializer.</p>
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l42"><code>src&#x2F;adapters&#x2F;rest_adapter.js:42</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l71"><code>src&#x2F;adapters&#x2F;rest_adapter.js:71</code></a>
         
         </p>
 
@@ -2267,7 +2568,7 @@ Fowards creation to serializer.</p>
     </div>
 
     <div class="description">
-        <p>Computed path based on url and namespace.</p>
+        <p>Computed path based on host and namespace.</p>
 
     </div>
 
@@ -2326,10 +2627,12 @@ Fowards creation to serializer.</p>
 </div>
 
                 
-                    <div id="property_url" class="property item">
+                    <div id="property_url" class="property item deprecated">
     <h3 class="name"><code>url</code></h3>
     <span class="type">String</span>
 
+    
+        <span class="flag deprecated" title="Use: &#x60;host&#x60;">deprecated</span>
     
 
     
@@ -2349,31 +2652,24 @@ Fowards creation to serializer.</p>
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l17"><code>src&#x2F;adapters&#x2F;rest_adapter.js:17</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l25"><code>src&#x2F;adapters&#x2F;rest_adapter.js:25</code></a>
         
         </p>
 
+        
+            <p>Deprecated: Use: &#x60;host&#x60;</p>
         
 
         
     </div>
 
     <div class="description">
-        <p>Base url of REST API</p>
+        <p>Deprecated.</p>
 
     </div>
 
     
 
-    
-        <div class="example">
-            <h4>Example:</h4>
-
-            <div class="example-content">
-                <p> &#39;<a href="http://api.example.com">http://api.example.com</a>&#39;</p>
-
-            </div>
-        </div>
     
 
     
@@ -2403,7 +2699,7 @@ Fowards creation to serializer.</p>
             
         
         
-        <a href="../files/src_adapters_rest_adapter.js.html#l32"><code>src&#x2F;adapters&#x2F;rest_adapter.js:32</code></a>
+        <a href="../files/src_adapters_rest_adapter.js.html#l61"><code>src&#x2F;adapters&#x2F;rest_adapter.js:61</code></a>
         
         </p>
 

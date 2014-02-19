@@ -6,6 +6,7 @@ YUI.add("yuidoc-meta", function(Y) {
         "RESTless.Client",
         "RESTless.FixtureAdapter",
         "RESTless.JSONSerializer",
+        "RESTless.LSAdapter",
         "RESTless.Model",
         "RESTless.RESTAdapter",
         "RESTless.ReadOnlyModel",

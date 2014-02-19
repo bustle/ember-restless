@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>RESTless.Adapter - ember-restless</title>
+    <title>RESTless.LSAdapter - ember-restless</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.0/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify.css">
     <link rel="stylesheet" href="../assets/css/yuidoc.css" id="site_styles">
@@ -121,7 +121,7 @@
                 <div id="docs-main">
                     <div class="content">
                         <div class="page-header">
-    <h1>RESTless.Adapter <small>Class</small></h1>
+    <h1>RESTless.LSAdapter <small>Class</small></h1>
 </div>
 
 <div class="well well-small">
@@ -129,13 +129,13 @@
 
     
         <div class="extends">
-            Extends Ember.Object
+            Extends <a href="../classes/RESTless.Adapter.html" class="crosslink">RESTless.Adapter</a>
         </div>
     
 
     
         <div class="foundat">
-            Defined in: <a href="../files/src_adapters_adapter.js.html#l1"><code>src&#x2F;adapters&#x2F;adapter.js:1</code></a>
+            Defined in: <a href="../files/src_adapters_ls_adapter.js.html#l1"><code>src&#x2F;adapters&#x2F;ls_adapter.js:1</code></a>
         </div>
     
 
@@ -151,8 +151,13 @@
 
 
 <div class="well well-small">
-    <p>Adapters handle sending and fetching data to and from a persistence layer.
-This is a base class to be subclassed.</p>
+    <p>The LocalStorageAdapter uses browser&#39;s localStorage as persistence storage</p>
+<p>We save the following metadata per model in _modelsMeta array
+{
+  keys: []          //Array of all the keys generated in order
+  circularLimit: &lt;&gt; //Maximum number of items that can be saved (-1 for 
+                    //unlimited items)
+}</p>
 
 </div>
 
@@ -182,84 +187,84 @@ This is a base class to be subclassed.</p>
 
                     <ul class="index-list methods extends">
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_configure" data-tablink="configure">configure</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_deleteRecord" data-tablink="deleteRecord">deleteRecord</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_fetch" data-tablink="fetch">fetch</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_find" data-tablink="find">find</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_findAll" data-tablink="findAll">findAll</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_findByKey" data-tablink="findByKey">findByKey</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_findQuery" data-tablink="findQuery">findQuery</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_generateIdForRecord" data-tablink="generateIdForRecord">generateIdForRecord</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_map" data-tablink="map">map</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_pluralize" data-tablink="pluralize">pluralize</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_reloadRecord" data-tablink="reloadRecord">reloadRecord</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#" data-tabid="#methods" data-anchor="#method_saveRecord" data-tablink="saveRecord">saveRecord</a>
 
                                 
@@ -276,14 +281,14 @@ This is a base class to be subclassed.</p>
 
                     <ul class="index-list properties extends">
                         
-                            <li class="index-item property">
+                            <li class="index-item property inherited">
                                 <a href="#" data-tabid="#properties" data-anchor="#property_configurations" data-tablink="configurations">configurations</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item property">
+                            <li class="index-item property inherited">
                                 <a href="#" data-tabid="#properties" data-anchor="#property_serializer" data-tablink="serializer">serializer</a>
 
                                 
@@ -304,7 +309,7 @@ This is a base class to be subclassed.</p>
                 <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="method_configure" class="method item">
+                    <div id="method_configure" class="method item inherited">
     <h3 class="name"><code>configure</code></h3>
 
     
@@ -346,11 +351,8 @@ This is a base class to be subclassed.</p>
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_configure">RESTless.Adapter</a>:
             
         
         
@@ -417,7 +419,7 @@ This is a base class to be subclassed.</p>
 </div>
 
                 
-                    <div id="method_deleteRecord" class="method item">
+                    <div id="method_deleteRecord" class="method item inherited">
     <h3 class="name"><code>deleteRecord</code></h3>
 
     
@@ -441,11 +443,8 @@ This is a base class to be subclassed.</p>
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_deleteRecord">RESTless.Adapter</a>:
             
         
         
@@ -472,7 +471,7 @@ This is a base class to be subclassed.</p>
 </div>
 
                 
-                    <div id="method_fetch" class="method item">
+                    <div id="method_fetch" class="method item inherited">
     <h3 class="name"><code>fetch</code></h3>
 
     
@@ -516,11 +515,8 @@ This is a base class to be subclassed.</p>
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_fetch">RESTless.Adapter</a>:
             
         
         
@@ -600,7 +596,7 @@ This is a base class to be subclassed.</p>
 </div>
 
                 
-                    <div id="method_find" class="method item">
+                    <div id="method_find" class="method item inherited">
     <h3 class="name"><code>find</code></h3>
 
     
@@ -640,11 +636,8 @@ This is a base class to be subclassed.</p>
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_find">RESTless.Adapter</a>:
             
         
         
@@ -714,7 +707,7 @@ A convenience method that can be used to intelligently route to
 </div>
 
                 
-                    <div id="method_findAll" class="method item">
+                    <div id="method_findAll" class="method item inherited">
     <h3 class="name"><code>findAll</code></h3>
 
     
@@ -738,11 +731,8 @@ A convenience method that can be used to intelligently route to
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_findAll">RESTless.Adapter</a>:
             
         
         
@@ -769,7 +759,7 @@ A convenience method that can be used to intelligently route to
 </div>
 
                 
-                    <div id="method_findByKey" class="method item">
+                    <div id="method_findByKey" class="method item inherited">
     <h3 class="name"><code>findByKey</code></h3>
 
     
@@ -793,11 +783,8 @@ A convenience method that can be used to intelligently route to
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_findByKey">RESTless.Adapter</a>:
             
         
         
@@ -824,7 +811,7 @@ A convenience method that can be used to intelligently route to
 </div>
 
                 
-                    <div id="method_findQuery" class="method item">
+                    <div id="method_findQuery" class="method item inherited">
     <h3 class="name"><code>findQuery</code></h3>
 
     
@@ -848,11 +835,8 @@ A convenience method that can be used to intelligently route to
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_findQuery">RESTless.Adapter</a>:
             
         
         
@@ -879,7 +863,7 @@ A convenience method that can be used to intelligently route to
 </div>
 
                 
-                    <div id="method_generateIdForRecord" class="method item">
+                    <div id="method_generateIdForRecord" class="method item inherited">
     <h3 class="name"><code>generateIdForRecord</code></h3>
 
     
@@ -903,11 +887,8 @@ A convenience method that can be used to intelligently route to
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_generateIdForRecord">RESTless.Adapter</a>:
             
         
         
@@ -934,7 +915,7 @@ A convenience method that can be used to intelligently route to
 </div>
 
                 
-                    <div id="method_map" class="method item">
+                    <div id="method_map" class="method item inherited">
     <h3 class="name"><code>map</code></h3>
 
     
@@ -976,11 +957,8 @@ A convenience method that can be used to intelligently route to
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_map">RESTless.Adapter</a>:
             
         
         
@@ -1057,7 +1035,7 @@ A convenience method that can be used to intelligently route to
 </div>
 
                 
-                    <div id="method_pluralize" class="method item">
+                    <div id="method_pluralize" class="method item inherited">
     <h3 class="name"><code>pluralize</code></h3>
 
     
@@ -1095,11 +1073,8 @@ A convenience method that can be used to intelligently route to
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_pluralize">RESTless.Adapter</a>:
             
         
         
@@ -1165,7 +1140,7 @@ Checks custom configs or simply appends a &#39;s&#39;.</p>
 </div>
 
                 
-                    <div id="method_reloadRecord" class="method item">
+                    <div id="method_reloadRecord" class="method item inherited">
     <h3 class="name"><code>reloadRecord</code></h3>
 
     
@@ -1203,11 +1178,8 @@ Checks custom configs or simply appends a &#39;s&#39;.</p>
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_reloadRecord">RESTless.Adapter</a>:
             
         
         
@@ -1270,7 +1242,7 @@ Checks custom configs or simply appends a &#39;s&#39;.</p>
 </div>
 
                 
-                    <div id="method_saveRecord" class="method item">
+                    <div id="method_saveRecord" class="method item inherited">
     <h3 class="name"><code>saveRecord</code></h3>
 
     
@@ -1294,11 +1266,8 @@ Checks custom configs or simply appends a &#39;s&#39;.</p>
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#method_saveRecord">RESTless.Adapter</a>:
             
         
         
@@ -1333,7 +1302,7 @@ Checks custom configs or simply appends a &#39;s&#39;.</p>
                 <h2 class="off-left">Properties</h2>
 
                 
-                    <div id="property_configurations" class="property item">
+                    <div id="property_configurations" class="property item inherited">
     <h3 class="name"><code>configurations</code></h3>
     <span class="type">Ember.Object</span>
 
@@ -1348,11 +1317,8 @@ Checks custom configs or simply appends a &#39;s&#39;.</p>
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#property_configurations">RESTless.Adapter</a>:
             
         
         
@@ -1366,7 +1332,7 @@ Checks custom configs or simply appends a &#39;s&#39;.</p>
     </div>
 
     <div class="description">
-        <p>Stores info about custom configurations.</p>
+        <p><p>Stores info about custom configurations.</p></p>
 <ul>
 <li>plurals - to set the plural resource name (&#39;person&#39; to &#39;people&#39;).</li>
 <li>models - to set a different primary key for a model type.</li>
@@ -1382,7 +1348,7 @@ Checks custom configs or simply appends a &#39;s&#39;.</p>
 </div>
 
                 
-                    <div id="property_serializer" class="property item">
+                    <div id="property_serializer" class="property item inherited">
     <h3 class="name"><code>serializer</code></h3>
     <span class="type"><a href="../classes/RESTless.Serializer.html" class="crosslink">RESTless.Serializer</a></span>
 
@@ -1397,11 +1363,8 @@ Checks custom configs or simply appends a &#39;s&#39;.</p>
     <div class="meta">
         
             
-                
-                <p>
-                
-                Defined in
-                
+                <p>Inherited from
+                <a href="../classes/RESTless.Adapter.html#property_serializer">RESTless.Adapter</a>:
             
         
         
