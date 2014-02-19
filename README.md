@@ -276,7 +276,9 @@ App.PostIndexRoute = Ember.Route.extend({
 
 To keep RESTless lightweight and focused, the default distrubtion solely supports a REST Adapter.  
 We are separately offering an "extras" build: [ember-restless+extras.js](https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless+extras.js).
-Currently, this adds a FixtureAdapter, with more to come!
+Which additionally includes:
+- Fixture Adapter
+- LocalStorage Adapter
 
 - - -  
 
@@ -440,3 +442,4 @@ Special thanks to the following for creating & contributing to the ember-restles
 - [Garth Poitras](https://github.com/gdub22) | [twitter](https://twitter.com/papapoitch)
 - [Tyler Love](https://github.com/tylr)
 - [Gopal Patel](https://github.com/nixme)
+- [Ajay Kumar Chintala](https://github.com/ajhai)

@@ -7,7 +7,8 @@ To keep the library small, API depreciation warnings may not be added.
 ### 0.5.0
 
 - Deprecate `url` for `host` in RESTAdapter. (matches ember-data)
-- Added `headers` and `defaultData` properties to RESTAdapter.  
+- Added `headers` and `defaultData` properties to RESTAdapter.
+- Added LocalStorage Adapter in *extras*
 
 ### 0.4.2
 
