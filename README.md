@@ -2,14 +2,14 @@
 
 RESTless is a lightweight data persistence library for Ember.js. (~4KB minified & gzipped)
 
-Out of the box, it is used to communicate with a remote JSON REST API to map data between a server and your Ember.js application.  
+Out of the box, it is used to communicate with a remote JSON REST API to map data between a server and your Ember.js application.
 
 RESTless can be extended to support various other data persistence layers. For example, to handle XML data instead of JSON, or store data to localStorage instead of a remote server.
 
 One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
 
 ## [API Documentation](http://endlessinc.github.io/ember-restless/api/)
-Current version: **0.5.0**  
+Current version: **0.5.0**
 See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
 
@@ -36,6 +36,10 @@ See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
 Include [ember-restless.js](https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless.js) in your application. (found in the ```dist/``` folder)
 
+If you are using bower:
+
+    bower install -S ember-restless
+
 **Namespace**
 
 RESTless can be referenced either with the namespace **RESTless** or the shorthand **RL**.  Similar to **Ember** and **Em**
@@ -43,7 +47,7 @@ RESTless can be referenced either with the namespace **RESTless** or the shortha
 ### Defining a RESTAdapter
 
 The REST adapter is responsible for communicating with your backend REST service.
-Here, you can optionally set the host, and a namespace.  
+Here, you can optionally set the host, and a namespace.
 For example, if your REST API is located at http://api.example.com/v1
 ``` javascript
 App.RESTAdapter = RL.RESTAdapter.create({
@@ -64,7 +68,7 @@ App.Client = RL.Client.create({
 
 ### Models
 
-Each model you create should extend RL.Model  
+Each model you create should extend RL.Model
 Supported attribute types are string, number, boolean, and date.
 
 ``` javascript
@@ -93,7 +97,7 @@ App.Profile = RL.Model.extend({
 });
 ```
 
-For one-to-many relationships, use the _hasMany_ helper.  
+For one-to-many relationships, use the _hasMany_ helper.
 For example, if a ```Post``` model contains an array of ```Tag``` models:
 ``` javascript
 App.Tag = RL.Model.extend({
@@ -129,7 +133,7 @@ To find all records:
 var posts = App.Post.find();
 ```
 
-```find()``` automatically handles all query types, however, explicit methods are also available:  
+```find()``` automatically handles all query types, however, explicit methods are also available:
 ```findAll()```, ```findQuery()```, ```findByKey()``` / ```findById()```
 
 
@@ -145,7 +149,7 @@ var post = App.Post.create({
 
 ### Saving records
 
-Simply call: ```saveRecord()```  
+Simply call: ```saveRecord()```
 The Adapter will automatically POST to save a new record, or PUT to update an existing record.
 
 ``` javascript
@@ -177,7 +181,7 @@ post.reloadRecord();
 
 ### Side-loading records
 
-You can manually populate records using raw data (side-loading).  
+You can manually populate records using raw data (side-loading).
 Use the ```load``` and ```loadMany``` convenience methods:
 
 ``` javascript
@@ -252,8 +256,8 @@ post.saveRecord().then(function(record) {
 });
 ```
 
-**To take advantage of promises when finding records, use ```fetch()``` instead of ```find()```**  
-```fetch()``` returns a promise, while ```find()``` will return entities that will update when resolved.  
+**To take advantage of promises when finding records, use ```fetch()``` instead of ```find()```**
+```fetch()``` returns a promise, while ```find()``` will return entities that will update when resolved.
 ``` javascript
 var posts = App.Post.fetch().then(function(records) {
   // Success!
@@ -270,23 +274,23 @@ App.PostIndexRoute = Ember.Route.extend({
 });
 ```
 
-- - -  
+- - -
 
 ## Extras
 
-To keep RESTless lightweight and focused, the default distrubtion solely supports a REST Adapter.  
+To keep RESTless lightweight and focused, the default distrubtion solely supports a REST Adapter.
 We are separately offering an "extras" build: [ember-restless+extras.js](https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless+extras.js).
 Which additionally includes:
 - Fixture Adapter
 - LocalStorage Adapter
 
-- - -  
+- - -
 
 ## Advanced
 
 ### Changing resource endpoints
-Sometimes the name of your Ember model is different than the API endpoint.  
-For example if a ```CurrentUser``` model needs to point to ```/users``` and ```/user/1```  
+Sometimes the name of your Ember model is different than the API endpoint.
+For example if a ```CurrentUser``` model needs to point to ```/users``` and ```/user/1```
 ``` javascript
 App.CurrentUser = RL.Model.extend();
 App.CurrentUser.reopenClass({
@@ -303,7 +307,7 @@ App.RESTAdapter.configure("plurals", {
 ```
 
 ### Changing the the primary key for a model
-The primary key for all models defaults to 'id'. 
+The primary key for all models defaults to 'id'.
 You can customize it per model class to match your API:
 ``` javascript
 App.RESTAdapter.map("App.Post", {
@@ -339,7 +343,7 @@ Results in e.g. ```App.User.find()``` => ```http://api.example.com/users?api_key
 
 ### Forcing content type extentions
 If you want the RESTAdapter to add extentions to requests:
-For example ```/users.json``` and ```/user/1.json```  
+For example ```/users.json``` and ```/user/1.json```
 ``` javascript
 App.RESTAdapter = RL.RESTAdapter.create({
   useContentTypeExtension: true
@@ -382,7 +386,7 @@ App.RESTAdapter.registerTransform('timeAgo', {
     // return a custom date string, such as: '5 minutes ago'
   },
   serialize: function(deserialized) {
-    // return a custom date json format for your backend or 
+    // return a custom date json format for your backend or
     // simply return deserialized
   }
 });
@@ -411,7 +415,7 @@ App.Client = RL.Client.create({
 
 ## Building RESTless
 
-If you wish to build ember-restless yourself, you will need node.js and Grunt.  
+If you wish to build ember-restless yourself, you will need node.js and Grunt.
 
 1. Install node: <a href="http://nodejs.org/">http://nodejs.org/</a>
 2. Open a terminal window
@@ -421,7 +425,7 @@ If you wish to build ember-restless yourself, you will need node.js and Grunt.
 
 ### Custom Builds
 
-You can create custom builds, that exclude optional packages and further reduce filesize.  
+You can create custom builds, that exclude optional packages and further reduce filesize.
 For example, to exclude the json transforms and date parsing libs:
 ```
 grunt custom:-transforms
@@ -429,14 +433,14 @@ grunt custom:-transforms
 
 ## Tests
 
-Uses <a href="http://qunitjs.com/">QUnit</a>  
-Tests are run during the grunt build process or running ```grunt test```  
-To run tests in browsers, you can simply open tests/index.html in a browser.  
+Uses <a href="http://qunitjs.com/">QUnit</a>
+Tests are run during the grunt build process or running ```grunt test```
+To run tests in browsers, you can simply open tests/index.html in a browser.
 
 
 ## Contributors
 
-Thanks to the Ember core team and contributors for creating Ember and Ember Data.  
+Thanks to the Ember core team and contributors for creating Ember and Ember Data.
 Special thanks to the following for creating & contributing to the ember-restless project:
 
 - [Garth Poitras](https://github.com/gdub22) | [twitter](https://twitter.com/papapoitch)
