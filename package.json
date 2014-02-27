@@ -8,6 +8,11 @@
   "homepage": "https://github.com/endlessinc/ember-restless",
   "author": "Garth Poitras",
   "license": "MIT",
+  "keywords": [
+    "ember",
+    "REST",
+    "model"
+  ],
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-cli": "~0.1",

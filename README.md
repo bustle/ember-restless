@@ -34,7 +34,13 @@ See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
 ## Getting started
 
-Include [ember-restless.js](https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless.js) in your application. (found in the ```dist/``` folder)
+Include [ember-restless.js](https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless.js) in your Ember application after ember.js
+
+bower:
+```bower install ember-restless```
+
+npm:
+```npm install ember-restless```
 
 **Namespace**
 
