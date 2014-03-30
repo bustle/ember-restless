@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.5.0
- * last modifed: 2014-02-19
+ * last modifed: 2014-03-29
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013 Endless, Inc.
@@ -269,13 +269,12 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   deserializeProperty: function(resource, prop, value) {
     var attrName = this.attributeNameForKey(resource.constructor, prop),
         fields = get(resource.constructor, 'fields'),
-        field = fields.get(attrName), type, klass;
+        field = fields.get(attrName), type, klass, belongsToModel;
 
     // If the json contains a key not defined on the model, don't attempt to set it.
     if (!field) { return; }
 
     type = field.type;
-    klass = get(Ember.lookup, type);
 
     // If property is a hasMany relationship, deserialze the array
     if (field.hasMany) {
@@ -283,9 +282,12 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       resource.set(attrName, hasManyArr);
     } 
     // If property is a belongsTo relationship, deserialze that model
-    else if (field.belongsTo && klass && value) {
-      var belongsToModel = klass.create({ isNew: false, isLoaded: true }).deserialize(value);
-      resource.set(attrName, belongsToModel);
+    else if (field.belongsTo && value) {
+      klass = get(Ember.lookup, type);
+      if(klass) {
+        belongsToModel = klass.create({ isNew: false, isLoaded: true }).deserialize(value);
+        resource.set(attrName, belongsToModel);
+      }
     }
     else {
       // Check for a custom transform

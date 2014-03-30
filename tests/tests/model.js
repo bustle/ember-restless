@@ -2,6 +2,21 @@ var get = Ember.get, set = Ember.set;
 
 module('Model');
 
+test('attribute type is optional', function() {
+  var json = {
+    id: 1,
+    name: 'Spoon',
+    rating: 5,
+    available: false,
+    createdAt: '2013-06-11T00:42:17+00:00'
+  };
+  var product = App.Product.load(json);
+  equal( product.get('name'), json.name );
+  equal( product.get('rating'), json.rating );
+  equal( product.get('available'), json.available );
+  equal( product.get('createdAt'), json.createdAt );
+});
+
 test('no longer new once a primary key is assigned', function() {
   var post = App.Post.create();
 
