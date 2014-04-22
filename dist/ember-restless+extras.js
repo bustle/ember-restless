@@ -2,11 +2,11 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.5.0
- * last modifed: 2014-03-29
+ * version: 0.5.1
+ * last modifed: 2014-04-22
  *
  * Garth Poitras <garth22@gmail.com>
- * Copyright (c) 2013 Endless, Inc.
+ * Copyright (c) 2013-2014 Endless, Inc.
  */
 
 (function(window, $, Ember, undefined){
@@ -28,7 +28,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.5.0'
+    VERSION: '0.5.1'
   });
 
   /*
@@ -179,6 +179,19 @@ RESTless.Serializer = Ember.Object.extend({
   registerTransform: Ember.K,
 
   /**
+    Returns a model class for a particular type.
+    @method modelFor
+    @param {String or subclass of RL.Model} type
+    @return {subclass of RL.Model}
+  */
+  modelFor: function(type) {
+    if (typeof type === 'string') {
+      return get(Ember.lookup, type);
+    }
+    return type;
+  },
+
+  /**
     Optional override to prep data before persisting.
     @method prepareData
     @return Object
@@ -283,7 +296,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     } 
     // If property is a belongsTo relationship, deserialze that model
     else if (field.belongsTo && value) {
-      klass = get(Ember.lookup, type);
+      klass = this.modelFor(type);
       if(klass) {
         belongsToModel = klass.create({ isNew: false, isLoaded: true }).deserialize(value);
         resource.set(attrName, belongsToModel);
@@ -309,9 +322,8 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   deserializeMany: function(recordArray, type, data) {
     if(!data) { return recordArray; }
 
-    var klass = get(Ember.lookup, type),
-        arrayData = this._arrayDataForType(type, data),
-        meta, i, len, item, content;
+    var arrayData = this._arrayDataForType(type, data),
+        meta, i, len, item, content, klass;
 
     if(!arrayData) { return recordArray; }
 
@@ -325,6 +337,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     len = arrayData.length;
     if(len) {
       content = [];
+      klass = this.modelFor(type);
       for(i=0; i<len; i++) {
         item = arrayData[i];
         if(klass && typeof item === 'object') {
@@ -514,7 +527,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @private
   */
   _keyForResourceType: function(type) {
-    var klass = get(Ember.lookup, type);
+    var klass = this.modelFor(type);
     return klass ? this.keyForResourceName(get(klass, 'resourceName')) : null;
   },
   /**
@@ -522,7 +535,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @private
   */
   _keyPluralForResourceType: function(type) {
-    var klass = get(Ember.lookup, type);
+    var klass = this.modelFor(type);
     return klass ? get(klass, 'resourceNamePlural') : null;
   },
   /**

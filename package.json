@@ -2,7 +2,7 @@
   "name": "ember-restless",
   "title": "Ember RESTless",
   "description": "A lightweight data persistence library for Ember.js",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "main": "Gruntfile.js",
   "repository": "https://github.com/endlessinc/ember-restless.git",
   "homepage": "https://github.com/endlessinc/ember-restless",
@@ -10,6 +10,7 @@
   "license": "MIT",
   "keywords": [
     "ember",
+    "ember-data",
     "REST",
     "model"
   ],

@@ -83,7 +83,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     } 
     // If property is a belongsTo relationship, deserialze that model
     else if (field.belongsTo && value) {
-      klass = get(Ember.lookup, type);
+      klass = this.modelFor(type);
       if(klass) {
         belongsToModel = klass.create({ isNew: false, isLoaded: true }).deserialize(value);
         resource.set(attrName, belongsToModel);
@@ -109,9 +109,8 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   deserializeMany: function(recordArray, type, data) {
     if(!data) { return recordArray; }
 
-    var klass = get(Ember.lookup, type),
-        arrayData = this._arrayDataForType(type, data),
-        meta, i, len, item, content;
+    var arrayData = this._arrayDataForType(type, data),
+        meta, i, len, item, content, klass;
 
     if(!arrayData) { return recordArray; }
 
@@ -125,6 +124,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     len = arrayData.length;
     if(len) {
       content = [];
+      klass = this.modelFor(type);
       for(i=0; i<len; i++) {
         item = arrayData[i];
         if(klass && typeof item === 'object') {
@@ -314,7 +314,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @private
   */
   _keyForResourceType: function(type) {
-    var klass = get(Ember.lookup, type);
+    var klass = this.modelFor(type);
     return klass ? this.keyForResourceName(get(klass, 'resourceName')) : null;
   },
   /**
@@ -322,7 +322,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @private
   */
   _keyPluralForResourceType: function(type) {
-    var klass = get(Ember.lookup, type);
+    var klass = this.modelFor(type);
     return klass ? get(klass, 'resourceNamePlural') : null;
   },
   /**

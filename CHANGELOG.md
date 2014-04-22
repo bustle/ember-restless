@@ -6,7 +6,8 @@ To keep the library small, API depreciation warnings may not be added.
 
 ### 0.5.1
 
-- Allow attribute types to be optional
+- Attribute types are now optional
+- Relationship attributes can now be defined with object references as well as strings
 
 ### 0.5.0
 

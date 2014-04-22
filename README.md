@@ -4,12 +4,12 @@ RESTless is a lightweight data persistence library for Ember.js. (~4KB minified 
 
 Out of the box, it is used to communicate with a remote JSON REST API to map data between a server and your Ember.js application.  
 
-RESTless can be extended to support various other data persistence layers. For example, to handle XML data instead of JSON, or store data to localStorage instead of a remote server.
+RESTless can be extended to support various other data persistence layers. For example, to handle XML data instead of JSON, or persist data to localStorage instead of a remote server.
 
 One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
 
 ## [API Documentation](http://endlessinc.github.io/ember-restless/api/)
-Current version: **0.5.0**  
+Current version: **0.5.1**  
 See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
 
@@ -36,10 +36,8 @@ See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 
 Include [ember-restless.js](https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless.js) in your Ember application after ember.js
 
-bower:
+or via package managers:
 ```bower install ember-restless```
-
-npm:
 ```npm install ember-restless```
 
 **Namespace**
@@ -70,8 +68,7 @@ App.Client = RL.Client.create({
 
 ### Models
 
-Each model you create should extend RL.Model  
-Supported attribute types are string, number, boolean, and date.
+Each model you create should extend RL.Model:  
 
 ``` javascript
 App.Post = RL.Model.extend({
@@ -81,7 +78,8 @@ App.Post = RL.Model.extend({
   createdAt:   RL.attr('date')
 });
 ```
-You can define custom attribute types in your adapter.  See the advanced section below.
+Supported attribute types are string, number, boolean, and date. Defining a type is optional.
+You can define custom attribute type transforms in your adapter.  See the advanced section below.
 
 
 ### Relationships

@@ -17,6 +17,15 @@ test('attribute type is optional', function() {
   equal( product.get('createdAt'), json.createdAt );
 });
 
+test('relationship attributes can be defined by string or object reference', function() {
+  var name = 'Garth';
+  // see setup.js where the attributes are defined by string or reference for these types
+  var comment = App.Comment.load({ author: { name: name } });
+  var product = App.Product.load({ seller: { name: name } });
+  equal ( comment.get('author.name'), name, 'looked up by string' );
+  equal ( product.get('seller.name'), name, 'looked up by reference' );
+});
+
 test('no longer new once a primary key is assigned', function() {
   var post = App.Post.create();
 

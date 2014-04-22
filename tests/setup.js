@@ -40,7 +40,8 @@ App.Product = RL.Model.extend({
   name: RL.attr(),
   rating: RL.attr(),
   available: RL.attr(),
-  createdAt: RL.attr()
+  createdAt: RL.attr(),
+  seller: RL.belongsTo(App.Person)
 });
 
 App.Person.FIXTURES = [

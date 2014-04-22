@@ -11,7 +11,7 @@ module.exports = function(grunt) {
                   ' * last modifed: <%= grunt.template.today("yyyy-mm-dd") %>\n' +
                   ' *\n' +
                   ' * Garth Poitras <garth22@gmail.com>\n' +
-                  ' * Copyright (c) 2013 Endless, Inc.\n' +
+                  ' * Copyright (c) 2013-2014 Endless, Inc.\n' +
                   ' */\n',
 
     wrapClosure: {

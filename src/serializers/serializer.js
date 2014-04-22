@@ -60,6 +60,19 @@ RESTless.Serializer = Ember.Object.extend({
   registerTransform: Ember.K,
 
   /**
+    Returns a model class for a particular type.
+    @method modelFor
+    @param {String or subclass of RL.Model} type
+    @return {subclass of RL.Model}
+  */
+  modelFor: function(type) {
+    if (typeof type === 'string') {
+      return get(Ember.lookup, type);
+    }
+    return type;
+  },
+
+  /**
     Optional override to prep data before persisting.
     @method prepareData
     @return Object
