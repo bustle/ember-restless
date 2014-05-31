@@ -58,7 +58,7 @@ App.RESTAdapter = RL.RESTAdapter.create({
 
 ### Defining a 'Client'
 
-Similar to defining the 'Store' using ember-data, instead define the 'Client' for your application.  RESTless will automatically detect the Client on your application namespace and initialize RESTless to work with you app.
+Similar to defining the 'Store' using ember-data, instead define the 'Client' for your application.  RESTless will automatically detect the Client on your application namespace and initialize RESTless to work with your app.
 
 ``` javascript
 App.Client = RL.Client.create({
