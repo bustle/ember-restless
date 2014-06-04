@@ -2,8 +2,8 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.5.1
- * last modifed: 2014-04-22
+ * version: 0.5.2
+ * last modifed: 2014-06-04
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013-2014 Endless, Inc.
@@ -28,7 +28,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.5.1'
+    VERSION: '0.5.2'
   });
 
   /*
@@ -407,7 +407,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       opts = resource.constructor.metaForProperty(prop);
     }
     if (opts && opts.hasMany) {
-      return this.serializeMany(value.get('content'), opts.type);
+      return this.serializeMany(value, opts.type);
     } else if(opts.belongsTo) {
       return this.serialize(value, { nonEmbedded: true });
     }
@@ -428,10 +428,11 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   */
   serializeMany: function(recordArray, type) {
     var key = this._keyForResourceType(type),
-        len = recordArray.length,
+        array = recordArray.get('content'),
+        len = array.length,
         result = [], i, item;
     for(i=0; i<len; i++) {
-      item = recordArray[i];
+      item = array[i];
       if(RESTless.Model.detectInstance(item)) {
         item = item.serialize();
       }
@@ -528,7 +529,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   */
   _keyForResourceType: function(type) {
     var klass = this.modelFor(type);
-    return klass ? this.keyForResourceName(get(klass, 'resourceName')) : null;
+    return klass ? this.keyForResourceName(get(klass, 'resourceName')) : 'model';
   },
   /**
     @method _keyPluralForResourceType

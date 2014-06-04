@@ -194,7 +194,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       opts = resource.constructor.metaForProperty(prop);
     }
     if (opts && opts.hasMany) {
-      return this.serializeMany(value.get('content'), opts.type);
+      return this.serializeMany(value, opts.type);
     } else if(opts.belongsTo) {
       return this.serialize(value, { nonEmbedded: true });
     }
@@ -215,10 +215,11 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   */
   serializeMany: function(recordArray, type) {
     var key = this._keyForResourceType(type),
-        len = recordArray.length,
+        array = recordArray.get('content'),
+        len = array.length,
         result = [], i, item;
     for(i=0; i<len; i++) {
-      item = recordArray[i];
+      item = array[i];
       if(RESTless.Model.detectInstance(item)) {
         item = item.serialize();
       }
@@ -315,7 +316,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   */
   _keyForResourceType: function(type) {
     var klass = this.modelFor(type);
-    return klass ? this.keyForResourceName(get(klass, 'resourceName')) : null;
+    return klass ? this.keyForResourceName(get(klass, 'resourceName')) : 'model';
   },
   /**
     @method _keyPluralForResourceType
