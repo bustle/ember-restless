@@ -325,7 +325,7 @@ RESTless.Model.reopenClass({
     @return RESTless.RecordArray
    */
   loadMany: function(data) {
-    var array = RESTless.RecordArray.createWithContent().deserializeMany(this.toString(), data);
+    var array = RESTless.RecordArray.create().deserializeMany(this, data);
     array.onLoaded();
     return array;
   }

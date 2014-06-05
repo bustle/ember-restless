@@ -23,6 +23,8 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
     @returns RESTless.RecordArray
    */
   deserializeMany: function(type, data) {
+    this._initContent();
+    type = type || this.typeOfContent();
     return get(this, 'adapter.serializer').deserializeMany(this, type, data);
   },
 
@@ -33,6 +35,7 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
     @returns RESTless.RecordArray
    */
   serializeMany: function(type) {
+    type = type || this.typeOfContent();
     return get(this, 'adapter.serializer').serializeMany(this, type);
   },
 
@@ -48,6 +51,29 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
     if (this.get('isLoaded')) {
       this.set('isDirty', true);
     }
+  },
+
+  /**
+    Returns the Class of records the RecordArray contains
+    @method typeOfContent
+    @returns Object type
+   */
+  typeOfContent: function() {
+    var firstObj = this.objectAt(0);
+    return firstObj && firstObj.constructor || null;
+  },
+
+  /**
+    Helper to initialize the content property of the RecordArray if not present.
+    @private
+    @method _initContent
+    @returns RecordArray this
+   */
+  _initContent: function() {
+    if(!this.content) { 
+      this.set('content', Ember.A());
+    }
+    return this;
   },
 
   /**
@@ -96,7 +122,6 @@ RESTless.RecordArray.reopenClass({
    */
   createWithContent: function() {
     var arr = this.create.apply(this, arguments);
-    if(!arr.content) { arr.set('content', Ember.A()); }
-    return arr;
+    return arr._initContent();
   }
 });
