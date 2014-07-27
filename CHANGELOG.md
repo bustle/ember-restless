@@ -6,8 +6,8 @@ To keep the library small, API depreciation warnings may not be added.
 
 ### 0.5.3
 
-- Abstracted transforms
-- Changed API for registering transforms (backwards compatible)
+- Abstracted transforms & changed API for registering transforms (backwards compatible)
+- Renamed `Client` initializer.
 - Code cleanups
 
 ### 0.5.2
