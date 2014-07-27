@@ -19,7 +19,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @private
    */
   __data: null,
-  _data: Ember.computed(function() {
+  _data: computed(function() {
     if (!this.__data) { this.__data = {}; }
     return this.__data;
   }),
@@ -195,7 +195,7 @@ RESTless.Model.reopenClass({
     @property adapter
     @type RESTless.Adapter
    */
-  adapter: Ember.computed(function() {
+  adapter: computed(function() {
     return get(RESTless, 'client.adapter');
   }).property('RESTless.client.adapter'),
 
@@ -205,7 +205,7 @@ RESTless.Model.reopenClass({
     @type String
     @default 'id'
    */
-  primaryKey: Ember.computed(function() {
+  primaryKey: computed(function() {
     var className = this.toString(),
         modelConfig = get(RESTless, 'client._modelConfigs').get(className);
     if(modelConfig && modelConfig.primaryKey) {
@@ -221,7 +221,7 @@ RESTless.Model.reopenClass({
     @property resourceName
     @type String
    */
-  resourceName: Ember.computed(function() {
+  resourceName: computed(function() {
     var classNameParts = this.toString().split('.');
     return classNameParts[classNameParts.length-1];
   }),
@@ -232,7 +232,7 @@ RESTless.Model.reopenClass({
     @property resourceNamePlural
     @type String
    */
-  resourceNamePlural: Ember.computed(function() {
+  resourceNamePlural: computed(function() {
     var resourceName = get(this, 'resourceName'),
         adapter = get(this, 'adapter');    
     return adapter.pluralize(Ember.String.decamelize(resourceName));
@@ -243,7 +243,7 @@ RESTless.Model.reopenClass({
     @property fields
     @type Ember.Map
    */
-  fields: Ember.computed(function() {
+  fields: computed(function() {
     var map = Ember.Map.create();
     this.eachComputedProperty(function(name, meta) {
       if (meta.isAttribute || meta.isRelationship) {

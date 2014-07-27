@@ -16,7 +16,7 @@ module.exports = function(grunt) {
 
     wrapClosure: {
       header: '(function(window, $, Ember, undefined){\n\n' +
-              '"use strict";\n\n',
+              '\'use strict\';\n\n',
       footer: '\n})(this, jQuery, Ember);'
     },
 
@@ -25,6 +25,12 @@ module.exports = function(grunt) {
         src: [
           'src/main/main.js',
           'src/main/attribute.js',
+          'src/transforms/base.js',
+          'src/transforms/string.js',
+          'src/transforms/number.js',
+          'src/transforms/boolean.js',
+          'src/transforms/date.js',
+          'src/transforms/json.js',
           'src/serializers/serializer.js',
           'src/serializers/json_serializer.js',
           'src/adapters/adapter.js',
@@ -33,13 +39,8 @@ module.exports = function(grunt) {
           'src/main/state.js',
           'src/main/model.js',
           'src/main/read_only_model.js',
-          'src/main/record_array.js'
-        ]
-      },
-      transforms: {
-        src: [
-          'src/ext/date.js',
-          'src/ext/json_transforms.js'
+          'src/main/record_array.js',
+          'src/ext/date.js'
         ]
       },
       fixtures: {
@@ -93,8 +94,7 @@ module.exports = function(grunt) {
 
       dist: {
         get src() {
-          var modules = grunt.config.data.modules;
-          return modules.core.src.concat(modules.transforms.src);
+          return grunt.config.data.modules.core.src;
         },
         dest: 'dist/<%= pkg.name %>.js'
       },
@@ -102,8 +102,7 @@ module.exports = function(grunt) {
       extras: {
         get src() {
           var modules = grunt.config.data.modules;
-          // TODO: loop
-          return modules.core.src.concat(modules.transforms.src, modules.fixtures.src, modules.localStorage.src);
+          return modules.core.src.concat(modules.fixtures.src, modules.localStorage.src);
         },
         dest: 'dist/<%= pkg.name %>+extras.js'
       },

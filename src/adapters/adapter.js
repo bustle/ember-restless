@@ -18,32 +18,32 @@ RESTless.Adapter = Ember.Object.extend({
     Saves a record. Abstract - implement in subclass.
     @method saveRecord
   */
-  saveRecord: Ember.K,
+  saveRecord: noop,
   /**
     Deletes a record. Abstract - implement in subclass.
     @method deleteRecord
   */
-  deleteRecord: Ember.K,
+  deleteRecord: noop,
   /**
     Finds all records. Abstract - implement in subclass.
     @method findAll
   */
-  findAll: Ember.K,
+  findAll: noop,
   /**
     Finds records by query. Abstract - implement in subclass.
     @method findQuery
   */
-  findQuery: Ember.K,
+  findQuery: noop,
   /**
     Finds record by primary key. Abstract - implement in subclass.
     @method findByKey
   */
-  findByKey: Ember.K,
+  findByKey: noop,
   /**
     Generates a unique id for new records. Abstract - implement in subclass.
     @method generateIdForRecord
   */
-  generateIdForRecord: Ember.K,
+  generateIdForRecord: noop,
 
   /**
     Finds records with specified params.
@@ -78,7 +78,7 @@ RESTless.Adapter = Ember.Object.extend({
   */
   fetch: function(klass, params) {
     var adapter = this, find,
-    promise = new Ember.RSVP.Promise(function(resolve, reject) {
+    promise = new RSVPPromise(function(resolve, reject) {
       find = adapter.find(klass, params);
       find.one('didLoad', function(model) {
         resolve(model);
@@ -104,8 +104,8 @@ RESTless.Adapter = Ember.Object.extend({
         key = record.get(primaryKey);
 
     // Can't reload a record that hasn't been stored yet (no primary key)
-    if(Ember.isNone(key)) {
-      return new Ember.RSVP.Promise(function(resolve, reject){
+    if(isNone(key)) {
+      return new RSVPPromise(function(resolve, reject){
         reject(null);
       });
     }
@@ -137,7 +137,7 @@ RESTless.Adapter = Ember.Object.extend({
     var configs = this.get('configurations'),
         configForType = configs.get(type);
     if(configForType) {
-      configs.set(type, Ember.merge(configForType, value));
+      configs.set(type, merge(configForType, value));
     }
     return this;
   },
@@ -171,7 +171,7 @@ RESTless.Adapter = Ember.Object.extend({
         } else {
           newConfig[configKey] = config[configKey];
         }
-        modelConfig = modelConfig ? Ember.merge(modelConfig, newConfig) : newConfig;
+        modelConfig = modelConfig ? merge(modelConfig, newConfig) : newConfig;
       }
     }
     modelMap.set(modelKey, modelConfig);
@@ -188,5 +188,14 @@ RESTless.Adapter = Ember.Object.extend({
   pluralize: function(resourceName) {
     var plurals = this.get('configurations.plurals');
     return (plurals && plurals[resourceName]) || resourceName + 's';
+  },
+
+  /**
+    Registers custom attribute transforms.
+    Fowards creation to serializer.
+    @method registerTransform
+  */
+  registerTransform: function(type, transform) {
+    this.get('serializer').registerTransform(type, transform);
   }
 });

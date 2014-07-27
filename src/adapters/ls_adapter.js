@@ -35,7 +35,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
      * insert depending on circularLimit
      */
     record.set('isSaving', true);
-    if(Ember.isNone(record.get(primaryKey))) {
+    if(isNone(record.get(primaryKey))) {
       dataStore = this._itemInsert(record);
     } else {
       dataStore[record.get(primaryKey)] = record.__data;
@@ -301,7 +301,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
     // Get meta data for this model. Insert if not available already
     var modelsMeta = localStorage.getItem('_modelsMeta');
 
-    if(Ember.isNone(modelsMeta)) {
+    if(isNone(modelsMeta)) {
       modelsMeta = {};
       localStorage.setItem('_modelsMeta', JSON.stringify(modelsMeta));
     } else {
@@ -310,10 +310,10 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
 
     var modelMeta = modelsMeta[dataStoreName];
 
-    if(Ember.isNone(modelMeta)) {
+    if(isNone(modelMeta)) {
       var cLimit = get(record.constructor, 'circularLimit');
 
-      if(Ember.isNone(cLimit) || cLimit.isNaN) {
+      if(isNone(cLimit) || cLimit.isNaN) {
         cLimit = -1;
       }
 
@@ -334,7 +334,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
   _updateModelMeta: function(modelMeta, dataStoreName) {
     var modelsMeta = localStorage.getItem('_modelsMeta');
 
-    if(Ember.isNone(modelsMeta)) {
+    if(isNone(modelsMeta)) {
       modelsMeta = {};
       localStorage.setItem('_modelsMeta', JSON.stringify(modelsMeta));
     } else {

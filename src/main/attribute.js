@@ -9,7 +9,7 @@
   @return {Ember.computed} attribute
 */
 RESTless.attr = function(type, opts) {
-  var meta = Ember.merge({ type: type, isAttribute: true }, opts);
+  var meta = merge({ type: type, isAttribute: true }, opts);
   return makeComputedAttribute(meta);
 };
 
@@ -23,7 +23,7 @@ RESTless.attr = function(type, opts) {
   @return {Ember.computed} attribute
 */
 RESTless.belongsTo = function(type, opts) {
-  var meta = Ember.merge({ type: type, isRelationship: true, belongsTo: true }, opts);
+  var meta = merge({ type: type, isRelationship: true, belongsTo: true }, opts);
   return makeComputedAttribute(meta);
 };
 
@@ -40,12 +40,12 @@ RESTless.hasMany = function(type, opts) {
   var defaultArray = function() {
     return RESTless.RecordArray.createWithContent();
   },
-  meta = Ember.merge({ type: type, isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
+  meta = merge({ type: type, isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
   return makeComputedAttribute(meta);
 };
 
 function makeComputedAttribute(meta) {
-  return Ember.computed(function(key, value) {
+  return computed(function(key, value) {
     var data = this.get('_data');
     // Getter
     if (arguments.length === 1) {

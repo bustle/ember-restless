@@ -11,5 +11,5 @@ RESTless.ReadOnlyModel = RESTless.Model.extend({
   saveRecord: null,
   deleteRecord: null,
   didDefineProperty: null,
-  _onPropertyChange: Ember.K
+  _onPropertyChange: noop
 });

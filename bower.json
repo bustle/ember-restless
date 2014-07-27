@@ -1,6 +1,6 @@
 {
   "name": "ember-restless",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "author": "Garth Poitras",
   "main": "dist/ember-restless.js",
   "ignore": [
@@ -10,5 +10,8 @@
     ".travis.yml",
     "package.json",
     "Gruntfile.js"
-  ]
+  ],
+  "dependencies": {
+    "ember": ">= 1.0.0"
+  }
 }

@@ -2,7 +2,10 @@
   @module ember-restless
  */
 var get = Ember.get, set = Ember.set,
-    none = Ember.isNone, empty = Ember.isEmpty,
+    isNone = Ember.isNone, isEmpty = Ember.isEmpty,
+    merge = Ember.merge, noop = Ember.K,
+    computed = Ember.computed, oneWay = computed.oneWay, 
+    RSVPPromise = Ember.RSVP.Promise,
     exports = Ember.exports || this,
     RESTless;
 

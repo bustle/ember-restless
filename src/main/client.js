@@ -18,18 +18,16 @@ RESTless.Client = Ember.Object.extend({
     Shortcut alias to model configurations
     @private
   */
-  _modelConfigs: Ember.computed.alias('adapter.configurations.models')
+  _modelConfigs: oneWay('adapter.configurations.models')
 });
 
-Ember.onLoad('Ember.Application', function(Application) {
-  Application.initializer({
-    name: 'Client',
-    initialize: function(container, application) {
-      var client = application.Client ? application.Client : RESTless.Client.create();
-      RESTless.set('client', client);
-      application.addObserver('Client', this, function() {
-        RESTless.set('client', this.Client);
-      });
-    }
-  });
+Ember.Application.initializer({
+  name: 'RESTless.Client',
+  initialize: function(container, application) {
+    var client = application.Client ? application.Client : RESTless.Client.create();
+    RESTless.set('client', client);
+    application.addObserver('Client', this, function() {
+      RESTless.set('client', this.Client);
+    });
+  }
 });

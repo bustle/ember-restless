@@ -188,20 +188,22 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @return {Object} json value
   */
   serializeProperty: function(resource, prop, opts) {
-    var value = resource.get(prop);
+    var value = resource.get(prop), type;
 
     if (!opts) {
       opts = resource.constructor.metaForProperty(prop);
     }
+    type = opts.type;
+
     if (opts && opts.hasMany) {
-      return this.serializeMany(value, opts.type);
+      return this.serializeMany(value, type);
     } else if(opts.belongsTo) {
       return this.serialize(value, { nonEmbedded: true });
     }
 
     //Check for a custom transform
-    if(opts.type && RESTless.JSONTransforms[opts.type]) {
-      value = RESTless.JSONTransforms[opts.type].serialize(value);
+    if(opts.type && RESTless.JSONTransforms[type]) {
+      value = RESTless.JSONTransforms[type].serialize(value);
     }
     return value;
   },
@@ -344,12 +346,3 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     return null;
   }
 });
-
-/**
-  Hash for custom json transforms
-
-  @property JSONTransforms
-  @type Object
-  @for RESTless
-*/
-RESTless.JSONTransforms = {};

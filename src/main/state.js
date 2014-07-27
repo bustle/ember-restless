@@ -49,27 +49,27 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
     Fired when the record is created.
     @event didCreate
   */
-  didCreate: Ember.K,
+  didCreate: noop,
   /**
     Fired when the record is updated.
     @event didUpdate
   */
-  didUpdate: Ember.K,
+  didUpdate: noop,
   /**
     Fired when the record is enters the loaded state.
     @event didLoad
   */
-  didLoad: Ember.K,
+  didLoad: noop,
   /**
     Fired when the record is deleted.
     @event didDelete
   */
-  didDelete: Ember.K,
+  didDelete: noop,
   /**
     Fired when the record enters the error state.
     @event becameError
   */
-  becameError: Ember.K,
+  becameError: noop,
 
   /**
     Updates state and triggers events upon saving.

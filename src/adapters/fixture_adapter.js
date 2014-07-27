@@ -24,7 +24,7 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
         adapter = this, serializedRecord;
 
     if(!isNew && !record.get('isDirty')) {
-      return new Ember.RSVP.Promise(function(resolve, reject){
+      return new RSVPPromise(function(resolve, reject){
         resolve(record);
       });
     }
@@ -37,14 +37,14 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
     }
 
     // assign a guid for new records
-    if(Ember.isNone(record.get(primaryKey))) {
+    if(isNone(record.get(primaryKey))) {
       record.set(primaryKey, this.generateIdForRecord(record));
     }
 
     // serialize a to a flat record and include relationship data
     serializedRecord = record.serialize({ nonEmbedded: true, includeRelationships: true });
 
-    return new Ember.RSVP.Promise(function(resolve, reject){
+    return new RSVPPromise(function(resolve, reject){
       if(isNew) {
         // Push new records onto fixtures array
         fixtures.push(serializedRecord);
@@ -73,7 +73,7 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
    */
   deleteRecord: function(record) {
     var adapter = this;
-    return new Ember.RSVP.Promise(function(resolve, reject){
+    return new RSVPPromise(function(resolve, reject){
       if(!record.constructor.FIXTURES) {
         record.onError();
         reject(null);

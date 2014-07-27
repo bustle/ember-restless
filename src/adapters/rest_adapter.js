@@ -21,7 +21,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @optional
     @example 'http://api.example.com'
    */
-  host: Ember.computed.oneWay('url'),
+  host: oneWay('url'),
   /**
     Deprecated.
     @property url
@@ -74,7 +74,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @type String
     @final
    */
-  rootPath: Ember.computed(function() {
+  rootPath: computed(function() {
     var a = document.createElement('a'),
         host = this.get('host'),
         ns = this.get('namespace'),
@@ -111,7 +111,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         ajaxParams = this.prepareParams(params);
     ajaxParams.url = this.buildUrl(model, key);
 
-    return new Ember.RSVP.Promise(function(resolve, reject) {
+    return new RSVPPromise(function(resolve, reject) {
       ajaxParams.success = function(data) {
         Ember.run(null, resolve, data);
       };
@@ -189,7 +189,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     var isNew = record.get('isNew'), method, ajaxPromise;
     //If an existing model isn't dirty, no need to save.
     if(!isNew && !record.get('isDirty')) {
-      return new Ember.RSVP.Promise(function(resolve, reject){
+      return new RSVPPromise(function(resolve, reject){
         resolve(record);
       });
     }
@@ -244,8 +244,8 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         key = record.get(primaryKey), ajaxPromise;
 
     // Can't reload a record that hasn't been stored yet (no primary key)
-    if(Ember.isNone(key)) {
-      return new Ember.RSVP.Promise(function(resolve, reject){
+    if(isNone(key)) {
+      return new RSVPPromise(function(resolve, reject){
         reject(null);
       });
     }
@@ -315,15 +315,6 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     });
 
     return result;
-  },
-
-  /**
-    Registers custom attribute transforms.
-    Fowards creation to serializer.
-    @method registerTransform
-  */
-  registerTransform: function(type, transform) {
-    this.get('serializer').registerTransform(type, transform);
   },
 
   /**

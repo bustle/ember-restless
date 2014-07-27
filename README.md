@@ -1,6 +1,6 @@
 # Ember RESTless [![Build Status](https://travis-ci.org/endlessinc/ember-restless.png?branch=master)](https://travis-ci.org/endlessinc/ember-restless)
 
-RESTless is a lightweight data persistence library for Ember.js. (~4KB minified & gzipped)
+RESTless is a lightweight data persistence library for Ember.js. (~5KB minified & gzipped)
 
 Out of the box, it is used to communicate with a remote JSON REST API to map data between a server and your Ember.js application.  
 
@@ -8,9 +8,8 @@ RESTless can be extended to support various other data persistence layers. For e
 
 One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
 
-## [API Documentation](http://endlessinc.github.io/ember-restless/api/)
-Current version: **0.5.2**  
-See the [Changelog](CHANGELOG.md) for the latest features and API changes.
+See the [documentation](http://endlessinc.github.io/ember-restless/api/) for the API.
+See the [changelog](CHANGELOG.md) for the latest features and API changes.
 
 
 ## Guide
@@ -37,7 +36,7 @@ See the [Changelog](CHANGELOG.md) for the latest features and API changes.
 Include [ember-restless.js](https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless.js) in your Ember application after ember.js
 
 or via package managers:
-```bower install ember-restless```
+```bower install ember-restless```  
 ```npm install ember-restless```
 
 **Namespace**
@@ -379,17 +378,13 @@ App.Post = RL.ReadOnlyModel.extend({
 ```
 
 ### Custom transforms
-You can add custom transforms to your adapter:
+You can add custom transforms to modify data coming from and being sent to the persistence layer.
 ``` javascript
-App.RESTAdapter.registerTransform('timeAgo', {
+App.RESTAdapter.registerTransform('timeAgo', RESTless.Transform.create({
   deserialize: function(serialized) {
     // return a custom date string, such as: '5 minutes ago'
-  },
-  serialize: function(deserialized) {
-    // return a custom date json format for your backend or 
-    // simply return deserialized
   }
-});
+}));
 ```
 ``` javascript
 App.Comment = RL.Model.extend({
@@ -423,13 +418,6 @@ If you wish to build ember-restless yourself, you will need node.js and Grunt.
 4. To build and run tests: ```grunt```
 5. Output will be in ```dist/```
 
-### Custom Builds
-
-You can create custom builds, that exclude optional packages and further reduce filesize.  
-For example, to exclude the json transforms and date parsing libs:
-```
-grunt custom:-transforms
-```
 
 ## Tests
 

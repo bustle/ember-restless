@@ -2,8 +2,8 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.5.2
- * last modifed: 2014-06-05
+ * version: 0.5.3
+ * last modifed: 2014-07-27
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013-2014 Endless, Inc.
@@ -11,13 +11,16 @@
 
 (function(window, $, Ember, undefined){
 
-"use strict";
+'use strict';
 
 /** 
   @module ember-restless
  */
 var get = Ember.get, set = Ember.set,
-    none = Ember.isNone, empty = Ember.isEmpty,
+    isNone = Ember.isNone, isEmpty = Ember.isEmpty,
+    merge = Ember.merge, noop = Ember.K,
+    computed = Ember.computed, oneWay = computed.oneWay, 
+    RSVPPromise = Ember.RSVP.Promise,
     exports = Ember.exports || this,
     RESTless;
 
@@ -28,7 +31,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.5.2'
+    VERSION: '0.5.3'
   });
 
   /*
@@ -54,7 +57,7 @@ if ('undefined' === typeof RESTless) {
   @return {Ember.computed} attribute
 */
 RESTless.attr = function(type, opts) {
-  var meta = Ember.merge({ type: type, isAttribute: true }, opts);
+  var meta = merge({ type: type, isAttribute: true }, opts);
   return makeComputedAttribute(meta);
 };
 
@@ -68,7 +71,7 @@ RESTless.attr = function(type, opts) {
   @return {Ember.computed} attribute
 */
 RESTless.belongsTo = function(type, opts) {
-  var meta = Ember.merge({ type: type, isRelationship: true, belongsTo: true }, opts);
+  var meta = merge({ type: type, isRelationship: true, belongsTo: true }, opts);
   return makeComputedAttribute(meta);
 };
 
@@ -85,12 +88,12 @@ RESTless.hasMany = function(type, opts) {
   var defaultArray = function() {
     return RESTless.RecordArray.createWithContent();
   },
-  meta = Ember.merge({ type: type, isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
+  meta = merge({ type: type, isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
   return makeComputedAttribute(meta);
 };
 
 function makeComputedAttribute(meta) {
-  return Ember.computed(function(key, value) {
+  return computed(function(key, value) {
     var data = this.get('_data');
     // Getter
     if (arguments.length === 1) {
@@ -116,6 +119,138 @@ function makeComputedAttribute(meta) {
     return value;
   }).property('_data').meta(meta);
 }
+
+/**
+  Base class for transforming data to/from persistence layer in the Adapter.
+  Subclasses should implement `serialize` & `deserialize` methods.
+  These are copied closely from ember-data:
+  `https://github.com/emberjs/data/tree/master/packages/ember-data/lib/transforms`
+
+  @class Transform
+  @namespace RESTless
+  @extends Ember.Object
+ */
+RESTless.Transform = Ember.Object.extend({
+  /**
+    Transforms serialized data (i.e. JSON) to deserialized data (i.e. Ember models).
+    Subclasses should implement.
+
+    @method deserialize
+    @param serialized serialized data
+    @return deserialize data
+  */
+  deserialize: function(serialized) {
+    return serialized;
+  },
+  
+  /**
+    Transforms deserialized data (i.e. Ember models) to serialized data (i.e. JSON).
+
+    @method serialize
+    @param deserialized deserialized data
+    @return serialized data
+  */
+  serialize: function(deserialized) {
+    return deserialized;
+  }
+});
+
+RESTless.StringTransform = RESTless.Transform.extend({
+  deserialize: function(serialized) {
+    return isNone(serialized) ? null : String(serialized);
+  },
+  serialize: function(deserialized) {
+    return isNone(deserialized) ? null : String(deserialized);
+  }
+});
+
+RESTless.NumberTransform = RESTless.Transform.extend({
+  deserialize: function(serialized) {
+    return isEmpty(serialized) ? null : Number(serialized);
+  },
+  serialize: function(deserialized) {
+    return isEmpty(deserialized) ? null : Number(deserialized);
+  }
+});
+
+RESTless.BooleanTransform = RESTless.Transform.extend({
+  deserialize: function(serialized) {
+    var type = typeof serialized;
+
+    if (type === 'boolean') {
+      return serialized;
+    } else if (type === 'string') {
+      return serialized.match(/^true$|^t$|^1$/i) !== null;
+    } else if (type === 'number') {
+      return serialized === 1;
+    } else {
+      return false;
+    }
+  },
+  
+  serialize: function(deserialized) {
+    return Boolean(deserialized);
+  }
+});
+
+RESTless.DateTransform = RESTless.Transform.extend({
+  deserialize: function(serialized) {
+    var type = typeof serialized;
+
+    if (type === "string") {
+      return new Date(Ember.Date.parse(serialized));
+    } else if (type === "number") {
+      return new Date(serialized);
+    } else if (serialized === null || serialized === undefined) {
+      // if the value is not present in the data,
+      // return undefined, not null.
+      return serialized;
+    } else {
+      return null;
+    }
+  },
+
+  serialize: function(date) {
+    if (date instanceof Date) {
+      var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+      var pad = function(num) {
+        return num < 10 ? "0"+num : ""+num;
+      };
+
+      var utcYear = date.getUTCFullYear(),
+          utcMonth = date.getUTCMonth(),
+          utcDayOfMonth = date.getUTCDate(),
+          utcDay = date.getUTCDay(),
+          utcHours = date.getUTCHours(),
+          utcMinutes = date.getUTCMinutes(),
+          utcSeconds = date.getUTCSeconds();
+
+
+      var dayOfWeek = days[utcDay];
+      var dayOfMonth = pad(utcDayOfMonth);
+      var month = months[utcMonth];
+
+      return dayOfWeek + ", " + dayOfMonth + " " + month + " " + utcYear + " " +
+             pad(utcHours) + ":" + pad(utcMinutes) + ":" + pad(utcSeconds) + " GMT";
+    } else {
+      return null;
+    }
+  } 
+});
+
+/**
+  @property JSONTransforms
+  @type Object
+  @for RESTless
+*/
+RESTless.JSONTransforms = {
+  'string'  : RESTless.StringTransform.create(),
+  'number'  : RESTless.NumberTransform.create(),
+  'boolean' : RESTless.BooleanTransform.create(),
+  'date'    : RESTless.DateTransform.create()
+};
 
 /**
   Serializers handle transforming data to and from raw data and Models.
@@ -145,38 +280,38 @@ RESTless.Serializer = Ember.Object.extend({
     Transforms raw data into model. Abstract - implement in subclass.
     @method deserialize
   */
-  deserialize: Ember.K,
+  deserialize: noop,
   /**
     Transforms raw data property into model property. Abstract - implement in subclass.
     @method deserializeProperty
   */
-  deserializeProperty: Ember.K,
+  deserializeProperty: noop,
   /**
     Transforms array of raw data into record array. Abstract - implement in subclass.
     @method deserializeMany
   */
-  deserializeMany: Ember.K,
+  deserializeMany: noop,
   /**
     Transforms model into raw data. Abstract - implement in subclass.
     @method serialize
   */
-  serialize: Ember.K,
+  serialize: noop,
   /**
     Transforms model property into raw data property. Abstract - implement in subclass.
     @method serializeProperty
   */
-  serializeProperty: Ember.K,
+  serializeProperty: noop,
   /**
     Transforms a record array into raw data array. Abstract - implement in subclass.
     @method serializeMany
   */
-  serializeMany: Ember.K,
+  serializeMany: noop,
   /**
     To register a custom attribute transform. Abstract - implement in subclass.
     @method registerTransform
     @optional
   */
-  registerTransform: Ember.K,
+  registerTransform: noop,
 
   /**
     Returns a model class for a particular type.
@@ -401,20 +536,22 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @return {Object} json value
   */
   serializeProperty: function(resource, prop, opts) {
-    var value = resource.get(prop);
+    var value = resource.get(prop), type;
 
     if (!opts) {
       opts = resource.constructor.metaForProperty(prop);
     }
+    type = opts.type;
+
     if (opts && opts.hasMany) {
-      return this.serializeMany(value, opts.type);
+      return this.serializeMany(value, type);
     } else if(opts.belongsTo) {
       return this.serialize(value, { nonEmbedded: true });
     }
 
     //Check for a custom transform
-    if(opts.type && RESTless.JSONTransforms[opts.type]) {
-      value = RESTless.JSONTransforms[opts.type].serialize(value);
+    if(opts.type && RESTless.JSONTransforms[type]) {
+      value = RESTless.JSONTransforms[type].serialize(value);
     }
     return value;
   },
@@ -559,15 +696,6 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
 });
 
 /**
-  Hash for custom json transforms
-
-  @property JSONTransforms
-  @type Object
-  @for RESTless
-*/
-RESTless.JSONTransforms = {};
-
-/**
   Adapters handle sending and fetching data to and from a persistence layer.
   This is a base class to be subclassed.
 
@@ -587,32 +715,32 @@ RESTless.Adapter = Ember.Object.extend({
     Saves a record. Abstract - implement in subclass.
     @method saveRecord
   */
-  saveRecord: Ember.K,
+  saveRecord: noop,
   /**
     Deletes a record. Abstract - implement in subclass.
     @method deleteRecord
   */
-  deleteRecord: Ember.K,
+  deleteRecord: noop,
   /**
     Finds all records. Abstract - implement in subclass.
     @method findAll
   */
-  findAll: Ember.K,
+  findAll: noop,
   /**
     Finds records by query. Abstract - implement in subclass.
     @method findQuery
   */
-  findQuery: Ember.K,
+  findQuery: noop,
   /**
     Finds record by primary key. Abstract - implement in subclass.
     @method findByKey
   */
-  findByKey: Ember.K,
+  findByKey: noop,
   /**
     Generates a unique id for new records. Abstract - implement in subclass.
     @method generateIdForRecord
   */
-  generateIdForRecord: Ember.K,
+  generateIdForRecord: noop,
 
   /**
     Finds records with specified params.
@@ -647,7 +775,7 @@ RESTless.Adapter = Ember.Object.extend({
   */
   fetch: function(klass, params) {
     var adapter = this, find,
-    promise = new Ember.RSVP.Promise(function(resolve, reject) {
+    promise = new RSVPPromise(function(resolve, reject) {
       find = adapter.find(klass, params);
       find.one('didLoad', function(model) {
         resolve(model);
@@ -673,8 +801,8 @@ RESTless.Adapter = Ember.Object.extend({
         key = record.get(primaryKey);
 
     // Can't reload a record that hasn't been stored yet (no primary key)
-    if(Ember.isNone(key)) {
-      return new Ember.RSVP.Promise(function(resolve, reject){
+    if(isNone(key)) {
+      return new RSVPPromise(function(resolve, reject){
         reject(null);
       });
     }
@@ -706,7 +834,7 @@ RESTless.Adapter = Ember.Object.extend({
     var configs = this.get('configurations'),
         configForType = configs.get(type);
     if(configForType) {
-      configs.set(type, Ember.merge(configForType, value));
+      configs.set(type, merge(configForType, value));
     }
     return this;
   },
@@ -740,7 +868,7 @@ RESTless.Adapter = Ember.Object.extend({
         } else {
           newConfig[configKey] = config[configKey];
         }
-        modelConfig = modelConfig ? Ember.merge(modelConfig, newConfig) : newConfig;
+        modelConfig = modelConfig ? merge(modelConfig, newConfig) : newConfig;
       }
     }
     modelMap.set(modelKey, modelConfig);
@@ -757,6 +885,15 @@ RESTless.Adapter = Ember.Object.extend({
   pluralize: function(resourceName) {
     var plurals = this.get('configurations.plurals');
     return (plurals && plurals[resourceName]) || resourceName + 's';
+  },
+
+  /**
+    Registers custom attribute transforms.
+    Fowards creation to serializer.
+    @method registerTransform
+  */
+  registerTransform: function(type, transform) {
+    this.get('serializer').registerTransform(type, transform);
   }
 });
 
@@ -783,7 +920,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @optional
     @example 'http://api.example.com'
    */
-  host: Ember.computed.oneWay('url'),
+  host: oneWay('url'),
   /**
     Deprecated.
     @property url
@@ -836,7 +973,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @type String
     @final
    */
-  rootPath: Ember.computed(function() {
+  rootPath: computed(function() {
     var a = document.createElement('a'),
         host = this.get('host'),
         ns = this.get('namespace'),
@@ -873,7 +1010,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         ajaxParams = this.prepareParams(params);
     ajaxParams.url = this.buildUrl(model, key);
 
-    return new Ember.RSVP.Promise(function(resolve, reject) {
+    return new RSVPPromise(function(resolve, reject) {
       ajaxParams.success = function(data) {
         Ember.run(null, resolve, data);
       };
@@ -951,7 +1088,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     var isNew = record.get('isNew'), method, ajaxPromise;
     //If an existing model isn't dirty, no need to save.
     if(!isNew && !record.get('isDirty')) {
-      return new Ember.RSVP.Promise(function(resolve, reject){
+      return new RSVPPromise(function(resolve, reject){
         resolve(record);
       });
     }
@@ -1006,8 +1143,8 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         key = record.get(primaryKey), ajaxPromise;
 
     // Can't reload a record that hasn't been stored yet (no primary key)
-    if(Ember.isNone(key)) {
-      return new Ember.RSVP.Promise(function(resolve, reject){
+    if(isNone(key)) {
+      return new RSVPPromise(function(resolve, reject){
         reject(null);
       });
     }
@@ -1080,15 +1217,6 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   },
 
   /**
-    Registers custom attribute transforms.
-    Fowards creation to serializer.
-    @method registerTransform
-  */
-  registerTransform: function(type, transform) {
-    this.get('serializer').registerTransform(type, transform);
-  },
-
-  /**
     Builds a robust error object using the serializer and xhr data
     @method parseAjaxErrors
     @private
@@ -1125,20 +1253,18 @@ RESTless.Client = Ember.Object.extend({
     Shortcut alias to model configurations
     @private
   */
-  _modelConfigs: Ember.computed.alias('adapter.configurations.models')
+  _modelConfigs: oneWay('adapter.configurations.models')
 });
 
-Ember.onLoad('Ember.Application', function(Application) {
-  Application.initializer({
-    name: 'Client',
-    initialize: function(container, application) {
-      var client = application.Client ? application.Client : RESTless.Client.create();
-      RESTless.set('client', client);
-      application.addObserver('Client', this, function() {
-        RESTless.set('client', this.Client);
-      });
-    }
-  });
+Ember.Application.initializer({
+  name: 'RESTless.Client',
+  initialize: function(container, application) {
+    var client = application.Client ? application.Client : RESTless.Client.create();
+    RESTless.set('client', client);
+    application.addObserver('Client', this, function() {
+      RESTless.set('client', this.Client);
+    });
+  }
 });
 
 /**
@@ -1192,27 +1318,27 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
     Fired when the record is created.
     @event didCreate
   */
-  didCreate: Ember.K,
+  didCreate: noop,
   /**
     Fired when the record is updated.
     @event didUpdate
   */
-  didUpdate: Ember.K,
+  didUpdate: noop,
   /**
     Fired when the record is enters the loaded state.
     @event didLoad
   */
-  didLoad: Ember.K,
+  didLoad: noop,
   /**
     Fired when the record is deleted.
     @event didDelete
   */
-  didDelete: Ember.K,
+  didDelete: noop,
   /**
     Fired when the record enters the error state.
     @event becameError
   */
-  becameError: Ember.K,
+  becameError: noop,
 
   /**
     Updates state and triggers events upon saving.
@@ -1341,7 +1467,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @private
    */
   __data: null,
-  _data: Ember.computed(function() {
+  _data: computed(function() {
     if (!this.__data) { this.__data = {}; }
     return this.__data;
   }),
@@ -1517,7 +1643,7 @@ RESTless.Model.reopenClass({
     @property adapter
     @type RESTless.Adapter
    */
-  adapter: Ember.computed(function() {
+  adapter: computed(function() {
     return get(RESTless, 'client.adapter');
   }).property('RESTless.client.adapter'),
 
@@ -1527,7 +1653,7 @@ RESTless.Model.reopenClass({
     @type String
     @default 'id'
    */
-  primaryKey: Ember.computed(function() {
+  primaryKey: computed(function() {
     var className = this.toString(),
         modelConfig = get(RESTless, 'client._modelConfigs').get(className);
     if(modelConfig && modelConfig.primaryKey) {
@@ -1543,7 +1669,7 @@ RESTless.Model.reopenClass({
     @property resourceName
     @type String
    */
-  resourceName: Ember.computed(function() {
+  resourceName: computed(function() {
     var classNameParts = this.toString().split('.');
     return classNameParts[classNameParts.length-1];
   }),
@@ -1554,7 +1680,7 @@ RESTless.Model.reopenClass({
     @property resourceNamePlural
     @type String
    */
-  resourceNamePlural: Ember.computed(function() {
+  resourceNamePlural: computed(function() {
     var resourceName = get(this, 'resourceName'),
         adapter = get(this, 'adapter');    
     return adapter.pluralize(Ember.String.decamelize(resourceName));
@@ -1565,7 +1691,7 @@ RESTless.Model.reopenClass({
     @property fields
     @type Ember.Map
    */
-  fields: Ember.computed(function() {
+  fields: computed(function() {
     var map = Ember.Map.create();
     this.eachComputedProperty(function(name, meta) {
       if (meta.isAttribute || meta.isRelationship) {
@@ -1666,7 +1792,7 @@ RESTless.ReadOnlyModel = RESTless.Model.extend({
   saveRecord: null,
   deleteRecord: null,
   didDefineProperty: null,
-  _onPropertyChange: Ember.K
+  _onPropertyChange: noop
 });
 
 /**
@@ -1682,7 +1808,7 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
     The default adapter for the RecordArray. Providing a hook for overriding.
     @property adapter
    */
-  adapter: Ember.computed(function() {
+  adapter: computed(function() {
     return get(RESTless, 'client.adapter');
   }).property('RESTless.client.adapter'),
 
@@ -1844,108 +1970,5 @@ Ember.Date.parse = function (date) {
 if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.Date) {
   Date.parse = Ember.Date.parse;
 }
-
-/**
- * From ember-data:
- * https://github.com/emberjs/data/blob/master/packages/ember-data/lib/transforms/json_transforms.js
- */
-
-var isNone = Ember.isNone, isEmpty = Ember.isEmpty;
-
-/**
-  @class JSONTransforms
-  @static
-  @namespace RESTless
-*/
-RESTless.JSONTransforms = {
-  string: {
-    deserialize: function(serialized) {
-      return isNone(serialized) ? null : String(serialized);
-    },
-
-    serialize: function(deserialized) {
-      return isNone(deserialized) ? null : String(deserialized);
-    }
-  },
-
-  number: {
-    deserialize: function(serialized) {
-      return isEmpty(serialized) ? null : Number(serialized);
-    },
-
-    serialize: function(deserialized) {
-      return isEmpty(deserialized) ? null : Number(deserialized);
-    }
-  },
-
-  // Handles the following boolean inputs:
-  // "TrUe", "t", "f", "FALSE", 0, (non-zero), or boolean true/false
-  'boolean': {
-    deserialize: function(serialized) {
-      var type = typeof serialized;
-
-      if (type === "boolean") {
-        return serialized;
-      } else if (type === "string") {
-        return serialized.match(/^true$|^t$|^1$/i) !== null;
-      } else if (type === "number") {
-        return serialized === 1;
-      } else {
-        return false;
-      }
-    },
-
-    serialize: function(deserialized) {
-      return Boolean(deserialized);
-    }
-  },
-
-  date: {
-    deserialize: function(serialized) {
-      var type = typeof serialized;
-
-      if (type === "string") {
-        return new Date(Ember.Date.parse(serialized));
-      } else if (type === "number") {
-        return new Date(serialized);
-      } else if (serialized === null || serialized === undefined) {
-        // if the value is not present in the data,
-        // return undefined, not null.
-        return serialized;
-      } else {
-        return null;
-      }
-    },
-
-    serialize: function(date) {
-      if (date instanceof Date) {
-        var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-        var pad = function(num) {
-          return num < 10 ? "0"+num : ""+num;
-        };
-
-        var utcYear = date.getUTCFullYear(),
-            utcMonth = date.getUTCMonth(),
-            utcDayOfMonth = date.getUTCDate(),
-            utcDay = date.getUTCDay(),
-            utcHours = date.getUTCHours(),
-            utcMinutes = date.getUTCMinutes(),
-            utcSeconds = date.getUTCSeconds();
-
-
-        var dayOfWeek = days[utcDay];
-        var dayOfMonth = pad(utcDayOfMonth);
-        var month = months[utcMonth];
-
-        return dayOfWeek + ", " + dayOfMonth + " " + month + " " + utcYear + " " +
-               pad(utcHours) + ":" + pad(utcMinutes) + ":" + pad(utcSeconds) + " GMT";
-      } else {
-        return null;
-      }
-    }
-  }
-};
 
 })(this, jQuery, Ember);

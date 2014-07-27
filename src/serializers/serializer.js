@@ -26,38 +26,38 @@ RESTless.Serializer = Ember.Object.extend({
     Transforms raw data into model. Abstract - implement in subclass.
     @method deserialize
   */
-  deserialize: Ember.K,
+  deserialize: noop,
   /**
     Transforms raw data property into model property. Abstract - implement in subclass.
     @method deserializeProperty
   */
-  deserializeProperty: Ember.K,
+  deserializeProperty: noop,
   /**
     Transforms array of raw data into record array. Abstract - implement in subclass.
     @method deserializeMany
   */
-  deserializeMany: Ember.K,
+  deserializeMany: noop,
   /**
     Transforms model into raw data. Abstract - implement in subclass.
     @method serialize
   */
-  serialize: Ember.K,
+  serialize: noop,
   /**
     Transforms model property into raw data property. Abstract - implement in subclass.
     @method serializeProperty
   */
-  serializeProperty: Ember.K,
+  serializeProperty: noop,
   /**
     Transforms a record array into raw data array. Abstract - implement in subclass.
     @method serializeMany
   */
-  serializeMany: Ember.K,
+  serializeMany: noop,
   /**
     To register a custom attribute transform. Abstract - implement in subclass.
     @method registerTransform
     @optional
   */
-  registerTransform: Ember.K,
+  registerTransform: noop,
 
   /**
     Returns a model class for a particular type.

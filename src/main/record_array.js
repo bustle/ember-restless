@@ -11,7 +11,7 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
     The default adapter for the RecordArray. Providing a hook for overriding.
     @property adapter
    */
-  adapter: Ember.computed(function() {
+  adapter: computed(function() {
     return get(RESTless, 'client.adapter');
   }).property('RESTless.client.adapter'),
 
