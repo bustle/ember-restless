@@ -1,4 +1,4 @@
-# Ember RESTless [![Build Status](https://travis-ci.org/endlessinc/ember-restless.png?branch=master)](https://travis-ci.org/endlessinc/ember-restless)
+# Ember RESTless [![Build Status](https://travis-ci.org/bustlelabs/ember-restless.png?branch=master)](https://travis-ci.org/bustlelabs/ember-restless)
 
 RESTless is a lightweight data persistence library for Ember.js. (~5KB minified & gzipped)
 
@@ -8,7 +8,7 @@ RESTless can be extended to support various other data persistence layers. For e
 
 One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
 
-See the [documentation](http://endlessinc.github.io/ember-restless/api/) for the API.  
+See the full [API documentation](http://bustlelabs.github.io/ember-restless/api/).  
 
 See the [changelog](CHANGELOG.md) for the latest features and API changes.
 
@@ -34,7 +34,7 @@ See the [changelog](CHANGELOG.md) for the latest features and API changes.
 
 ## Getting started
 
-Include [ember-restless.js](https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless.js) in your Ember application after ember.js
+Include [ember-restless.js](https://raw.github.com/bustlelabs/ember-restless/master/dist/ember-restless.js) in your Ember application after ember.js
 
 or via package managers:
 ```bower install ember-restless```  
@@ -279,7 +279,7 @@ App.PostIndexRoute = Ember.Route.extend({
 ## Extras
 
 To keep RESTless lightweight and focused, the default distrubtion solely supports a REST Adapter.  
-We are separately offering an "extras" build: [ember-restless+extras.js](https://raw.github.com/endlessinc/ember-restless/master/dist/ember-restless+extras.js).
+We are separately offering an "extras" build: [ember-restless+extras.js](https://raw.github.com/bustlelabs/ember-restless/master/dist/ember-restless+extras.js).
 Which additionally includes:
 - Fixture Adapter
 - LocalStorage Adapter
@@ -414,10 +414,9 @@ App.Client = RL.Client.create({
 If you wish to build ember-restless yourself, you will need node.js and Grunt.  
 
 1. Install node: <a href="http://nodejs.org/">http://nodejs.org/</a>
-2. Open a terminal window
-3. Install dependencies: ```npm install```
-4. To build and run tests: ```grunt```
-5. Output will be in ```dist/```
+2. Install dependencies: ```npm install```
+3. To build and run tests: ```grunt```
+4. Output will be in ```dist/```
 
 
 ## Tests
