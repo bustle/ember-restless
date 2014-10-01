@@ -2,7 +2,7 @@
     "project": {
         "name": "ember-restless",
         "description": "A lightweight data persistence library for Ember.js",
-        "version": "0.5.0",
+        "version": "0.5.3",
         "url": "https://github.com/endlessinc/ember-restless"
     },
     "files": {
@@ -131,9 +131,7 @@
             "classes": {
                 "RESTless.JSONSerializer": 1
             },
-            "fors": {
-                "RESTless": 1
-            },
+            "fors": {},
             "namespaces": {
                 "RESTless": 1
             }
@@ -168,9 +166,7 @@
                 "RESTless.JSONSerializer": 1,
                 "RESTless.Serializer": 1
             },
-            "fors": {
-                "RESTless": 1
-            },
+            "fors": {},
             "namespaces": {
                 "RESTless": 1
             },
@@ -190,7 +186,7 @@
             "extension_for": [],
             "module": "ember-restless",
             "file": "src/main/main.js",
-            "line": 10,
+            "line": 13,
             "description": "All Ember RESTless functionality is defined inside of this namespace.",
             "static": 1
         },
@@ -940,7 +936,7 @@
         },
         {
             "file": "src/main/record_array.js",
-            "line": 29,
+            "line": 31,
             "description": "Use the current Serializer to turn the array into its data representation.",
             "itemtype": "method",
             "name": "serializeMany",
@@ -960,7 +956,7 @@
         },
         {
             "file": "src/main/record_array.js",
-            "line": 39,
+            "line": 42,
             "description": "Overrides super replaceContent method to add isDirty functionality",
             "itemtype": "method",
             "name": "replaceContent",
@@ -987,7 +983,35 @@
         },
         {
             "file": "src/main/record_array.js",
-            "line": 53,
+            "line": 56,
+            "description": "Returns the Class of records the RecordArray contains",
+            "itemtype": "method",
+            "name": "typeOfContent",
+            "return": {
+                "description": "Object type"
+            },
+            "class": "RESTless.RecordArray",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/record_array.js",
+            "line": 66,
+            "description": "Helper to initialize the content property of the RecordArray if not present.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "_initContent",
+            "return": {
+                "description": "RecordArray this"
+            },
+            "class": "RESTless.RecordArray",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/main/record_array.js",
+            "line": 79,
             "description": "Observes when items become dirty and sets itself to dirty.",
             "access": "private",
             "tagname": "",
@@ -997,7 +1021,7 @@
         },
         {
             "file": "src/main/record_array.js",
-            "line": 64,
+            "line": 90,
             "description": "Observes when the array's isLoaded state changes and triggers each item's onLoaded.",
             "access": "private",
             "tagname": "",
@@ -1007,7 +1031,7 @@
         },
         {
             "file": "src/main/record_array.js",
-            "line": 81,
+            "line": 107,
             "description": "Creates a RecordArray",
             "itemtype": "method",
             "name": "create",
@@ -1020,7 +1044,7 @@
         },
         {
             "file": "src/main/record_array.js",
-            "line": 92,
+            "line": 118,
             "description": "Helper to create a RecordArray with it's content property initialized to an Array",
             "itemtype": "method",
             "name": "createWithContent",
@@ -1471,6 +1495,16 @@
                 "description": "plural name",
                 "type": "String"
             },
+            "class": "RESTless.Adapter",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/adapters/adapter.js",
+            "line": 193,
+            "description": "Registers custom attribute transforms.\nFowards creation to serializer.",
+            "itemtype": "method",
+            "name": "registerTransform",
             "class": "RESTless.Adapter",
             "module": "ember-restless",
             "namespace": "RESTless"
@@ -1972,16 +2006,6 @@
         {
             "file": "src/adapters/rest_adapter.js",
             "line": 320,
-            "description": "Registers custom attribute transforms.\nFowards creation to serializer.",
-            "itemtype": "method",
-            "name": "registerTransform",
-            "class": "RESTless.RESTAdapter",
-            "module": "ember-restless",
-            "namespace": "RESTless"
-        },
-        {
-            "file": "src/adapters/rest_adapter.js",
-            "line": 329,
             "description": "Builds a robust error object using the serializer and xhr data",
             "itemtype": "method",
             "name": "parseAjaxErrors",
@@ -2070,7 +2094,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 99,
+            "line": 101,
             "description": "Transforms json array into a record array",
             "itemtype": "method",
             "name": "deserializeMany",
@@ -2101,7 +2125,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 145,
+            "line": 147,
             "description": "Transforms a Model into json",
             "itemtype": "method",
             "name": "serialize",
@@ -2128,7 +2152,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 180,
+            "line": 182,
             "description": "Transforms a Model property into json value",
             "itemtype": "method",
             "name": "serializeProperty",
@@ -2160,7 +2184,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 207,
+            "line": 211,
             "description": "Transforms a RecordArray into a json array",
             "itemtype": "method",
             "name": "serializeMany",
@@ -2186,7 +2210,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 228,
+            "line": 233,
             "description": "Helper to transform resource name to valid json key",
             "itemtype": "method",
             "name": "keyForResourceName",
@@ -2207,7 +2231,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 237,
+            "line": 242,
             "description": "Helper to transform attribute name to valid json key",
             "itemtype": "method",
             "name": "keyForAttributeName",
@@ -2228,7 +2252,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 249,
+            "line": 254,
             "description": "Helper to get Model property name from json key name",
             "itemtype": "method",
             "name": "attributeNameForKey",
@@ -2254,7 +2278,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 265,
+            "line": 270,
             "description": "JSON should be stringified before transmitting.",
             "itemtype": "method",
             "name": "prepareData",
@@ -2267,7 +2291,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 273,
+            "line": 278,
             "description": "Transforms error response text into json.",
             "itemtype": "method",
             "name": "parseError",
@@ -2280,7 +2304,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 283,
+            "line": 288,
             "description": "Attempts to extract metadata on json responses",
             "itemtype": "method",
             "name": "extractMeta",
@@ -2293,7 +2317,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 293,
+            "line": 298,
             "description": "To register a custom attribute transform. Adds to JSONTransforms.",
             "itemtype": "method",
             "name": "registerTransform",
@@ -2315,7 +2339,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 303,
+            "line": 308,
             "itemtype": "method",
             "name": "_keyForResource",
             "access": "private",
@@ -2326,7 +2350,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 310,
+            "line": 315,
             "itemtype": "method",
             "name": "_keyForResourceType",
             "access": "private",
@@ -2337,7 +2361,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 318,
+            "line": 323,
             "itemtype": "method",
             "name": "_keyPluralForResourceType",
             "access": "private",
@@ -2348,7 +2372,7 @@
         },
         {
             "file": "src/serializers/json_serializer.js",
-            "line": 326,
+            "line": 331,
             "description": "Checks for wrapped array data by resource name: { posts: [...] }\nThis is the default from ActiveRecord on direct finds",
             "itemtype": "method",
             "name": "_arrayDataForType",
@@ -2357,16 +2381,6 @@
             "class": "RESTless.JSONSerializer",
             "module": "ember-restless",
             "namespace": "RESTless"
-        },
-        {
-            "file": "src/serializers/json_serializer.js",
-            "line": 345,
-            "description": "Hash for custom json transforms",
-            "itemtype": "property",
-            "name": "JSONTransforms",
-            "type": "Object",
-            "class": "RESTless",
-            "module": "ember-restless"
         },
         {
             "file": "src/serializers/serializer.js",
@@ -2468,6 +2482,27 @@
         {
             "file": "src/serializers/serializer.js",
             "line": 62,
+            "description": "Returns a model class for a particular type.",
+            "itemtype": "method",
+            "name": "modelFor",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "",
+                    "type": "String or subclass of RL.Model"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "subclass of RL.Model"
+            },
+            "class": "RESTless.Serializer",
+            "module": "ember-restless",
+            "namespace": "RESTless"
+        },
+        {
+            "file": "src/serializers/serializer.js",
+            "line": 75,
             "description": "Optional override to prep data before persisting.",
             "itemtype": "method",
             "name": "prepareData",
@@ -2481,7 +2516,7 @@
         },
         {
             "file": "src/serializers/serializer.js",
-            "line": 71,
+            "line": 84,
             "description": "Optional override to deserialize error messages.",
             "itemtype": "method",
             "name": "parseError",
@@ -2501,15 +2536,23 @@
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " src/main/record_array.js:29"
+            "line": " src/main/record_array.js:31"
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " src/main/record_array.js:81"
+            "line": " src/main/record_array.js:56"
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " src/main/record_array.js:92"
+            "line": " src/main/record_array.js:66"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " src/main/record_array.js:107"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " src/main/record_array.js:118"
         },
         {
             "message": "replacing incorrect tag: returns with return",
@@ -2521,7 +2564,7 @@
         },
         {
             "message": "replacing incorrect tag: parma with param",
-            "line": " src/serializers/json_serializer.js:293"
+            "line": " src/serializers/json_serializer.js:298"
         },
         {
             "message": "Missing item type\nShortcut alias to model configurations",
@@ -2545,11 +2588,11 @@
         },
         {
             "message": "Missing item type\nObserves when items become dirty and sets itself to dirty.",
-            "line": " src/main/record_array.js:53"
+            "line": " src/main/record_array.js:79"
         },
         {
             "message": "Missing item type\nObserves when the array's isLoaded state changes and triggers each item's onLoaded.",
-            "line": " src/main/record_array.js:64"
+            "line": " src/main/record_array.js:90"
         }
     ]
 }

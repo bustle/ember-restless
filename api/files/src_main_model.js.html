@@ -24,7 +24,7 @@
                 <li class="divider-vertical"></li>
                 <li>
                     <p class="navbar-text">
-                        API Docs for Version: <b>0.5.0</b>
+                        API Docs for Version: <b>0.5.3</b>
                     </p>
                 </li>
             </ul>
@@ -147,7 +147,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @private
    */
   __data: null,
-  _data: Ember.computed(function() {
+  _data: computed(function() {
     if (!this.__data) { this.__data = {}; }
     return this.__data;
   }),
@@ -323,7 +323,7 @@ RESTless.Model.reopenClass({
     @property adapter
     @type RESTless.Adapter
    */
-  adapter: Ember.computed(function() {
+  adapter: computed(function() {
     return get(RESTless, &#x27;client.adapter&#x27;);
   }).property(&#x27;RESTless.client.adapter&#x27;),
 
@@ -333,7 +333,7 @@ RESTless.Model.reopenClass({
     @type String
     @default &#x27;id&#x27;
    */
-  primaryKey: Ember.computed(function() {
+  primaryKey: computed(function() {
     var className = this.toString(),
         modelConfig = get(RESTless, &#x27;client._modelConfigs&#x27;).get(className);
     if(modelConfig &amp;&amp; modelConfig.primaryKey) {
@@ -349,7 +349,7 @@ RESTless.Model.reopenClass({
     @property resourceName
     @type String
    */
-  resourceName: Ember.computed(function() {
+  resourceName: computed(function() {
     var classNameParts = this.toString().split(&#x27;.&#x27;);
     return classNameParts[classNameParts.length-1];
   }),
@@ -360,7 +360,7 @@ RESTless.Model.reopenClass({
     @property resourceNamePlural
     @type String
    */
-  resourceNamePlural: Ember.computed(function() {
+  resourceNamePlural: computed(function() {
     var resourceName = get(this, &#x27;resourceName&#x27;),
         adapter = get(this, &#x27;adapter&#x27;);    
     return adapter.pluralize(Ember.String.decamelize(resourceName));
@@ -371,7 +371,7 @@ RESTless.Model.reopenClass({
     @property fields
     @type Ember.Map
    */
-  fields: Ember.computed(function() {
+  fields: computed(function() {
     var map = Ember.Map.create();
     this.eachComputedProperty(function(name, meta) {
       if (meta.isAttribute || meta.isRelationship) {
@@ -453,7 +453,7 @@ RESTless.Model.reopenClass({
     @return RESTless.RecordArray
    */
   loadMany: function(data) {
-    var array = RESTless.RecordArray.createWithContent().deserializeMany(this.toString(), data);
+    var array = RESTless.RecordArray.create().deserializeMany(this, data);
     array.onLoaded();
     return array;
   }

@@ -24,7 +24,7 @@
                 <li class="divider-vertical"></li>
                 <li>
                     <p class="navbar-text">
-                        API Docs for Version: <b>0.5.0</b>
+                        API Docs for Version: <b>0.5.3</b>
                     </p>
                 </li>
             </ul>
@@ -197,13 +197,12 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   deserializeProperty: function(resource, prop, value) {
     var attrName = this.attributeNameForKey(resource.constructor, prop),
         fields = get(resource.constructor, &#x27;fields&#x27;),
-        field = fields.get(attrName), type, klass;
+        field = fields.get(attrName), type, klass, belongsToModel;
 
     // If the json contains a key not defined on the model, don&#x27;t attempt to set it.
     if (!field) { return; }
 
     type = field.type;
-    klass = get(Ember.lookup, type);
 
     // If property is a hasMany relationship, deserialze the array
     if (field.hasMany) {
@@ -211,9 +210,12 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       resource.set(attrName, hasManyArr);
     } 
     // If property is a belongsTo relationship, deserialze that model
-    else if (field.belongsTo &amp;&amp; klass &amp;&amp; value) {
-      var belongsToModel = klass.create({ isNew: false, isLoaded: true }).deserialize(value);
-      resource.set(attrName, belongsToModel);
+    else if (field.belongsTo &amp;&amp; value) {
+      klass = this.modelFor(type);
+      if(klass) {
+        belongsToModel = klass.create({ isNew: false, isLoaded: true }).deserialize(value);
+        resource.set(attrName, belongsToModel);
+      }
     }
     else {
       // Check for a custom transform
@@ -235,9 +237,8 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   deserializeMany: function(recordArray, type, data) {
     if(!data) { return recordArray; }
 
-    var klass = get(Ember.lookup, type),
-        arrayData = this._arrayDataForType(type, data),
-        meta, i, len, item, content;
+    var arrayData = this._arrayDataForType(type, data),
+        meta, i, len, item, content, klass;
 
     if(!arrayData) { return recordArray; }
 
@@ -251,6 +252,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     len = arrayData.length;
     if(len) {
       content = [];
+      klass = this.modelFor(type);
       for(i=0; i&lt;len; i++) {
         item = arrayData[i];
         if(klass &amp;&amp; typeof item === &#x27;object&#x27;) {
@@ -314,20 +316,22 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @return {Object} json value
   */
   serializeProperty: function(resource, prop, opts) {
-    var value = resource.get(prop);
+    var value = resource.get(prop), type;
 
     if (!opts) {
       opts = resource.constructor.metaForProperty(prop);
     }
+    type = opts.type;
+
     if (opts &amp;&amp; opts.hasMany) {
-      return this.serializeMany(value.get(&#x27;content&#x27;), opts.type);
+      return this.serializeMany(value, type);
     } else if(opts.belongsTo) {
       return this.serialize(value, { nonEmbedded: true });
     }
 
     //Check for a custom transform
-    if(opts.type &amp;&amp; RESTless.JSONTransforms[opts.type]) {
-      value = RESTless.JSONTransforms[opts.type].serialize(value);
+    if(opts.type &amp;&amp; RESTless.JSONTransforms[type]) {
+      value = RESTless.JSONTransforms[type].serialize(value);
     }
     return value;
   },
@@ -341,10 +345,11 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   */
   serializeMany: function(recordArray, type) {
     var key = this._keyForResourceType(type),
-        len = recordArray.length,
+        array = recordArray.get(&#x27;content&#x27;),
+        len = array.length,
         result = [], i, item;
     for(i=0; i&lt;len; i++) {
-      item = recordArray[i];
+      item = array[i];
       if(RESTless.Model.detectInstance(item)) {
         item = item.serialize();
       }
@@ -440,15 +445,15 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @private
   */
   _keyForResourceType: function(type) {
-    var klass = get(Ember.lookup, type);
-    return klass ? this.keyForResourceName(get(klass, &#x27;resourceName&#x27;)) : null;
+    var klass = this.modelFor(type);
+    return klass ? this.keyForResourceName(get(klass, &#x27;resourceName&#x27;)) : &#x27;model&#x27;;
   },
   /**
     @method _keyPluralForResourceType
     @private
   */
   _keyPluralForResourceType: function(type) {
-    var klass = get(Ember.lookup, type);
+    var klass = this.modelFor(type);
     return klass ? get(klass, &#x27;resourceNamePlural&#x27;) : null;
   },
   /**
@@ -469,15 +474,6 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     return null;
   }
 });
-
-/**
-  Hash for custom json transforms
-
-  @property JSONTransforms
-  @type Object
-  @for RESTless
-*/
-RESTless.JSONTransforms = {};
 
     </pre>
 </div>

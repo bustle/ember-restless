@@ -24,7 +24,7 @@
                 <li class="divider-vertical"></li>
                 <li>
                     <p class="navbar-text">
-                        API Docs for Version: <b>0.5.0</b>
+                        API Docs for Version: <b>0.5.3</b>
                     </p>
                 </li>
             </ul>
@@ -139,7 +139,7 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
     The default adapter for the RecordArray. Providing a hook for overriding.
     @property adapter
    */
-  adapter: Ember.computed(function() {
+  adapter: computed(function() {
     return get(RESTless, &#x27;client.adapter&#x27;);
   }).property(&#x27;RESTless.client.adapter&#x27;),
 
@@ -151,6 +151,8 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
     @returns RESTless.RecordArray
    */
   deserializeMany: function(type, data) {
+    this._initContent();
+    type = type || this.typeOfContent();
     return get(this, &#x27;adapter.serializer&#x27;).deserializeMany(this, type, data);
   },
 
@@ -161,6 +163,7 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
     @returns RESTless.RecordArray
    */
   serializeMany: function(type) {
+    type = type || this.typeOfContent();
     return get(this, &#x27;adapter.serializer&#x27;).serializeMany(this, type);
   },
 
@@ -176,6 +179,29 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
     if (this.get(&#x27;isLoaded&#x27;)) {
       this.set(&#x27;isDirty&#x27;, true);
     }
+  },
+
+  /**
+    Returns the Class of records the RecordArray contains
+    @method typeOfContent
+    @returns Object type
+   */
+  typeOfContent: function() {
+    var firstObj = this.objectAt(0);
+    return firstObj &amp;&amp; firstObj.constructor || null;
+  },
+
+  /**
+    Helper to initialize the content property of the RecordArray if not present.
+    @private
+    @method _initContent
+    @returns RecordArray this
+   */
+  _initContent: function() {
+    if(!this.content) { 
+      this.set(&#x27;content&#x27;, Ember.A());
+    }
+    return this;
   },
 
   /**
@@ -224,8 +250,7 @@ RESTless.RecordArray.reopenClass({
    */
   createWithContent: function() {
     var arr = this.create.apply(this, arguments);
-    if(!arr.content) { arr.set(&#x27;content&#x27;, Ember.A()); }
-    return arr;
+    return arr._initContent();
   }
 });
 

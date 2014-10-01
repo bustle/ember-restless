@@ -24,7 +24,7 @@
                 <li class="divider-vertical"></li>
                 <li>
                     <p class="navbar-text">
-                        API Docs for Version: <b>0.5.0</b>
+                        API Docs for Version: <b>0.5.3</b>
                     </p>
                 </li>
             </ul>
@@ -146,20 +146,18 @@ RESTless.Client = Ember.Object.extend({
     Shortcut alias to model configurations
     @private
   */
-  _modelConfigs: Ember.computed.alias(&#x27;adapter.configurations.models&#x27;)
+  _modelConfigs: oneWay(&#x27;adapter.configurations.models&#x27;)
 });
 
-Ember.onLoad(&#x27;Ember.Application&#x27;, function(Application) {
-  Application.initializer({
-    name: &#x27;Client&#x27;,
-    initialize: function(container, application) {
-      var client = application.Client ? application.Client : RESTless.Client.create();
-      RESTless.set(&#x27;client&#x27;, client);
-      application.addObserver(&#x27;Client&#x27;, this, function() {
-        RESTless.set(&#x27;client&#x27;, this.Client);
-      });
-    }
-  });
+Ember.Application.initializer({
+  name: &#x27;RESTless.Client&#x27;,
+  initialize: function(container, application) {
+    var client = application.Client ? application.Client : RESTless.Client.create();
+    RESTless.set(&#x27;client&#x27;, client);
+    application.addObserver(&#x27;Client&#x27;, this, function() {
+      RESTless.set(&#x27;client&#x27;, this.Client);
+    });
+  }
 });
 
     </pre>
