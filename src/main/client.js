@@ -13,12 +13,7 @@ RESTless.Client = Ember.Object.extend({
     @property adapter
     @type RESTless.Adapter
    */
-  adapter: RESTless.RESTAdapter.create(),
-  /**
-    Shortcut alias to model configurations
-    @private
-  */
-  _modelConfigs: oneWay('adapter.configurations.models')
+  adapter: RESTless.RESTAdapter.create()
 });
 
 Ember.Application.initializer({

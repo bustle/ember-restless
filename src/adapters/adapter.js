@@ -54,19 +54,19 @@ RESTless.Adapter = Ember.Object.extend({
     @param {Object} [params] a hash of params.
   */
   find: function(klass, params) {
-    var primaryKey = get(klass, 'primaryKey'),
-        singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
-                                (typeof params === 'object' && params.hasOwnProperty(primaryKey));
+    var primaryKey = get(klass, 'primaryKey'), key;
+    var typeofParams = typeof params;
+    var singleResourceRequest = typeofParams === 'string' || typeofParams === 'number' || (typeofParams === 'object' && params.hasOwnProperty(primaryKey));
+    
     if(singleResourceRequest) {
       if(!params.hasOwnProperty(primaryKey)) {
         return this.findByKey(klass, params);
       }
-      var key = params[primaryKey];  
+      key = params[primaryKey];  
       delete params[primaryKey];
       return this.findByKey(klass, key, params);
-    } else {
-      return this.findQuery(klass, params);
     }
+    return this.findQuery(klass, params);
   },
 
   /**

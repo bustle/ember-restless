@@ -207,12 +207,12 @@ RESTless.Model.reopenClass({
    */
   primaryKey: computed(function() {
     var className = this.toString(),
-        modelConfig = get(RESTless, 'client._modelConfigs').get(className);
+        modelConfig = get(RESTless, 'client.adapter.configurations.models').get(className);
     if(modelConfig && modelConfig.primaryKey) {
       return modelConfig.primaryKey;
     }
     return 'id';
-  }).property('RESTless.client._modelConfigs'),
+  }).property('RESTless.client.adapter.configurations.models'),
 
   /** 
     The name of the resource, derived from the class name.

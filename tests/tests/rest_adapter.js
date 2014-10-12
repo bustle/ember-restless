@@ -86,18 +86,17 @@ test('allows using content type extension', function() {
     adapter: adapter
   }));
 
-  var model = App.Post.create(),
-      url = adapter.buildUrl(model),
-      urlParts = url.split('/'),
-      path = urlParts[urlParts.length-1];
+  App.Post.find().currentRequest.abort().fail(function() {
+    var urlParts = this.url.split('/');
+    var path = urlParts[urlParts.length-1];
+    equal( path, 'posts.json', 'extension added' );
+  });
 
-  equal( path, 'posts.json', 'extension added' );
-
-  url = adapter.buildUrl(model, 5);
-  urlParts = url.split('/');
-  path = [urlParts[urlParts.length-2], urlParts[urlParts.length-1]].join('/');
-
-  equal( path, 'posts/5.json', 'extension added to key' );
+  App.Post.find(5).currentRequest.abort().fail(function() {
+    var urlParts = this.url.split('/');
+    var path = [urlParts[urlParts.length-2], urlParts[urlParts.length-1]].join('/');
+    equal( path, 'posts/5.json', 'extension added to key' );
+  });
 });
 
 asyncTest('can optionally add headers to ajax requests', 1, function() {
