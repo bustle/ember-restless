@@ -184,16 +184,13 @@ test('can set a different adapter per model', function() {
 });
 
 
-asyncTest('event hooks', 1, function() {
+asyncTest('event hooks', function() {
+  expect(1);
   App.Comment.reopen({
     becameError: function (error) {
-      this.set('test', 99);
+      ok( 1, 'event hook was invoked' );
+      start();
     }
   });
-
-  var comment = App.Comment.find(1);
-  comment.get('currentRequest').abort().always(function() {
-    equal( comment.get('test'), 99, 'event hook was invoked' );
-    start();
-  });
+  var comment = App.Comment.find(1).currentRequest.abort();
 });
