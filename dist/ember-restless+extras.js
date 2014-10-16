@@ -2,8 +2,8 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.5.3
- * last modifed: 2014-07-27
+ * version: 0.5.4
+ * last modifed: 2014-10-16
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013-2014 Endless, Inc.
@@ -31,7 +31,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.5.3'
+    VERSION: '0.5.4'
   });
 
   /*
@@ -102,7 +102,7 @@ function makeComputedAttribute(meta) {
       if (value === undefined) { 
         // Default values
         if (typeof meta.defaultValue === 'function') {
-          value = meta.defaultValue();
+          value = meta.defaultValue.call(this);
         } else {
           value = meta.defaultValue;
         }
@@ -608,7 +608,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    */
   attributeNameForKey: function(klass, key) {
     // check if a custom key was configured for this property
-    var modelConfig = get(RESTless, 'client._modelConfigs').get(klass.toString());
+    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(klass.toString());
     if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[key]) {
       return modelConfig.propertyKeys[key];
     }
@@ -751,19 +751,19 @@ RESTless.Adapter = Ember.Object.extend({
     @param {Object} [params] a hash of params.
   */
   find: function(klass, params) {
-    var primaryKey = get(klass, 'primaryKey'),
-        singleResourceRequest = typeof params === 'string' || typeof params === 'number' ||
-                                (typeof params === 'object' && params.hasOwnProperty(primaryKey));
+    var primaryKey = get(klass, 'primaryKey'), key;
+    var typeofParams = typeof params;
+    var singleResourceRequest = typeofParams === 'string' || typeofParams === 'number' || (typeofParams === 'object' && params.hasOwnProperty(primaryKey));
+    
     if(singleResourceRequest) {
       if(!params.hasOwnProperty(primaryKey)) {
         return this.findByKey(klass, params);
       }
-      var key = params[primaryKey];  
+      key = params[primaryKey];  
       delete params[primaryKey];
       return this.findByKey(klass, key, params);
-    } else {
-      return this.findQuery(klass, params);
     }
+    return this.findQuery(klass, params);
   },
 
   /**
@@ -1000,15 +1000,14 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
   /**
     Creates and executes an ajax request wrapped in a promise.
     @method request
-    @param {RESTless.Model} model model to use to build the request
-    @param {Object} [params] Additional ajax params
-    @param {Object} [key] optional resource primary key value
+    @param {Object} [options] hash of request options
     @return {Ember.RSVP.Promise}
    */
-  request: function(model, params, key) {
-    var adapter = this,
-        ajaxParams = this.prepareParams(params);
-    ajaxParams.url = this.buildUrl(model, key);
+  request: function(options) {
+    var adapter = this;
+    var ajaxParams = this.prepareParams(options.params);
+    var klass = options.type || options.model.constructor;
+    ajaxParams.url = this.buildUrl(options.model, options.key, klass);
 
     return new RSVPPromise(function(resolve, reject) {
       ajaxParams.success = function(data) {
@@ -1021,7 +1020,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
 
       var ajax = Ember.$.ajax(ajaxParams);
       // (private) store current ajax request on the model.
-      model.currentRequest = ajax;
+      options.model.currentRequest = ajax;
     });
   },
 
@@ -1033,10 +1032,12 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @private
    */
   prepareParams: function(params) {
-    var serializer = this.serializer,
-        headers = this.get('headers'),
-        defaultData = this.get('defaultData');
+    var serializer = this.serializer;
+    var headers = this.get('headers');
+    var defaultData = this.get('defaultData');
+    
     params = params || {};
+    params.type = params.type || 'GET';
     params.dataType = serializer.dataType;
     params.contentType = serializer.contentType;
     if(headers) {
@@ -1053,14 +1054,14 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
 
   /**
     Constructs request url and dynamically adds the resource key if specified
-    @method buildUrl
+    @method buildURL
     @private
    */
-  buildUrl: function(model, key) {
-    var resourcePath = this.resourcePath(get(model.constructor, 'resourceName')),
-        primaryKey = get(model.constructor, 'primaryKey'),
-        urlParts = [this.get('rootPath'), resourcePath],
-        dataType, url;
+  buildUrl: function(model, key, klass) {
+    var resourcePath = this.resourcePath(get(klass, 'resourceName'));
+    var primaryKey = get(klass, 'primaryKey');
+    var urlParts = [this.get('rootPath'), resourcePath];
+    var dataType, url;
 
     if(key) {
       urlParts.push(key);
@@ -1085,7 +1086,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @return {Ember.RSVP.Promise}
    */
   saveRecord: function(record) {
-    var isNew = record.get('isNew'), method, ajaxPromise;
+    var isNew = record.get('isNew'), ajaxPromise;
     //If an existing model isn't dirty, no need to save.
     if(!isNew && !record.get('isDirty')) {
       return new RSVPPromise(function(resolve, reject){
@@ -1094,8 +1095,10 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     }
 
     record.set('isSaving', true);
-    method = isNew ? 'POST' : 'PUT';
-    ajaxPromise = this.request(record, { type: method, data: record.serialize() });
+    ajaxPromise = this.request({
+      params: { type: isNew ? 'POST' : 'PUT', data: record.serialize() },
+      model: record
+    });
 
     ajaxPromise.then(function(data){
       if(data) {
@@ -1118,7 +1121,10 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @return {Ember.RSVP.Promise}
    */
   deleteRecord: function(record) {
-    var ajaxPromise = this.request(record, { type: 'DELETE', data: record.serialize() });
+    var ajaxPromise = this.request({
+      params: { type: 'DELETE', data: record.serialize() },
+      model: record
+    });
 
     ajaxPromise.then(function() {
       record.onDeleted();
@@ -1138,9 +1144,9 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @return {Ember.RSVP.Promise}
    */
   reloadRecord: function(record) {
-    var klass = record.constructor,
-        primaryKey = get(klass, 'primaryKey'),
-        key = record.get(primaryKey), ajaxPromise;
+    var klass = record.constructor;
+    var primaryKey = get(klass, 'primaryKey');
+    var key = record.get(primaryKey), ajaxPromise;
 
     // Can't reload a record that hasn't been stored yet (no primary key)
     if(isNone(key)) {
@@ -1150,7 +1156,11 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     }
 
     record.set('isLoaded', false);
-    ajaxPromise = this.request(record, { type: 'GET' }, key);
+    ajaxPromise = this.request({
+      model: record,
+      key: key
+    });
+
     ajaxPromise.then(function(data){
       record.deserialize(data);
       record.onLoaded();
@@ -1179,19 +1189,21 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @return {RESTless.RecordArray}
    */
   findQuery: function(klass, queryParams) {
-    var type = klass.toString(),
-        resourceInstance = klass.create({ isNew: false }),
-        result = RESTless.RecordArray.createWithContent(),
-        ajaxPromise = this.request(resourceInstance, { type: 'GET', data: queryParams });
-
-    ajaxPromise.then(function(data){
-      result.deserializeMany(type, data);
-      result.onLoaded();
-    }, function(error) {
-      result.onError(error);
+    var array = RESTless.RecordArray.createWithContent();
+    var ajaxPromise = this.request({
+      params: { data: queryParams },
+      type : klass,
+      model: array
     });
 
-    return result;
+    ajaxPromise.then(function(data){
+      array.deserializeMany(klass.toString(), data);
+      array.onLoaded();
+    }, function(error) {
+      array.onError(error);
+    });
+
+    return array;
   },
 
   /**
@@ -1203,8 +1215,12 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @return {RESTless.Model}
    */
   findByKey: function(klass, key, queryParams) {
-    var result = klass.create({ isNew: false }),
-        ajaxPromise = this.request(result, { type: 'GET', data: queryParams }, key);
+    var result = klass.create({ isNew: false });
+    var ajaxPromise = this.request({
+      params: { data: queryParams },
+      model: result,
+      key: key
+    });
 
     ajaxPromise.then(function(data){
       result.deserialize(data);
@@ -1248,12 +1264,7 @@ RESTless.Client = Ember.Object.extend({
     @property adapter
     @type RESTless.Adapter
    */
-  adapter: RESTless.RESTAdapter.create(),
-  /**
-    Shortcut alias to model configurations
-    @private
-  */
-  _modelConfigs: oneWay('adapter.configurations.models')
+  adapter: RESTless.RESTAdapter.create()
 });
 
 Ember.Application.initializer({
@@ -1655,12 +1666,12 @@ RESTless.Model.reopenClass({
    */
   primaryKey: computed(function() {
     var className = this.toString(),
-        modelConfig = get(RESTless, 'client._modelConfigs').get(className);
+        modelConfig = get(RESTless, 'client.adapter.configurations.models').get(className);
     if(modelConfig && modelConfig.primaryKey) {
       return modelConfig.primaryKey;
     }
     return 'id';
-  }).property('RESTless.client._modelConfigs'),
+  }).property('RESTless.client.adapter.configurations.models'),
 
   /** 
     The name of the resource, derived from the class name.
