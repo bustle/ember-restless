@@ -133,6 +133,21 @@ test('attributes can have a default value functions', function() {
 });
 
 
+test('attributes with default value functions have correct context', function() {
+  var klass = RL.Model.extend({
+    postCount: RL.attr('number', { defaultValue: function() { return this.get('posts.length'); } })
+  });
+
+  var record = klass.create({
+    posts: [1, 2, 3]
+  });
+
+  var postCount = record.get('postCount');
+
+  equal( postCount, 3, "defaultValue context is correct" );
+});
+
+
 test('attributes and relationships provided on create are not overwritten', function() {
   var post = App.Post.create({ title: 'A title' }),
       comment = App.Comment.create({ post: post, text: 'Some comment' });

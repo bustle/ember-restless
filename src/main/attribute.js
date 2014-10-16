@@ -54,7 +54,7 @@ function makeComputedAttribute(meta) {
       if (value === undefined) { 
         // Default values
         if (typeof meta.defaultValue === 'function') {
-          value = meta.defaultValue();
+          value = meta.defaultValue.call(this);
         } else {
           value = meta.defaultValue;
         }
