@@ -133,7 +133,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @chainable
   */
   serialize: function(options) {
-    return RESTless.get('client.adapter.serializer').serialize(this, options);
+    return get(this.constructor, 'adapter.serializer').serialize(this, options);
   },
   /**
     Deserializes raw data into Model properties
@@ -142,7 +142,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @chainable
   */
   deserialize: function(data) {
-    return RESTless.get('client.adapter.serializer').deserialize(this, data);
+    return get(this.constructor, 'adapter.serializer').deserialize(this, data);
   },
   /**
     Serializes a Model property into its data representaion.
@@ -151,7 +151,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @chainable
   */
   serializeProperty: function(prop) {
-    return RESTless.get('client.adapter.serializer').serializeProperty(this, prop);
+    return get(this.constructor, 'adapter.serializer').serializeProperty(this, prop);
   },
   /**
     Deserializes raw data property into Model property
@@ -161,7 +161,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @chainable
   */
   deserializeProperty: function(prop, value) {
-    return RESTless.get('client.adapter.serializer').deserializeProperty(this, prop, value);
+    return get(this.constructor, 'adapter.serializer').deserializeProperty(this, prop, value);
   }
 });
 
