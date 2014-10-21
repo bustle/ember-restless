@@ -2,8 +2,8 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.5.4
- * last modifed: 2014-10-16
+ * version: 0.5.5
+ * last modifed: 2014-10-21
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013-2014 Endless, Inc.
@@ -31,7 +31,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.5.4'
+    VERSION: '0.5.5'
   });
 
   /*
@@ -450,15 +450,15 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     Transforms json array into a record array
     @method deserializeMany
     @param {RESTless.RecordArray} recordArray RecordArray
-    @param {String} type records class name
+    @param {Object} type class type of records
     @param {Object} data json data
     @return {RESTless.RecordArray}
   */
   deserializeMany: function(recordArray, type, data) {
     if(!data) { return recordArray; }
 
-    var arrayData = this._arrayDataForType(type, data),
-        meta, i, len, item, content, klass;
+    var arrayData = this._arrayDataForType(type, data);
+    var meta, i, len, item, content, klass;
 
     if(!arrayData) { return recordArray; }
 
@@ -1197,7 +1197,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     });
 
     ajaxPromise.then(function(data){
-      array.deserializeMany(klass.toString(), data);
+      array.deserializeMany(klass, data);
       array.onLoaded();
     }, function(error) {
       array.onError(error);
@@ -1592,7 +1592,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @chainable
   */
   serialize: function(options) {
-    return RESTless.get('client.adapter.serializer').serialize(this, options);
+    return get(this.constructor, 'adapter.serializer').serialize(this, options);
   },
   /**
     Deserializes raw data into Model properties
@@ -1601,7 +1601,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @chainable
   */
   deserialize: function(data) {
-    return RESTless.get('client.adapter.serializer').deserialize(this, data);
+    return get(this.constructor, 'adapter.serializer').deserialize(this, data);
   },
   /**
     Serializes a Model property into its data representaion.
@@ -1610,7 +1610,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @chainable
   */
   serializeProperty: function(prop) {
-    return RESTless.get('client.adapter.serializer').serializeProperty(this, prop);
+    return get(this.constructor, 'adapter.serializer').serializeProperty(this, prop);
   },
   /**
     Deserializes raw data property into Model property
@@ -1620,7 +1620,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @chainable
   */
   deserializeProperty: function(prop, value) {
-    return RESTless.get('client.adapter.serializer').deserializeProperty(this, prop, value);
+    return get(this.constructor, 'adapter.serializer').deserializeProperty(this, prop, value);
   }
 });
 
@@ -1665,8 +1665,7 @@ RESTless.Model.reopenClass({
     @default 'id'
    */
   primaryKey: computed(function() {
-    var className = this.toString(),
-        modelConfig = get(RESTless, 'client.adapter.configurations.models').get(className);
+    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(this.toString());
     if(modelConfig && modelConfig.primaryKey) {
       return modelConfig.primaryKey;
     }

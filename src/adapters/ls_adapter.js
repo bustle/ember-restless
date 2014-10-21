@@ -146,7 +146,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
         return true;
       }); 
     }
-    result.deserializeMany(model.toString(), itemsA);
+    result.deserializeMany(model, itemsA);
     result.onLoaded();
     return result;
   },

@@ -298,7 +298,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     });
 
     ajaxPromise.then(function(data){
-      array.deserializeMany(klass.toString(), data);
+      array.deserializeMany(klass, data);
       array.onLoaded();
     }, function(error) {
       array.onError(error);

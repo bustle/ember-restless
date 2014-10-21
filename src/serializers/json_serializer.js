@@ -102,15 +102,15 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     Transforms json array into a record array
     @method deserializeMany
     @param {RESTless.RecordArray} recordArray RecordArray
-    @param {String} type records class name
+    @param {Object} type class type of records
     @param {Object} data json data
     @return {RESTless.RecordArray}
   */
   deserializeMany: function(recordArray, type, data) {
     if(!data) { return recordArray; }
 
-    var arrayData = this._arrayDataForType(type, data),
-        meta, i, len, item, content, klass;
+    var arrayData = this._arrayDataForType(type, data);
+    var meta, i, len, item, content, klass;
 
     if(!arrayData) { return recordArray; }
 

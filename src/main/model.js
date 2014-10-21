@@ -206,8 +206,7 @@ RESTless.Model.reopenClass({
     @default 'id'
    */
   primaryKey: computed(function() {
-    var className = this.toString(),
-        modelConfig = get(RESTless, 'client.adapter.configurations.models').get(className);
+    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(this.toString());
     if(modelConfig && modelConfig.primaryKey) {
       return modelConfig.primaryKey;
     }
