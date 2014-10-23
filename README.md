@@ -1,6 +1,6 @@
 # Ember RESTless [![Build Status](https://travis-ci.org/bustlelabs/ember-restless.png?branch=master)](https://travis-ci.org/bustlelabs/ember-restless)
 
-RESTless is a lightweight data persistence library for Ember.js. (~5KB minified & gzipped)
+RESTless is a lightweight data persistence library for [Ember.js](http://emberjs.com).
 
 Out of the box, it is used to communicate with a remote JSON REST API to map data between a server and your Ember.js application.  
 
@@ -81,6 +81,21 @@ App.Post = RL.Model.extend({
 Supported attribute types are string, number, boolean, and date. Defining a type is optional.
 You can define custom attribute type transforms in your adapter.  See the advanced section below.
 
+**Note on ES6 modules**  
+If using ES6 modules/ember-cli, you'll need to explictly define `resourceName` on all of your model classes:
+
+``` javascript
+var Post = RL.Model.extend({
+  ...
+});
+
+Post.reopenClass({
+  resourceName: 'post'
+});
+
+export default Post;
+```
+
 
 ### Relationships
 
@@ -93,7 +108,7 @@ App.User = RL.Model.extend({
 });
 
 App.Profile = RL.Model.extend({
-  user: RL.belongsTo('App.User')
+  user: RL.belongsTo('user')
 });
 ```
 
@@ -106,7 +121,7 @@ App.Tag = RL.Model.extend({
 });
 
 App.Post = RL.Model.extend({
-  tags: RL.hasMany('App.Tag')
+  tags: RL.hasMany('tag')
 });
 ```
 _Currently, all relational data should be embedded in the response. Also, see [Side-loading records](#side-loading-records)._
@@ -290,8 +305,8 @@ App.CurrentUser.reopenClass({
 ### Custom plurals configuration
 You can use a custom adapter to set irregular plural resource names
 ``` javascript
-App.RESTAdapter.configure("plurals", {
-  person: "people"
+App.RESTAdapter.configure('plurals', {
+  person: 'people'
 });
 ```
 
@@ -299,8 +314,8 @@ App.RESTAdapter.configure("plurals", {
 The primary key for all models defaults to 'id'. 
 You can customize it per model class to match your API:
 ``` javascript
-App.RESTAdapter.map("App.Post", {
-  primaryKey: "slug"
+App.RESTAdapter.map('post', {
+  primaryKey: 'slug'
 });
 ```
 
@@ -310,7 +325,7 @@ For example, if your JSON has a key ```lastNameOfPerson``` and the desired attri
 App.Person = RL.Model.extend({
   lastName: RL.attr('string')
 });
-App.RESTAdapter.map('App.Person', {
+App.RESTAdapter.map('person', {
   lastName: { key: 'lastNameOfPerson' }
 });
 ```
@@ -319,13 +334,13 @@ App.RESTAdapter.map('App.Person', {
 To add a header to every ajax request:
 ``` javascript
 App.RESTAdapter = RL.RESTAdapter.create({
-  headers: { "X-API-KEY" : "abc1234" }
+  headers: { 'X-API-KEY' : 'abc1234' }
 });
 ```
 To add data to every request url:
 ``` javascript
 App.RESTAdapter = RL.RESTAdapter.create({
-  defaultData: { api_key: "abc1234" }
+  defaultData: { api_key: 'abc1234' }
 });
 ```
 Results in e.g. ```App.User.find()``` => ```http://api.example.com/users?api_key=abc1234```
@@ -402,7 +417,7 @@ App.Client = RL.Client.create({
 
 If you wish to build ember-restless yourself, you will need node.js and Grunt.  
 
-1. Install node: <a href="http://nodejs.org/">http://nodejs.org/</a>
+1. Install node: <a href='http://nodejs.org/'>http://nodejs.org/</a>
 2. Install dependencies: ```npm install```
 3. To build and run tests: ```grunt```
 4. Output will be in ```dist/```
@@ -410,7 +425,7 @@ If you wish to build ember-restless yourself, you will need node.js and Grunt.
 
 ## Tests
 
-Uses <a href="http://qunitjs.com/">QUnit</a>  
+Uses <a href='http://qunitjs.com/'>QUnit</a>  
 Tests are run during the grunt build process or running ```grunt test```  
 To run tests in browsers, you can simply open tests/index.html in a browser.  
 

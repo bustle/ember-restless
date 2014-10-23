@@ -24,5 +24,6 @@ Ember.Application.initializer({
     application.addObserver('Client', this, function() {
       RESTless.set('client', this.Client);
     });
+    RESTless.__container__ = container;
   }
 });

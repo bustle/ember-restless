@@ -7,7 +7,15 @@ test('a serialzer can be created', function() {
   ok( serialzer, 'an serialzer exists' );
 });
 
-test('modelFor resolves string and class references', function() {
+test('modelFor resolves various string and class references', function() {
   var serialzer = RL.Serializer.create();
-  equal( serialzer.modelFor('App.Person'), serialzer.modelFor(App.Person), 'model for type looks up strings or references');
+
+  var PersonModel = App.Person;
+  equal( serialzer.modelFor('App.Person'), PersonModel, 'looks up global strings');
+  equal( serialzer.modelFor(App.Person), PersonModel, 'direct references pass through');
+  equal( serialzer.modelFor('person'), PersonModel, 'looks up container strings');
+
+  var PostGroupModel = App.PostGroup;
+  equal( serialzer.modelFor('post-group'), PostGroupModel, 'container looks up dashed names');
+  equal( serialzer.modelFor('postGroup'), PostGroupModel, 'container looks up camelized names');
 });

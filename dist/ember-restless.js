@@ -2,8 +2,8 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.5.5
- * last modifed: 2014-10-22
+ * version: 0.6.0
+ * last modifed: 2014-10-27
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013-2014 Bustle Labs.
@@ -31,7 +31,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.5.5'
+    VERSION: '0.6.0'
   });
 
   /*
@@ -285,7 +285,13 @@ RESTless.Serializer = Ember.Object.extend({
   */
   modelFor: function(type) {
     if (typeof type === 'string') {
-      return get(Ember.lookup, type);
+      // Globals support
+      if (type.split('.').length > 1) {
+        return get(Ember.lookup, type); 
+      }
+
+      // Container support
+      return RESTless.__container__.lookupFactory('model:' + type);
     }
     return type;
   },
@@ -572,7 +578,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
    */
   attributeNameForKey: function(klass, key) {
     // check if a custom key was configured for this property
-    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(klass.toString());
+    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(get(klass, '_configKey'));
     if(modelConfig && modelConfig.propertyKeys && modelConfig.propertyKeys[key]) {
       return modelConfig.propertyKeys[key];
     }
@@ -781,12 +787,15 @@ RESTless.Adapter = Ember.Object.extend({
     @chainable
     @example
       <pre class="prettyprint">
-      App.Adapter.map('App.Post', { primaryKey: 'slug' });
-      App.Adapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });</pre>
+      App.Adapter.map('post', { primaryKey: 'slug' });
+      App.Adapter.map('person', { lastName: { key: 'lastNameOfPerson' } });</pre>
   */
   map: function(modelKey, config) {
     var modelMap = this.get('configurations.models');
-    var modelConfig = modelMap.get(modelKey);
+    // Temp supporting deprecated 'App.Post' style mapping
+    var modelKeyParts = modelKey.split('.');
+    var normalizedModelKey = Ember.String.camelize(modelKeyParts[modelKeyParts.length-1]);
+    var modelConfig = modelMap.get(normalizedModelKey);
     var newConfig = {};
     var configKey, propertyKeys, modifiedPropKey;
 
@@ -805,7 +814,7 @@ RESTless.Adapter = Ember.Object.extend({
         modelConfig = modelConfig ? merge(modelConfig, newConfig) : newConfig;
       }
     }
-    modelMap.set(modelKey, modelConfig);
+    modelMap.set(normalizedModelKey, modelConfig);
     return this;
   },
 
@@ -1209,6 +1218,7 @@ Ember.Application.initializer({
     application.addObserver('Client', this, function() {
       RESTless.set('client', this.Client);
     });
+    RESTless.__container__ = container;
   }
 });
 
@@ -1599,7 +1609,7 @@ RESTless.Model.reopenClass({
     @default 'id'
    */
   primaryKey: computed(function() {
-    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(this.toString());
+    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(get(this, '_configKey'));
     if(modelConfig && modelConfig.primaryKey) {
       return modelConfig.primaryKey;
     }
@@ -1609,6 +1619,7 @@ RESTless.Model.reopenClass({
   /** 
     The name of the resource, derived from the class name.
     App.Post => 'Post', App.PostGroup => 'PostGroup', App.AnotherNamespace.Post => 'Post'
+    Note: when using ES6 modules, resourceName needs to be explicitly defined.
 
     @property resourceName
     @type String
@@ -1619,16 +1630,25 @@ RESTless.Model.reopenClass({
   }),
   /** 
     The plural name of the resource, derived from the class name.
-    App.Post => 'Post', App.PostGroup => 'PostGroup', App.AnotherNamespace.Post => 'Post'
+    App.Post => 'posts', App.PostGroup => 'post_groups'
 
     @property resourceNamePlural
     @type String
    */
   resourceNamePlural: computed(function() {
-    var resourceName = get(this, 'resourceName'),
-        adapter = get(this, 'adapter');    
+    var resourceName = get(this, 'resourceName');
+    var adapter = get(this, 'adapter');    
     return adapter.pluralize(Ember.String.decamelize(resourceName));
   }),
+
+  /** 
+    @property _configKey
+    @type String
+    @private
+   */
+  _configKey: computed(function() {
+    return Ember.String.camelize(get(this, 'resourceName'));
+  }).property('resourceName'),
 
   /** 
     Meta information for all attributes and relationships

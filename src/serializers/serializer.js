@@ -31,7 +31,13 @@ RESTless.Serializer = Ember.Object.extend({
   */
   modelFor: function(type) {
     if (typeof type === 'string') {
-      return get(Ember.lookup, type);
+      // Globals support
+      if (type.split('.').length > 1) {
+        return get(Ember.lookup, type); 
+      }
+
+      // Container support
+      return RESTless.__container__.lookupFactory('model:' + type);
     }
     return type;
   },

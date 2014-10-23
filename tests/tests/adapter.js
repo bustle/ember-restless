@@ -14,36 +14,44 @@ test('an adapter is optional with a custom client', function() {
 });
 
 test('can change primary key for model property', function() {
-  RESTless.get('client.adapter').map('App.Post', {
+  RESTless.get('client.adapter').map('post', {
     primaryKey: 'slug'
   });
-  equal( get(RESTless, 'client.adapter.configurations.models').get('App.Post').primaryKey, 'slug', 'primary key was changed' );
+  equal( get(RESTless, 'client.adapter.configurations.models').get('post').primaryKey, 'slug', 'primary key was changed' );
   equal( get(App.Post, 'primaryKey'), 'slug', 'primaryKey property updated' );
 });
 
 test('can set custom model property key', function() {
-  RESTless.get('client.adapter').map('App.Post', {
+  RESTless.get('client.adapter').map('post', {
     body: { key: 'bodyHtml' }
   });
-  equal( get(RESTless, 'client.adapter.configurations.models').get('App.Post').propertyKeys.bodyHtml, 'body', 'model property key was changed' );
+  equal( get(RESTless, 'client.adapter.configurations.models').get('post').propertyKeys.bodyHtml, 'body', 'model property key was changed' );
 });
 
 test('can set multiple configurations at once and can overwrite configurations', function() {
-  RESTless.get('client.adapter').map('App.Post', {
+  RESTless.get('client.adapter').map('post', {
     primaryKey: 'title',
     body: { key: 'bodyContent' }
   });
-  equal( get(RESTless, 'client.adapter.configurations.models').get('App.Post').primaryKey, 'title', 'primary key was changed' );
-  equal( get(RESTless, 'client.adapter.configurations.models').get('App.Post').propertyKeys.bodyContent, 'body', 'model property key was changed' );
+  equal( get(RESTless, 'client.adapter.configurations.models').get('post').primaryKey, 'title', 'primary key was changed' );
+  equal( get(RESTless, 'client.adapter.configurations.models').get('post').propertyKeys.bodyContent, 'body', 'model property key was changed' );
+});
+
+test('support deprecated map using global namespace', function() {
+  RESTless.get('client.adapter').map('App.Post', {
+    primaryKey: 'slug'
+  });
+  equal( get(RESTless, 'client.adapter.configurations.models').get('post').primaryKey, 'slug', 'primary key was changed' );
+  equal( get(App.Post, 'primaryKey'), 'slug', 'primaryKey property updated' );
 });
 
 test('can set custom plurals', function() {
-  RESTless.get('client.adapter').configure("plurals", {
-    person: "people"
+  RESTless.get('client.adapter').configure('plurals', {
+    person: 'people'
   });
-  RESTless.get('client.adapter').configure("plurals", {
-    nothing: "something",
-    another: "to_test"
+  RESTless.get('client.adapter').configure('plurals', {
+    nothing: 'something',
+    another: 'to_test'
   });
   equal( get(RESTless, 'client.adapter.configurations.plurals').person, 'people', 'plural set and not overwritten' );
 });

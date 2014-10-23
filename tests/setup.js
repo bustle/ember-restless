@@ -4,7 +4,7 @@ App.Post = RL.Model.extend({
   slug: RL.attr('string'),
   title: RL.attr('string'),
   body: RL.attr('string'),
-  tags: RL.hasMany('App.Tag'),
+  tags: RL.hasMany('tag'),
   createdAt: RL.attr('date')
 });
 
@@ -13,8 +13,8 @@ App.Tag = RL.Model.extend({
 });
 
 App.PostGroup = RL.Model.extend({
-  featured: RL.hasMany('App.Post'),
-  popular: RL.hasMany('App.Post', { readOnly: true })
+  featured: RL.hasMany('post'),
+  popular: RL.hasMany('post', { readOnly: true })
 });
 
 App.Person = RL.Model.extend({
@@ -25,9 +25,9 @@ App.Person = RL.Model.extend({
 
 App.Comment = RL.Model.extend({
   text: RL.attr('string'),
-  post: RL.belongsTo('App.Post'),
-  author: RL.belongsTo('App.Person'),
-  likes: RL.hasMany('App.Like')
+  post: RL.belongsTo('post'),
+  author: RL.belongsTo('person'),
+  likes: RL.hasMany('like')
 });
 
 App.Like = RL.Model.extend({

@@ -206,7 +206,7 @@ RESTless.Model.reopenClass({
     @default 'id'
    */
   primaryKey: computed(function() {
-    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(this.toString());
+    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(get(this, '_configKey'));
     if(modelConfig && modelConfig.primaryKey) {
       return modelConfig.primaryKey;
     }
@@ -216,6 +216,7 @@ RESTless.Model.reopenClass({
   /** 
     The name of the resource, derived from the class name.
     App.Post => 'Post', App.PostGroup => 'PostGroup', App.AnotherNamespace.Post => 'Post'
+    Note: when using ES6 modules, resourceName needs to be explicitly defined.
 
     @property resourceName
     @type String
@@ -226,16 +227,25 @@ RESTless.Model.reopenClass({
   }),
   /** 
     The plural name of the resource, derived from the class name.
-    App.Post => 'Post', App.PostGroup => 'PostGroup', App.AnotherNamespace.Post => 'Post'
+    App.Post => 'posts', App.PostGroup => 'post_groups'
 
     @property resourceNamePlural
     @type String
    */
   resourceNamePlural: computed(function() {
-    var resourceName = get(this, 'resourceName'),
-        adapter = get(this, 'adapter');    
+    var resourceName = get(this, 'resourceName');
+    var adapter = get(this, 'adapter');    
     return adapter.pluralize(Ember.String.decamelize(resourceName));
   }),
+
+  /** 
+    @property _configKey
+    @type String
+    @private
+   */
+  _configKey: computed(function() {
+    return Ember.String.camelize(get(this, 'resourceName'));
+  }).property('resourceName'),
 
   /** 
     Meta information for all attributes and relationships

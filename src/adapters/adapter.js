@@ -120,12 +120,15 @@ RESTless.Adapter = Ember.Object.extend({
     @chainable
     @example
       <pre class="prettyprint">
-      App.Adapter.map('App.Post', { primaryKey: 'slug' });
-      App.Adapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });</pre>
+      App.Adapter.map('post', { primaryKey: 'slug' });
+      App.Adapter.map('person', { lastName: { key: 'lastNameOfPerson' } });</pre>
   */
   map: function(modelKey, config) {
     var modelMap = this.get('configurations.models');
-    var modelConfig = modelMap.get(modelKey);
+    // Temp supporting deprecated 'App.Post' style mapping
+    var modelKeyParts = modelKey.split('.');
+    var normalizedModelKey = Ember.String.camelize(modelKeyParts[modelKeyParts.length-1]);
+    var modelConfig = modelMap.get(normalizedModelKey);
     var newConfig = {};
     var configKey, propertyKeys, modifiedPropKey;
 
@@ -144,7 +147,7 @@ RESTless.Adapter = Ember.Object.extend({
         modelConfig = modelConfig ? merge(modelConfig, newConfig) : newConfig;
       }
     }
-    modelMap.set(modelKey, modelConfig);
+    modelMap.set(normalizedModelKey, modelConfig);
     return this;
   },
 
