@@ -128,7 +128,7 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
     }
     
     result = RESTless.RecordArray.createWithContent();
-    result.deserializeMany(klass.toString(), fixturesA);
+    result.deserializeMany(klass, fixturesA);
     result.onLoaded();
     return result;
   },

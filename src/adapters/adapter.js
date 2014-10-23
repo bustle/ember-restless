@@ -1,6 +1,7 @@
 /**
   Adapters handle sending and fetching data to and from a persistence layer.
-  This is a base class to be subclassed.
+  This is a base class to be subclassed. Subclasses should implement:
+  `saveRecord()`, `deleteRecord()`, `findAll()`, `findQuery()`, `findByKey()`
 
   @class Adapter
   @namespace RESTless
@@ -13,37 +14,6 @@ RESTless.Adapter = Ember.Object.extend({
     @type RESTless.Serializer
    */
   serializer: null,
-
-  /**
-    Saves a record. Abstract - implement in subclass.
-    @method saveRecord
-  */
-  saveRecord: noop,
-  /**
-    Deletes a record. Abstract - implement in subclass.
-    @method deleteRecord
-  */
-  deleteRecord: noop,
-  /**
-    Finds all records. Abstract - implement in subclass.
-    @method findAll
-  */
-  findAll: noop,
-  /**
-    Finds records by query. Abstract - implement in subclass.
-    @method findQuery
-  */
-  findQuery: noop,
-  /**
-    Finds record by primary key. Abstract - implement in subclass.
-    @method findByKey
-  */
-  findByKey: noop,
-  /**
-    Generates a unique id for new records. Abstract - implement in subclass.
-    @method generateIdForRecord
-  */
-  generateIdForRecord: noop,
 
   /**
     Finds records with specified params.
@@ -99,9 +69,9 @@ RESTless.Adapter = Ember.Object.extend({
     @return Ember.RSVP.Promise
   */
   reloadRecord: function(record) {
-    var klass = record.constructor,
-        primaryKey = get(klass, 'primaryKey'),
-        key = record.get(primaryKey);
+    var klass = record.constructor;
+    var primaryKey = get(klass, 'primaryKey');
+    var key = record.get(primaryKey);
 
     // Can't reload a record that hasn't been stored yet (no primary key)
     if(isNone(key)) {
@@ -154,10 +124,10 @@ RESTless.Adapter = Ember.Object.extend({
       App.Adapter.map('App.Person', { lastName: { key: 'lastNameOfPerson' } });</pre>
   */
   map: function(modelKey, config) {
-    var modelMap = this.get('configurations.models'),
-        modelConfig = modelMap.get(modelKey), 
-        newConfig = {},
-        configKey, propertyKeys, modifiedPropKey;
+    var modelMap = this.get('configurations.models');
+    var modelConfig = modelMap.get(modelKey);
+    var newConfig = {};
+    var configKey, propertyKeys, modifiedPropKey;
 
     for(configKey in config) {
       if(config.hasOwnProperty(configKey)) {
