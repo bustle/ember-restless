@@ -3,8 +3,8 @@ module.exports = function(grunt) {
   'use strict';
 
   var coreSrc = [
-    'src/main/main.js',
-    'src/main/attribute.js',
+    'src/index.js',
+    'src/model/attribute.js',
     'src/transforms/base.js',
     'src/transforms/string.js',
     'src/transforms/number.js',
@@ -15,11 +15,11 @@ module.exports = function(grunt) {
     'src/serializers/json_serializer.js',
     'src/adapters/adapter.js',
     'src/adapters/rest_adapter.js',
-    'src/main/client.js',
-    'src/main/state.js',
-    'src/main/model.js',
-    'src/main/read_only_model.js',
-    'src/main/record_array.js',
+    'src/client.js',
+    'src/model/state.js',
+    'src/model/model.js',
+    'src/model/read_only_model.js',
+    'src/model/record_array.js',
     'src/ext/date.js'
   ];
 
@@ -76,7 +76,7 @@ module.exports = function(grunt) {
         footer: '<%= wrapClosure.footer %>',
         version: '<%= pkg.version %>',
         process: function(src, filepath) {
-          if(filepath === 'src/main/main.js') {
+          if(filepath === 'src/index.js') {
             return src.replace('@@version', this.version);
           }
           return src;
