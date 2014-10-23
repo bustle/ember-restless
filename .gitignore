@@ -17,5 +17,6 @@ npm-debug.log
 node_modules
 
 dist/*.min.js
+dist/*+addons.js
 docs/
 docs-theme/

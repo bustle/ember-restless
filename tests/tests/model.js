@@ -111,7 +111,7 @@ test('does not become dirty when a readOnly nested relationship becomes dirty', 
 test('attributes can have default values', function() {
   var model = RL.Model.extend({
     role: RL.attr('string', { defaultValue: 'user' }),
-    position: RL.attr('number', { defaultValue: 1 }),
+    position: RL.attr('number', { defaultValue: 1 })
   });
   var record = model.create({ position: 2 });
 

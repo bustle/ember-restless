@@ -27,10 +27,10 @@ See the [changelog](CHANGELOG.md) for the latest features and API changes.
     - [Side-loading records](#side-loading-records)
     - [Model lifecycle](#model-lifecycle)
 - [Promises](#promises)
-- [Extras](#extras)
 - [Advanced](#advanced)
-- [Building RESTless](#building-restless)
+- [Building](#building)
 - [Tests](#tests)
+- [Add-ons](#add-ons)
 
 ## Getting started
 
@@ -274,17 +274,6 @@ App.PostIndexRoute = Ember.Route.extend({
 });
 ```
 
-- - -  
-
-## Extras
-
-To keep RESTless lightweight and focused, the default distrubtion solely supports a REST Adapter.  
-We are separately offering an "extras" build: [ember-restless+extras.js](https://raw.github.com/bustlelabs/ember-restless/master/dist/ember-restless+extras.js).
-Which additionally includes:
-- Fixture Adapter
-- LocalStorage Adapter
-
-- - -  
 
 ## Advanced
 
@@ -409,7 +398,7 @@ App.Client = RL.Client.create({
 ```
 
 
-## Building RESTless
+## Building
 
 If you wish to build ember-restless yourself, you will need node.js and Grunt.  
 
@@ -426,12 +415,9 @@ Tests are run during the grunt build process or running ```grunt test```
 To run tests in browsers, you can simply open tests/index.html in a browser.  
 
 
-## Contributors
+## Add-ons
 
-Thanks to the Ember core team and contributors for creating Ember and Ember Data.  
-Special thanks to the following for creating & contributing to the ember-restless project:
+RESTless also has the following (unbundled) add-ons, which you can include separately or build yourself:
+- Fixture Adapter
+- LocalStorage Adapter
 
-- [Garth Poitras](https://github.com/gdub22) | [twitter](https://twitter.com/papapoitch)
-- [Tyler Love](https://github.com/tylr)
-- [Gopal Patel](https://github.com/nixme)
-- [Ajay Kumar Chintala](https://github.com/ajhai)
