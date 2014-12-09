@@ -419,16 +419,17 @@ If you wish to build ember-restless yourself, you will need node.js and Grunt.
 
 1. Install node: <a href='http://nodejs.org/'>http://nodejs.org/</a>
 2. Install dependencies: ```npm install```
-3. To build and run tests: ```grunt```
+3. Build: ```grunt build```
 4. Output will be in ```dist/```
 
 
-## Tests
+## Testing
 
-Uses <a href='http://qunitjs.com/'>QUnit</a>  
-Tests are run during the grunt build process or running ```grunt test```  
-To run tests in browsers, you can simply open tests/index.html in a browser.  
+1. Install bower: ```npm install -g bower```
+2. Install dependencies: ```bower install```
+3. Test: ```grunt test``` or open tests/index.html in a browser  
 
+#### ```grunt``` default task will both build & test.
 
 ## Add-ons
 

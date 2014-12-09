@@ -3,7 +3,7 @@
  * A lightweight data persistence library for Ember.js
  *
  * version: 0.6.1
- * last modifed: 2014-12-08
+ * last modifed: 2014-12-09
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013-2014 Bustle Labs.
