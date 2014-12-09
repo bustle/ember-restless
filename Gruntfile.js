@@ -65,8 +65,25 @@ module.exports = function(grunt) {
       }
     },
 
+    connect: {
+      server: {
+        options: {
+          hostname: '127.0.0.1',
+          port: 8000,
+          base: '.'
+        }
+      }
+    },
+
     qunit: {
-      files: ['tests/*.html']
+      all: {
+        options: {
+          urls: [
+            'http://<%= connect.server.options.hostname %>:<%= connect.server.options.port %>/tests/index.html',
+            'http://<%= connect.server.options.hostname %>:<%= connect.server.options.port %>/tests/index.html?addons'
+          ]
+        }
+      }
     },
 
     concat: {
@@ -119,6 +136,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-yuidoc');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -126,12 +144,9 @@ module.exports = function(grunt) {
   // Build task: Lint, concat
   grunt.registerTask('build', ['jshint:beforeconcat', 'concat:dist', 'concat:addons', 'jshint:afterconcat']);
 
-  // Default task: Build, test
-  grunt.registerTask('default', ['build', 'test']);
-
   // Test only task
-  grunt.registerTask('test', ['qunit']);
+  grunt.registerTask('test', ['connect', 'qunit']);
 
-  // Travis CI task: default
-  grunt.registerTask('ci', ['default']);
+  // Default task: Clean, build, test
+  grunt.registerTask('default', ['clean', 'build', 'test']);
 };

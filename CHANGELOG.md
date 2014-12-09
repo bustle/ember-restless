@@ -4,11 +4,16 @@ The change log documents features and breaking changes for each version.
 While RESTless reaches a 1.0 release and more feedback and testing continues, the API is subject to change.  
 To keep the library small, API depreciation warnings may not be added.
 
+### 0.6.1
+
+- Bug fix to support Ember 1.8.0 which changed method signiture of Ember.Map.forEach
+- Now using bower to install testing libs instead of packaging with project
+
 ### 0.6.0
 
 - Support usage with ES6 modules / ember-cli
 - Deprecated namespaces in relationship attrs & configurations. Should now reference models e.g. `'post'` instead of `'App.Post'`
-- No longer distrubting 'extras' builds, but still able to build it yourself.
+- No longer distributing 'extras' builds, but still able to build it yourself.
 
 ### 0.5.4, 0.5.5
 

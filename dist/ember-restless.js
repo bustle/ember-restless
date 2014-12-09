@@ -2,8 +2,8 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.6.0
- * last modifed: 2014-10-27
+ * version: 0.6.1
+ * last modifed: 2014-12-09
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013-2014 Bustle Labs.
@@ -31,7 +31,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.6.0'
+    VERSION: '0.6.1'
   });
 
   /*
@@ -385,9 +385,10 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @param {Object} value json data value
   */
   deserializeProperty: function(resource, prop, value) {
-    var attrName = this.attributeNameForKey(resource.constructor, prop),
-        fields = get(resource.constructor, 'fields'),
-        field = fields.get(attrName), type, klass, belongsToModel;
+    var attrName = this.attributeNameForKey(resource.constructor, prop);
+    var fields = get(resource.constructor, 'fields');
+    var field = fields[attrName];
+    var type, klass, belongsToModel, hasManyArr;
 
     // If the json contains a key not defined on the model, don't attempt to set it.
     if (!field) { return; }
@@ -396,7 +397,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
 
     // If property is a hasMany relationship, deserialze the array
     if (field.hasMany) {
-      var hasManyArr = this.deserializeMany(resource.get(attrName), type, value);
+      hasManyArr = this.deserializeMany(resource.get(attrName), type, value);
       resource.set(attrName, hasManyArr);
     } 
     // If property is a belongsTo relationship, deserialze that model
@@ -472,18 +473,22 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   serialize: function(resource, options) {
     if(!resource) { return null; }
 
-    var fields = get(resource.constructor, 'fields'),
-        json = {};
+    var fields = get(resource.constructor, 'fields');
+    var json = {};
+    var field, fieldMeta, value;
 
-    fields.forEach(function(field, fieldOpts) {
-      //Don't include readOnly properties or to-one relationships (unless specified)
-      if (!fieldOpts.readOnly && (!fieldOpts.belongsTo || (fieldOpts.belongsTo && options && options.includeRelationships))) {
-        var val = this.serializeProperty(resource, field, fieldOpts);
-        if(val !== null) {
-          json[this.keyForAttributeName(field)] = val;
+    for (field in fields) {
+      if (fields.hasOwnProperty(field)) {
+        fieldMeta = fields[field];
+        //Don't include readOnly properties or to-one relationships (unless specified)
+        if (!fieldMeta.readOnly && (!fieldMeta.belongsTo || (fieldMeta.belongsTo && options && options.includeRelationships))) {
+          value = this.serializeProperty(resource, field, fieldMeta);
+          if(value !== null) {
+            json[this.keyForAttributeName(field)] = value;
+          }
         }
       }
-    }, this);
+    }
 
     // By default, serialzed records are wrapped in a resource-named object
     // { post: { id:1, name:"first post" } }
@@ -1479,16 +1484,19 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @return {Object} copy of receiver
    */
   copy: function(deep) {
-    var clone = this.constructor.create(),
-        fields = get(this.constructor, 'fields');
+    var clone = this.constructor.create();
+    var fields = get(this.constructor, 'fields');
+    var field, value;
 
     Ember.beginPropertyChanges(this);
-    fields.forEach(function(field, opts) {
-      var value = this.get(field);
-      if (value !== null) {
-        clone.set(field, value);
+    for (field in fields) {
+      if (fields.hasOwnProperty(field)) {
+        value = this.get(field);
+        if (value !== null) {
+          clone.set(field, value);
+        }
       }
-    }, this);
+    }
     Ember.endPropertyChanges(this);
 
     return clone;
@@ -1656,13 +1664,13 @@ RESTless.Model.reopenClass({
     @type Ember.Map
    */
   fields: computed(function() {
-    var map = Ember.Map.create();
+    var fields = {};
     this.eachComputedProperty(function(name, meta) {
       if (meta.isAttribute || meta.isRelationship) {
-        map.set(name, meta);
+        fields[name] = meta;
       }
     });
-    return map;
+    return fields;
   }),
 
   /** 

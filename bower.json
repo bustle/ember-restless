@@ -1,6 +1,6 @@
 {
   "name": "ember-restless",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "author": "Garth Poitras",
   "main": "dist/ember-restless.js",
   "ignore": [
@@ -13,5 +13,10 @@
   ],
   "dependencies": {
     "ember": ">= 1.0.0"
+  },
+  "devDependencies": {
+    "ember": "~1.8.1",
+    "qunit": "~1.16.0",
+    "sinon": "http://sinonjs.org/releases/sinon-1.12.1.js"
   }
 }

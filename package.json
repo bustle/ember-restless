@@ -2,7 +2,7 @@
   "name": "ember-restless",
   "title": "Ember RESTless",
   "description": "A lightweight data persistence library for Ember.js",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "main": "Gruntfile.js",
   "repository": "https://github.com/endlessinc/ember-restless.git",
   "homepage": "https://github.com/endlessinc/ember-restless",
@@ -19,11 +19,12 @@
     "grunt-cli": "^0.1.13",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-connect": "^0.9.0",
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-qunit": "^0.5.2",
     "grunt-contrib-yuidoc": "^0.5.2"
   },
   "scripts": {
-    "test": "grunt ci --verbose"
+    "test": "grunt test --verbose"
   }
 }
