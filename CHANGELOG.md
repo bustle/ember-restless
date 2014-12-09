@@ -4,6 +4,10 @@ The change log documents features and breaking changes for each version.
 While RESTless reaches a 1.0 release and more feedback and testing continues, the API is subject to change.  
 To keep the library small, API depreciation warnings may not be added.
 
+### 0.7.0
+
+- Deprecate support for Ember < 1.8.0 due to breaking changes to `Ember.Map`.
+
 ### 0.6.0
 
 - Support usage with ES6 modules / ember-cli
