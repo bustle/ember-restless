@@ -15,8 +15,11 @@ results
 
 npm-debug.log
 node_modules
+bower_components
 
 dist/*.min.js
 dist/*+addons.js
 docs/
 docs-theme/
+
+.idea/

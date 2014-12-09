@@ -2,8 +2,8 @@
  * ember-restless
  * A lightweight data persistence library for Ember.js
  *
- * version: 0.6.0
- * last modifed: 2014-10-27
+ * version: 0.7.0
+ * last modifed: 2014-12-08
  *
  * Garth Poitras <garth22@gmail.com>
  * Copyright (c) 2013-2014 Bustle Labs.
@@ -31,7 +31,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '0.6.0'
+    VERSION: '0.7.0'
   });
 
   /*
@@ -475,7 +475,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     var fields = get(resource.constructor, 'fields'),
         json = {};
 
-    fields.forEach(function(field, fieldOpts) {
+    fields.forEach(function(fieldOpts, field) {
       //Don't include readOnly properties or to-one relationships (unless specified)
       if (!fieldOpts.readOnly && (!fieldOpts.belongsTo || (fieldOpts.belongsTo && options && options.includeRelationships))) {
         var val = this.serializeProperty(resource, field, fieldOpts);
@@ -1483,7 +1483,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
         fields = get(this.constructor, 'fields');
 
     Ember.beginPropertyChanges(this);
-    fields.forEach(function(field, opts) {
+    fields.forEach(function(opts, field) {
       var value = this.get(field);
       if (value !== null) {
         clone.set(field, value);
