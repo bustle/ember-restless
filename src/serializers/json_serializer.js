@@ -67,9 +67,10 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @param {Object} value json data value
   */
   deserializeProperty: function(resource, prop, value) {
-    var attrName = this.attributeNameForKey(resource.constructor, prop),
-        fields = get(resource.constructor, 'fields'),
-        field = fields.get(attrName), type, klass, belongsToModel;
+    var attrName = this.attributeNameForKey(resource.constructor, prop);
+    var fields = get(resource.constructor, 'fields');
+    var field = fields[attrName];
+    var type, klass, belongsToModel, hasManyArr;
 
     // If the json contains a key not defined on the model, don't attempt to set it.
     if (!field) { return; }
@@ -78,7 +79,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
 
     // If property is a hasMany relationship, deserialze the array
     if (field.hasMany) {
-      var hasManyArr = this.deserializeMany(resource.get(attrName), type, value);
+      hasManyArr = this.deserializeMany(resource.get(attrName), type, value);
       resource.set(attrName, hasManyArr);
     } 
     // If property is a belongsTo relationship, deserialze that model
@@ -154,18 +155,22 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
   serialize: function(resource, options) {
     if(!resource) { return null; }
 
-    var fields = get(resource.constructor, 'fields'),
-        json = {};
+    var fields = get(resource.constructor, 'fields');
+    var json = {};
+    var field, fieldMeta, value;
 
-    fields.forEach(function(field, fieldOpts) {
-      //Don't include readOnly properties or to-one relationships (unless specified)
-      if (!fieldOpts.readOnly && (!fieldOpts.belongsTo || (fieldOpts.belongsTo && options && options.includeRelationships))) {
-        var val = this.serializeProperty(resource, field, fieldOpts);
-        if(val !== null) {
-          json[this.keyForAttributeName(field)] = val;
+    for (field in fields) {
+      if (fields.hasOwnProperty(field)) {
+        fieldMeta = fields[field];
+        //Don't include readOnly properties or to-one relationships (unless specified)
+        if (!fieldMeta.readOnly && (!fieldMeta.belongsTo || (fieldMeta.belongsTo && options && options.includeRelationships))) {
+          value = this.serializeProperty(resource, field, fieldMeta);
+          if(value !== null) {
+            json[this.keyForAttributeName(field)] = value;
+          }
         }
       }
-    }, this);
+    }
 
     // By default, serialzed records are wrapped in a resource-named object
     // { post: { id:1, name:"first post" } }

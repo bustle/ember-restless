@@ -76,16 +76,19 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @return {Object} copy of receiver
    */
   copy: function(deep) {
-    var clone = this.constructor.create(),
-        fields = get(this.constructor, 'fields');
+    var clone = this.constructor.create();
+    var fields = get(this.constructor, 'fields');
+    var field, value;
 
     Ember.beginPropertyChanges(this);
-    fields.forEach(function(field, opts) {
-      var value = this.get(field);
-      if (value !== null) {
-        clone.set(field, value);
+    for (field in fields) {
+      if (fields.hasOwnProperty(field)) {
+        value = this.get(field);
+        if (value !== null) {
+          clone.set(field, value);
+        }
       }
-    }, this);
+    }
     Ember.endPropertyChanges(this);
 
     return clone;
@@ -253,13 +256,13 @@ RESTless.Model.reopenClass({
     @type Ember.Map
    */
   fields: computed(function() {
-    var map = Ember.Map.create();
+    var fields = {};
     this.eachComputedProperty(function(name, meta) {
       if (meta.isAttribute || meta.isRelationship) {
-        map.set(name, meta);
+        fields[name] = meta;
       }
     });
-    return map;
+    return fields;
   }),
 
   /** 
