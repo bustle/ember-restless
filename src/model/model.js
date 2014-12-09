@@ -80,7 +80,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
         fields = get(this.constructor, 'fields');
 
     Ember.beginPropertyChanges(this);
-    fields.forEach(function(field, opts) {
+    fields.forEach(function(opts, field) {
       var value = this.get(field);
       if (value !== null) {
         clone.set(field, value);

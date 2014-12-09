@@ -12,6 +12,6 @@
     "Gruntfile.js"
   ],
   "dependencies": {
-    "ember": ">= 1.0.0"
+    "ember": "~1.8.0"
   }
 }

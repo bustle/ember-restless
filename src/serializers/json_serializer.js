@@ -157,7 +157,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     var fields = get(resource.constructor, 'fields'),
         json = {};
 
-    fields.forEach(function(field, fieldOpts) {
+    fields.forEach(function(fieldOpts, field) {
       //Don't include readOnly properties or to-one relationships (unless specified)
       if (!fieldOpts.readOnly && (!fieldOpts.belongsTo || (fieldOpts.belongsTo && options && options.includeRelationships))) {
         var val = this.serializeProperty(resource, field, fieldOpts);
