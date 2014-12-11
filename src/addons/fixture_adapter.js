@@ -18,10 +18,10 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
     @return {Ember.RSVP.Promise}
    */
   saveRecord: function(record) {
-    var isNew = record.get('isNew'),
-        fixtures = record.constructor.FIXTURES,
-        primaryKey = get(record.constructor, 'primaryKey'),
-        adapter = this, serializedRecord;
+    var isNew = record.get('isNew');
+    var fixtures = record.constructor.FIXTURES;
+    var primaryKey = get(record.constructor, 'primaryKey');
+    var adapter = this, serializedRecord;
 
     if(!isNew && !record.get('isDirty')) {
       return new RSVPPromise(function(resolve, reject){
@@ -44,7 +44,8 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
     // serialize a to a flat record and include relationship data
     serializedRecord = record.serialize({ nonEmbedded: true, includeRelationships: true });
 
-    return new RSVPPromise(function(resolve, reject){
+    return new RSVPPromise(function(resolve, reject) {
+      var index;
       if(isNew) {
         // Push new records onto fixtures array
         fixtures.push(serializedRecord);
@@ -52,7 +53,7 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
         resolve(record);
       } else {
         // update existing record
-        var index = adapter._findFixtureRecordIndex(record);
+        index = adapter._findFixtureRecordIndex(record);
         if(index !== -1) {
           fixtures[index] = serializedRecord;
           record.onSaved(false);
@@ -73,12 +74,13 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
    */
   deleteRecord: function(record) {
     var adapter = this;
-    return new RSVPPromise(function(resolve, reject){
+    return new RSVPPromise(function(resolve, reject) {
+      var index;
       if(!record.constructor.FIXTURES) {
         record.onError();
         reject(null);
       }
-      var index = adapter._findFixtureRecordIndex(record);
+      index = adapter._findFixtureRecordIndex(record);
       if(index !== -1) {
         record.constructor.FIXTURES.splice(index, 1);
         record.onDeleted();
@@ -108,8 +110,8 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
     @return {RESTless.RecordArray}
    */
   findQuery: function(klass, queryParams) {
-    var fixtures = klass.FIXTURES,
-        result = null, fixturesA;
+    var fixtures = klass.FIXTURES;
+    var result = null, fixturesA;
 
     if(!fixtures) {
       return result;
@@ -141,9 +143,9 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
     @return {RESTless.Model}
    */
   findByKey: function(klass, key) {
-    var fixtures = klass.FIXTURES,
-        primaryKey = get(klass, 'primaryKey'),
-        result = null, keyAsString, fixtureRecord;
+    var fixtures = klass.FIXTURES;
+    var primaryKey = get(klass, 'primaryKey');
+    var result = null, keyAsString, fixtureRecord;
 
     if(!fixtures) {
       return result;
@@ -176,9 +178,9 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
     @private
   */
   _findFixtureRecordIndex: function(record) {
-    var klass = record.constructor,
-        fixtures = klass.FIXTURES,
-        primaryKey = get(klass, 'primaryKey'), fixtureRecord;
+    var klass = record.constructor;
+    var fixtures = klass.FIXTURES;
+    var primaryKey = get(klass, 'primaryKey'), fixtureRecord;
     if(fixtures) {
       fixtureRecord = fixtures.findProperty(primaryKey, record.get(primaryKey));
       return fixtures.indexOf(fixtureRecord);

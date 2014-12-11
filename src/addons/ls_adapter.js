@@ -23,12 +23,12 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * saveRecord: Saves data to localStorage
    */
   saveRecord: function(record) {
-    var deferred = Ember.RSVP.defer(),
-        primaryKey = get(record.constructor, 'primaryKey'),
-        isNew = record.get('isNew'),
-        dataStoreName = this._getDSName(record),
-        dataStore = this._getDataStore(record),
-        modelMeta = this._getModelMeta(record);
+    var deferred = Ember.RSVP.defer();
+    var primaryKey = get(record.constructor, 'primaryKey');
+    var isNew = record.get('isNew');
+    var dataStoreName = this._getDSName(record);
+    var dataStore = this._getDataStore(record);
+    var modelMeta = this._getModelMeta(record);
 
     /*
      * If primaryKey is not provided, we must generate it from tail value and
@@ -46,7 +46,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
       }
     }
 
-    try{
+    try {
       localStorage.setItem(dataStoreName, JSON.stringify(dataStore));
       record.onSaved(isNew);
       deferred.resolve(record);
@@ -62,19 +62,19 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * deleteRecord: Deletes a record from localStorage datastore
    */
   deleteRecord: function(record) {
-    var deferred = Ember.RSVP.defer(),
-        dataStoreName = this._getDSName(record),
-        dataStore = this._getDataStore(record),
-        primaryKey = get(record.constructor, 'primaryKey'),
-        key = record.get(primaryKey),
-        modelMeta = this._getModelMeta(record);
+    var deferred = Ember.RSVP.defer();
+    var dataStoreName = this._getDSName(record);
+    var dataStore = this._getDataStore(record);
+    var primaryKey = get(record.constructor, 'primaryKey');
+    var key = record.get(primaryKey);
+    var modelMeta = this._getModelMeta(record);
 
     if(dataStore[key]) {
       if(modelMeta && modelMeta.keys) {
         modelMeta.keys.splice(modelMeta.keys.indexOf(key), 1);
       }
       delete(dataStore[key]);
-      try{
+      try {
         // Put the array back in LS
         localStorage.setItem(dataStoreName, JSON.stringify(dataStore));
         this._updateModelMeta(modelMeta, dataStoreName);
@@ -93,12 +93,12 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * reloadRecord: Reload data into record from dataStore
    */
   reloadRecord: function(record) {
-    var deferred = Ember.RSVP.defer(),
-        primaryKey = get(record.consturctor, 'primaryKey'),
-        key = record.get(primaryKey),
-        dataStoreName = this._getDSName(record),
-        dataStore = this._getDataStore(record),
-        recordFromKey = this.recordByKey(dataStore, key);
+    var deferred = Ember.RSVP.defer();
+    var primaryKey = get(record.consturctor, 'primaryKey');
+    var key = record.get(primaryKey);
+    var dataStoreName = this._getDSName(record);
+    var dataStore = this._getDataStore(record);
+    var recordFromKey = this.recordByKey(dataStore, key);
 
     if(recordFromKey) {
       record.deserialize(recordFromKey);
@@ -123,13 +123,13 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * findQuery: Query a record
    */
   findQuery: function(model, queryParams) {
-    var resourceInstance = model.create({ isNew: false }),
-        result = RESTless.RecordArray.createWithContent(),
-        dataStoreName = this._getDSName(resourceInstance),
-        dataStore = this._getDataStore(resourceInstance),
-        items = [], itemsA;
+    var resourceInstance = model.create({ isNew: false });
+    var result = RESTless.RecordArray.createWithContent();
+    var dataStoreName = this._getDSName(resourceInstance);
+    var dataStore = this._getDataStore(resourceInstance);
+    var items = [], itemsA, key;
 
-    for(var key in dataStore) {
+    for(key in dataStore) {
       if(dataStore[key]) {
         items.push(dataStore[key]);
       }
@@ -155,11 +155,11 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * findByKey: Find a record by given key
    */
   findByKey: function(model, key, queryParams) {
-    var result = model.create({isNew: false}),
-        dataStoreName = this._getDSName(result),
-        dataStore = this._getDataStore(result),
-        primaryKey = get(model, 'primaryKey'),
-        recordFromKey = this.recordByKey(dataStore, key);
+    var result = model.create({isNew: false});
+    var dataStoreName = this._getDSName(result);
+    var dataStore = this._getDataStore(result);
+    var primaryKey = get(model, 'primaryKey');
+    var recordFromKey = this.recordByKey(dataStore, key);
 
     if(recordFromKey) {
       result.deserialize(recordFromKey);
@@ -174,16 +174,16 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * deleteAll: Deletes all records
    */
   deleteAll: function(model) {
-    var deferred = Ember.RSVP.defer(),
-        resourceName = get(model, 'resourceName'),
-        dataStore = localStorage.getItem(resourceName),
-        record = model.create({isNew: true}),
-        modelMeta = this._getModelMeta(record);
+    var deferred = Ember.RSVP.defer();
+    var resourceName = get(model, 'resourceName');
+    var dataStore = localStorage.getItem(resourceName);
+    var record = model.create({isNew: true});
+    var modelMeta = this._getModelMeta(record);
 
     modelMeta.keys = [];
     this._updateModelMeta(modelMeta, resourceName);
     if(dataStore) {
-      try{
+      try {
         delete(localStorage[resourceName]);
         deferred.resolve();
       } catch (err) {
@@ -202,9 +202,8 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
   recordByKey: function(dataStore, key) {
     if(dataStore[key]) {
       return dataStore[key];
-    } else {
-      return null;
     }
+    return null;
   },
 
   /*
@@ -212,23 +211,24 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * the dataStore. -1 is for unlimited storage
    */
   setCircularLimit: function(model, climit) {
-    var record = model.create({isNew: true}),
-        dataStoreName = this._getDSName(record),
-        dataStore = this._getDataStore(record),
-        modelMeta = this._getModelMeta(record),
-        keys = modelMeta.keys,
-        circularLimit = modelMeta.circularLimit;
+    var record = model.create({isNew: true});
+    var dataStoreName = this._getDSName(record);
+    var dataStore = this._getDataStore(record);
+    var modelMeta = this._getModelMeta(record);
+    var keys = modelMeta.keys;
+    var circularLimit = modelMeta.circularLimit, i, len;
 
     if(climit <= 0) { 
       modelMeta.circularLimit = -1;
     } else {
       // If we have more data than new limit, delete overflowing data
-      if(keys.length > climit) {
-        for(var i = 0; i < keys.length - climit; i++) {
+      len = keys.length;
+      if(len > climit) {
+        for(i = 0; i < len - climit; i++) {
           delete(dataStore[keys[i]]);
         }
         localStorage.setItem(dataStoreName, JSON.stringify(dataStore));
-        keys.splice(0, keys.length - climit);
+        keys.splice(0, len - climit);
         modelMeta.keys = keys;
         modelMeta.circularLimit = climit;
       }
@@ -247,8 +247,8 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * Returns dataStore from localStorage for this resource
    */
   _getDataStore: function(record) {
-    var dSName = this._getDSName(record),
-        dataStore = localStorage.getItem(dSName);
+    var dSName = this._getDSName(record);
+    var dataStore = localStorage.getItem(dSName);
             
     if(!dataStore) {
       return {};
@@ -261,13 +261,14 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * Inserts item into the datastore reading circular limit
    */
   _itemInsert: function(record) {
-    var primaryKey = get(record.constructor, 'primaryKey'),
-        dataStoreName = this._getDSName(record),
-        dataStore = this._getDataStore(record),
-        modelMeta = this._getModelMeta(record),
-        keys = modelMeta.keys,
-        circularLimit = modelMeta.circularLimit,
-        key = (keys.length > 0) ? keys[keys.length - 1] + 1 : 0;
+    var primaryKey = get(record.constructor, 'primaryKey');
+    var dataStoreName = this._getDSName(record);
+    var dataStore = this._getDataStore(record);
+    var modelMeta = this._getModelMeta(record);
+    var keys = modelMeta.keys;
+    var circularLimit = modelMeta.circularLimit;
+    var key = (keys.length > 0) ? keys[keys.length - 1] + 1 : 0;
+
     // If circularLimit is not -1, then we need to limit number of entries
     // that could be saved
     if(circularLimit >= 0) {
@@ -295,8 +296,8 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    * Returns meta data associated with this model
    */
   _getModelMeta: function(record) {
-    var dataStoreName = this._getDSName(record),
-        dataStore = this._getDataStore(record);
+    var dataStoreName = this._getDSName(record);
+    var dataStore = this._getDataStore(record);
 
     // Get meta data for this model. Insert if not available already
     var modelsMeta = localStorage.getItem('_modelsMeta');
@@ -364,4 +365,3 @@ RESTless.Model.reopenClass({
     return get(this, 'adapter').setCircularLimit(this, climit);
   }
 });
-

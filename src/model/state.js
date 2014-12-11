@@ -144,10 +144,11 @@ RESTless.State = Ember.Mixin.create( Ember.Evented, {
     @returns {Object} the cloned object with copied state
    */
   copyState: function(clone) {
-    var mi = RESTless.State.mixins,
-        props = mi[mi.length-1].properties;
+    var mixins = RESTless.State.mixins;
+    var props = mixins[mixins.length-1].properties, p;
+    
     Ember.beginPropertyChanges(clone);
-    for(var p in props) { 
+    for(p in props) { 
       if(props.hasOwnProperty(p) && typeof props[p] !== 'function') {
         clone.set(p, this.get(p));
       }

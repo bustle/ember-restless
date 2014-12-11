@@ -1,13 +1,13 @@
 /** 
   @module ember-restless
  */
-var get = Ember.get, set = Ember.set,
-    isNone = Ember.isNone, isEmpty = Ember.isEmpty,
-    merge = Ember.merge, noop = Ember.K,
-    computed = Ember.computed, oneWay = computed.oneWay, 
-    RSVPPromise = Ember.RSVP.Promise,
-    exports = Ember.exports || this,
-    RESTless;
+var get = Ember.get, set = Ember.set;
+var isNone = Ember.isNone, isEmpty = Ember.isEmpty;
+var computed = Ember.computed, reads = computed.reads;
+var merge = Ember.merge, noop = Ember.K;
+var RSVPPromise = Ember.RSVP.Promise;
+var exports = Ember.exports || this;
+var RESTless;
 
 if ('undefined' === typeof RESTless) {
   /**

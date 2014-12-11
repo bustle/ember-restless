@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "ember": "~1.8.1",
+    "pretender": "~0.4.2",
     "qunit": "~1.16.0",
     "sinon": "http://sinonjs.org/releases/sinon-1.12.1.js"
   }

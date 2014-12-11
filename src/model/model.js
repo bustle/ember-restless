@@ -20,7 +20,9 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
    */
   __data: null,
   _data: computed(function() {
-    if (!this.__data) { this.__data = {}; }
+    if (!this.__data) { 
+      this.__data = {};
+    }
     return this.__data;
   }),
 
@@ -29,9 +31,9 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
     @protected
    */
   didDefineProperty: function(proto, key, value) {
+    var meta;
     if (value instanceof Ember.Descriptor) {
-      var meta = value.meta();
-
+      meta = value.meta();
       if (meta.isRelationship && !meta.readOnly) {
         // If a relationship's property becomes dirty, need to mark owner as dirty.
         Ember.addObserver(proto, key + '.isDirty', null, '_onRelationshipChange');
@@ -210,10 +212,8 @@ RESTless.Model.reopenClass({
    */
   primaryKey: computed(function() {
     var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(get(this, '_configKey'));
-    if(modelConfig && modelConfig.primaryKey) {
-      return modelConfig.primaryKey;
-    }
-    return 'id';
+    var primaryKey = modelConfig && modelConfig.primaryKey;
+    return primaryKey || 'id';
   }).property('RESTless.client.adapter.configurations.models'),
 
   /** 

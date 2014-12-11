@@ -21,7 +21,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @optional
     @example 'http://api.example.com'
    */
-  host: oneWay('url'),
+  host: reads('url'),
   /**
     Deprecated.
     @property url
@@ -75,10 +75,10 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @final
    */
   rootPath: computed(function() {
-    var a = document.createElement('a'),
-        host = this.get('host'),
-        ns = this.get('namespace'),
-        rootReset = ns && ns.charAt(0) === '/';
+    var a = document.createElement('a');
+    var host = this.get('host');
+    var ns = this.get('namespace');
+    var rootReset = ns && ns.charAt(0) === '/';
 
     a.href = host ? host : '/';
     if(ns) {
@@ -106,9 +106,10 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
    */
   request: function(options) {
     var adapter = this;
-    var ajaxParams = this.prepareParams(options.params);
+    var ajaxParams = adapter.prepareParams(options.params);
     var klass = options.type || options.model.constructor;
-    ajaxParams.url = this.buildUrl(options.model, options.key, klass);
+    
+    ajaxParams.url = adapter.buildUrl(options.model, options.key, klass);
 
     return new RSVPPromise(function(resolve, reject) {
       ajaxParams.success = function(data) {
@@ -119,9 +120,8 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
         Ember.run(null, reject, errors);
       };
 
-      var ajax = Ember.$.ajax(ajaxParams);
-      // (private) store current ajax request on the model.
-      options.model.currentRequest = ajax;
+      // trigger ajax request and store it on the model (private)
+      options.model.currentRequest = Ember.$.ajax(ajaxParams);
     });
   },
 
