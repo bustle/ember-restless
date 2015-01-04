@@ -1,18 +1,25 @@
+import RESTless from '../core';
+import ModelStateMixin from './state';
+import RecordArray from './record-array';
+import { attr } from './attribute';
+
+var computed = Ember.computed;
+var get = Ember.get;
+
 /**
   The base model class for all RESTless objects.
 
   @class Model
   @namespace RESTless
   @extends Ember.Object
-  @uses RESTless.State
   @uses Ember.Copyable
 */
-var Model = RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
+var Model = Ember.Object.extend( ModelStateMixin, Ember.Copyable, {
   /** 
     A unique id number for the record. `id` is the default primary key.
     @property id
    */
-  id: RESTless.attr('number'),
+  id: attr('number'),
 
   /**
     Stores raw model data. Don't use directly; use declared model attributes.
@@ -74,10 +81,9 @@ var Model = RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable
     Creates a clone of the model. Implements Ember.Copyable protocol
     <http://emberjs.com/api/classes/Ember.Copyable.html#method_copy>
     @method copy
-    @param {Boolean} deep if `true`, a deep copy of the object should be made
     @return {Object} copy of receiver
    */
-  copy: function(deep) {
+  copy: function() {
     var clone = this.constructor.create();
     var fields = get(this.constructor, 'fields');
     var field, value;
@@ -99,11 +105,10 @@ var Model = RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable
   /**
     Creates a clone copy of the model along with it's current State.
     @method copyWithState
-    @param {Boolean} deep if `true`, a deep copy of the object should be made
     @return {Object} copy of receiver
    */
-  copyWithState: function(deep) {
-    return this.copyState(this.copy(deep));
+  copyWithState: function() {
+    return this.copyState(this.copy());
   },
 
   /**
@@ -329,3 +334,5 @@ Model.reopenClass({
     return array;
   }
 });
+
+export default Model;

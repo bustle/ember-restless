@@ -1,3 +1,11 @@
+import Adapter from '../src/adapters/adapter';
+import JSONSerializer from '../src/serializers/json-serializer';
+import RecordArray from '../src/model/record-array';
+import RESTless from '../src/index';
+
+var get = Ember.get;
+var RSVPPromise = Ember.RSVP.Promise;
+
 /**
   The FixtureAdapter is used for working with predefined
   javascript data stored in memory.
@@ -7,7 +15,7 @@
   @namespace RESTless
   @extends RESTless.Adapter
 */
-RESTless.FixtureAdapter = Adapter.extend({
+var FixtureAdapter = Adapter.extend({
 
   serializer: JSONSerializer.create(),
 
@@ -24,7 +32,7 @@ RESTless.FixtureAdapter = Adapter.extend({
     var adapter = this, serializedRecord;
 
     if(!isNew && !record.get('isDirty')) {
-      return new RSVPPromise(function(resolve, reject){
+      return new RSVPPromise(function(resolve){
         resolve(record);
       });
     }
@@ -37,7 +45,7 @@ RESTless.FixtureAdapter = Adapter.extend({
     }
 
     // assign a guid for new records
-    if(isNone(record.get(primaryKey))) {
+    if(Ember.isNone(record.get(primaryKey))) {
       record.set(primaryKey, this.generateIdForRecord(record));
     }
 
@@ -119,7 +127,7 @@ RESTless.FixtureAdapter = Adapter.extend({
 
     fixturesA = Ember.A(fixtures);
     if(queryParams) {
-      fixturesA = fixturesA.filter(function(item, index, enumerable) {
+      fixturesA = fixturesA.filter(function(item) {
         for(var key in queryParams) {
           if(queryParams.hasOwnProperty(key) && item[key] !== queryParams[key]) {
             return false;
@@ -188,3 +196,7 @@ RESTless.FixtureAdapter = Adapter.extend({
     return -1;
   }
 });
+
+RESTless.FixtureAdapter = FixtureAdapter;
+
+export default FixtureAdapter;

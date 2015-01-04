@@ -8,7 +8,7 @@
   @namespace RESTless
   @extends Ember.Object
  */
-var Transform = RESTless.Transform = Ember.Object.extend({
+export default Ember.Object.extend({
   /**
     Transforms serialized data (i.e. JSON) to deserialized data (i.e. Ember models).
     Subclasses should implement.

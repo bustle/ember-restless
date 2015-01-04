@@ -1,43 +1,20 @@
-var del     = require('del');
-var gulp    = require('gulp');
-var jshint  = require('gulp-jshint');
-var qunit   = require('gulp-qunit');
-var concat  = require('gulp-concat');
-var replace = require('gulp-replace');
-var header  = require('gulp-header');
-var footer  = require('gulp-footer');
-var util    = require('gulp-util');
-var open    = require('gulp-open');
-var pkg     = require('./package.json');
+var del       = require('del');
+var gulp      = require('gulp');
+var jshint    = require('gulp-jshint');
+var qunit     = require('gulp-qunit');
+var concat    = require('gulp-concat');
+var replace   = require('gulp-replace');
+var transpile = require('gulp-es6-module-transpiler');
+var header    = require('gulp-header');
+var footer    = require('gulp-footer');
+var util      = require('gulp-util');
+var open      = require('gulp-open');
+var pkg       = require('./package.json');
 
 // ------------------------------------------- 
 
-var coreSrc = [
-  'src/index.js',
-  'src/model/attribute.js',
-  'src/transforms/base.js',
-  'src/transforms/string.js',
-  'src/transforms/number.js',
-  'src/transforms/boolean.js',
-  'src/transforms/date.js',
-  'src/transforms/json.js',
-  'src/serializers/serializer.js',
-  'src/serializers/json_serializer.js',
-  'src/adapters/adapter.js',
-  'src/adapters/rest_adapter.js',
-  'src/client.js',
-  'src/model/state.js',
-  'src/model/model.js',
-  'src/model/read_only_model.js',
-  'src/model/record_array.js',
-  'src/ext/date.js'
-];
-
-var addonsSrc = [
-  'src/addons/fixture_adapter.js',
-  'src/addons/ls_adapter.js'
-];
-
+var coreSrc = ['src/**/*.js'];
+var addonsSrc = ['addons/**/*.js'];
 var allScr = coreSrc.concat(addonsSrc);
 
 var distDest = './dist/';
@@ -61,13 +38,19 @@ var banner = ['/**',
               ' */',
               ''].join('\n');
 
-var iifeHeader = '\n(function(Ember, undefined) {\n\n\'use strict\';\n\n';
-var iifeFooter = '\n})(Ember);\n';
+var iifeHeader = '\n(function(Ember, undefined) {\n\n';
+var iifeFooter = '\n}(Ember));\n';
 
 function performBuild(files, outputFile) {
   return gulp.src(files)
+             .pipe(transpile({ formatter: 'bundle' }))
              .pipe(concat(outputFile))
              .pipe(replace(/@@version/g, pkg.version))
+             // Remove gulp-es6-module-transpiler's IIFE so we can add our own
+             .pipe(replace(/^\(function\(\) {\n/g, ''))
+             .pipe(replace(/\}\)\.call\(this\);\n/g, ''))
+             .pipe(replace(/\n\/\/# sourceMappingURL\=bundle\.map/g, ''))
+             // end IFFE removal
              .pipe(header(iifeHeader))
              .pipe(footer(iifeFooter))
              .pipe(header(banner, { pkg : pkg } ))
@@ -119,4 +102,3 @@ gulp.task('watch:tests', function() {
 gulp.task('watch', ['watch:src', 'watch:tests']);
 
 gulp.task('default', ['build', 'test']);
-
