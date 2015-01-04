@@ -9,7 +9,7 @@
     "tests",
     ".travis.yml",
     "package.json",
-    "Gruntfile.js"
+    "gulpfile.js"
   ],
   "dependencies": {
     "ember": ">= 1.0.0"

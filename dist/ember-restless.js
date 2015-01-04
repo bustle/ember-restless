@@ -1,15 +1,14 @@
 /**
  * ember-restless
- * A lightweight data persistence library for Ember.js
- *
- * version: 0.6.1
- * last modifed: 2015-01-04
- *
- * Garth Poitras <garth22@gmail.com>
- * Copyright (c) 2013-2014 Bustle Labs.
+ * @overview A lightweight data persistence library for Ember.js
+ * @version  0.6.1
+ * @author   Garth Poitras <garth@bustle.com>
+ * @license  MIT
+ * Copyright (c) 2013-2015 Bustle Labs
+ * Last modified: Jan 4, 2015
  */
 
-(function(window, $, Ember, undefined){
+(function(Ember, undefined) {
 
 'use strict';
 
@@ -22,6 +21,7 @@ var computed = Ember.computed, reads = computed.reads;
 var merge = Ember.merge, noop = Ember.K;
 var RSVPPromise = Ember.RSVP.Promise;
 var exports = Ember.exports || this;
+var $ = Ember.$;
 var VERSION = '0.6.1';
 var RESTless;
 
@@ -979,7 +979,7 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
       };
 
       // trigger ajax request and store it on the model (private)
-      options.model.currentRequest = Ember.$.ajax(ajaxParams);
+      options.model.currentRequest = $.ajax(ajaxParams);
     });
   },
 
@@ -1941,4 +1941,4 @@ if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.Date) {
   Date.parse = Ember.Date.parse;
 }
 
-})(this, jQuery, Ember);
+})(Ember);

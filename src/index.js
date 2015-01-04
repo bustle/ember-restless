@@ -7,6 +7,7 @@ var computed = Ember.computed, reads = computed.reads;
 var merge = Ember.merge, noop = Ember.K;
 var RSVPPromise = Ember.RSVP.Promise;
 var exports = Ember.exports || this;
+var $ = Ember.$;
 var VERSION = '@@version';
 var RESTless;
 

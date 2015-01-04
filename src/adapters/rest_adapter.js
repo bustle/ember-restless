@@ -115,7 +115,7 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
       };
 
       // trigger ajax request and store it on the model (private)
-      options.model.currentRequest = Ember.$.ajax(ajaxParams);
+      options.model.currentRequest = $.ajax(ajaxParams);
     });
   },
 

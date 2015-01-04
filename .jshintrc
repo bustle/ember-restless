@@ -1,0 +1,15 @@
+{
+  "forin"   : true,
+  "noarg"   : true,
+  "noempty" : true,
+  "immed"   : true,
+  "eqeqeq"  : true,
+  "bitwise" : true,
+  "curly"   : true,
+  "browser" : true,
+  "es3"     : true,
+
+  "predef": [
+    "Ember"
+  ]
+}
