@@ -6,7 +6,7 @@
   @namespace RESTless
   @extends RESTless.Model
 */
-RESTless.ReadOnlyModel = RESTless.Model.extend({
+RESTless.ReadOnlyModel = Model.extend({
   serialize: null,
   saveRecord: null,
   deleteRecord: null,

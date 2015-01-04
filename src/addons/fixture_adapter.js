@@ -7,9 +7,9 @@
   @namespace RESTless
   @extends RESTless.Adapter
 */
-RESTless.FixtureAdapter = RESTless.Adapter.extend({
+RESTless.FixtureAdapter = Adapter.extend({
 
-  serializer: RESTless.JSONSerializer.create(),
+  serializer: JSONSerializer.create(),
 
   /**
     Saves a record. Pushes a new record to fixtures, or updates an existing record.
@@ -129,7 +129,7 @@ RESTless.FixtureAdapter = RESTless.Adapter.extend({
       });
     }
     
-    result = RESTless.RecordArray.createWithContent();
+    result = RecordArray.createWithContent();
     result.deserializeMany(klass, fixturesA);
     result.onLoaded();
     return result;

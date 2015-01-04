@@ -6,7 +6,7 @@
   @extends Ember.ArrayProxy
   @uses RESTless.State
 */
-RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
+var RecordArray = RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
   /**
     The default adapter for the RecordArray. Providing a hook for overriding.
     @property adapter
@@ -94,7 +94,7 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
   _onLoadedChange: Ember.observer(function() {
     if(this.get('isLoaded')) {
       this.forEach(function(item) {
-        if(RESTless.Model.detectInstance(item)) {
+        if(Model.detectInstance(item)) {
           item.onLoaded();
         }
       });
@@ -103,7 +103,7 @@ RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
 });
 
 
-RESTless.RecordArray.reopenClass({
+RecordArray.reopenClass({
   /**
     Creates a RecordArray
     @method create

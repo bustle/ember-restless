@@ -7,7 +7,7 @@
   @uses RESTless.State
   @uses Ember.Copyable
 */
-RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
+var Model = RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
   /** 
     A unique id number for the record. `id` is the default primary key.
     @property id
@@ -176,7 +176,7 @@ RESTless.Model = Ember.Object.extend( RESTless.State, Ember.Copyable, {
   @class Model
   @namespace RESTless
 */
-RESTless.Model.reopenClass({
+Model.reopenClass({
   /** 
     Extends super class `create` and marks _isReady state.
     @method create
@@ -337,7 +337,7 @@ RESTless.Model.reopenClass({
     @return RESTless.RecordArray
    */
   loadMany: function(data) {
-    var array = RESTless.RecordArray.create().deserializeMany(this, data);
+    var array = RecordArray.create().deserializeMany(this, data);
     array.onLoaded();
     return array;
   }

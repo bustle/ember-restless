@@ -1,10 +1,10 @@
-RESTless.DateTransform = RESTless.Transform.extend({
+var DateTransform = RESTless.DateTransform = Transform.extend({
   deserialize: function(serialized) {
     var type = typeof serialized;
 
-    if (type === "string") {
+    if (type === 'string') {
       return new Date(Ember.Date.parse(serialized));
-    } else if (type === "number") {
+    } else if (type === 'number') {
       return new Date(serialized);
     } else if (serialized === null || serialized === undefined) {
       // if the value is not present in the data,
@@ -17,11 +17,11 @@ RESTless.DateTransform = RESTless.Transform.extend({
 
   serialize: function(date) {
     if (date instanceof Date) {
-      var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
       var pad = function(num) {
-        return num < 10 ? "0"+num : ""+num;
+        return num < 10 ? '0'+num : ''+num;
       };
 
       var utcYear = date.getUTCFullYear(),
@@ -37,8 +37,8 @@ RESTless.DateTransform = RESTless.Transform.extend({
       var dayOfMonth = pad(utcDayOfMonth);
       var month = months[utcMonth];
 
-      return dayOfWeek + ", " + dayOfMonth + " " + month + " " + utcYear + " " +
-             pad(utcHours) + ":" + pad(utcMinutes) + ":" + pad(utcSeconds) + " GMT";
+      return dayOfWeek + ', ' + dayOfMonth + ' ' + month + ' ' + utcYear + ' ' +
+             pad(utcHours) + ':' + pad(utcMinutes) + ':' + pad(utcSeconds) + ' GMT';
     } else {
       return null;
     }

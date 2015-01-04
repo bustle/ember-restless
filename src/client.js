@@ -7,19 +7,19 @@
   @namespace RESTless
   @extends Ember.Object
 */
-RESTless.Client = Ember.Object.extend({
+var Client = RESTless.Client = Ember.Object.extend({
   /**
     The default adapter for all models.
     @property adapter
     @type RESTless.Adapter
    */
-  adapter: RESTless.RESTAdapter.create()
+  adapter: RESTAdapter.create()
 });
 
 Ember.Application.initializer({
   name: 'RESTless.Client',
   initialize: function(container, application) {
-    var client = application.Client ? application.Client : RESTless.Client.create();
+    var client = application.Client ? application.Client : Client.create();
     RESTless.set('client', client);
     application.addObserver('Client', this, function() {
       RESTless.set('client', this.Client);

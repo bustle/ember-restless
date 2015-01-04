@@ -3,9 +3,9 @@
   @type Object
   @for RESTless
 */
-RESTless.JSONTransforms = {
-  'string'  : RESTless.StringTransform.create(),
-  'number'  : RESTless.NumberTransform.create(),
-  'boolean' : RESTless.BooleanTransform.create(),
-  'date'    : RESTless.DateTransform.create()
+var JSONTransforms = RESTless.JSONTransforms = {
+  'string'  : StringTransform.create(),
+  'number'  : NumberTransform.create(),
+  'boolean' : BooleanTransform.create(),
+  'date'    : DateTransform.create()
 };

@@ -12,12 +12,12 @@
  * @namespace RESTless
  * @extends RESTless.Adapter
  */
-RESTless.LSAdapter = RESTless.Adapter.extend({
+RESTless.LSAdapter = Adapter.extend({
 
   /*
    * serializer: default to a JSON serializer
    */
-  serializer: RESTless.JSONSerializer.create(),
+  serializer: JSONSerializer.create(),
 
   /*
    * saveRecord: Saves data to localStorage
@@ -124,7 +124,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
    */
   findQuery: function(model, queryParams) {
     var resourceInstance = model.create({ isNew: false });
-    var result = RESTless.RecordArray.createWithContent();
+    var result = RecordArray.createWithContent();
     var dataStoreName = this._getDSName(resourceInstance);
     var dataStore = this._getDataStore(resourceInstance);
     var items = [], itemsA, key;
@@ -350,7 +350,7 @@ RESTless.LSAdapter = RESTless.Adapter.extend({
 /*
  * reopenClass to add deleteAll and setCircularLimit as properties
  */
-RESTless.Model.reopenClass({
+Model.reopenClass({
   /*
    * deleteAll: Delete all records
    */

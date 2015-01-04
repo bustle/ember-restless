@@ -7,6 +7,7 @@ var computed = Ember.computed, reads = computed.reads;
 var merge = Ember.merge, noop = Ember.K;
 var RSVPPromise = Ember.RSVP.Promise;
 var exports = Ember.exports || this;
+var VERSION = '@@version';
 var RESTless;
 
 if ('undefined' === typeof RESTless) {
@@ -16,7 +17,7 @@ if ('undefined' === typeof RESTless) {
     @static
    */
   RESTless = Ember.Namespace.create({
-    VERSION: '@@version'
+    VERSION: VERSION
   });
 
   /*
@@ -27,6 +28,6 @@ if ('undefined' === typeof RESTless) {
   exports.RL = exports.RESTless = RESTless;
 
   if (Ember.libraries) { 
-    Ember.libraries.register('Ember RESTless', RESTless.VERSION);
+    Ember.libraries.register('Ember RESTless', VERSION);
   }
 }

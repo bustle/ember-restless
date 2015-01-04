@@ -7,7 +7,7 @@
   @namespace RESTless
   @extends Ember.Object
 */
-RESTless.Serializer = Ember.Object.extend({
+var Serializer = RESTless.Serializer = Ember.Object.extend({
   /**
     Type of data to serialize.
     @property dataType

@@ -7,7 +7,7 @@
   @namespace RESTless
   @extends Ember.Object
 */
-RESTless.Adapter = Ember.Object.extend({
+var Adapter = RESTless.Adapter = Ember.Object.extend({
   /**
     Instance of a Serializer used to transform data
     @property serializer
@@ -120,7 +120,7 @@ RESTless.Adapter = Ember.Object.extend({
     @param {Object} config config value
     @chainable
     @example
-      <pre class="prettyprint">
+      <pre class='prettyprint'>
       App.Adapter.map('post', { primaryKey: 'slug' });
       App.Adapter.map('person', { lastName: { key: 'lastNameOfPerson' } });</pre>
   */

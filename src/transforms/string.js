@@ -1,4 +1,4 @@
-RESTless.StringTransform = RESTless.Transform.extend({
+var StringTransform = RESTless.StringTransform = Transform.extend({
   deserialize: function(serialized) {
     return isNone(serialized) ? null : String(serialized);
   },

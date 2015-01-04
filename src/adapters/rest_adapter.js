@@ -5,14 +5,14 @@
   @namespace RESTless
   @extends RESTless.Adapter
 */
-RESTless.RESTAdapter = RESTless.Adapter.extend({
+var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
   /**
     Serializer used to transform data.
     @property serializer
     @type RESTless.Serializer
     @default RESTless.JSONSerializer
    */
-  serializer: RESTless.JSONSerializer.create(),
+  serializer: JSONSerializer.create(),
 
   /**
     Host url of the REST API if on a different domain than the app.
@@ -45,7 +45,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @property headers
     @type Object
     @optional
-    @example '{ "X-API-KEY" : "abc1234" }'
+    @example '{ 'X-API-KEY' : 'abc1234' }'
     */
   headers: null,
   /**
@@ -54,7 +54,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @property defaultData
     @type Object
     @optional
-    @example '{ api_key: "abc1234" }'
+    @example '{ api_key: 'abc1234' }'
     */
   defaultData: null,
 
@@ -290,7 +290,7 @@ RESTless.RESTAdapter = RESTless.Adapter.extend({
     @return {RESTless.RecordArray}
    */
   findQuery: function(klass, queryParams) {
-    var array = RESTless.RecordArray.createWithContent();
+    var array = RecordArray.createWithContent();
     var ajaxPromise = this.request({
       params: { data: queryParams },
       type : klass,

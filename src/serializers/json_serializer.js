@@ -5,7 +5,7 @@
   @namespace RESTless
   @extends RESTless.Serializer
 */
-RESTless.JSONSerializer = RESTless.Serializer.extend({
+var JSONSerializer = RESTless.JSONSerializer = Serializer.extend({
   /**
     Type of data to serialize.
     @property dataType
@@ -94,8 +94,8 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     }
     else {
       // Check for a custom transform
-      if (type && RESTless.JSONTransforms[type]) {
-        value = RESTless.JSONTransforms[type].deserialize(value);
+      if (type && JSONTransforms[type]) {
+        value = JSONTransforms[type].deserialize(value);
       }
       resource.set(attrName, value);
     }
@@ -125,7 +125,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
       recordArray.set('isLoaded', false);
       recordArray.clear();
     } else {
-      recordArray = RESTless.RecordArray.createWithContent();
+      recordArray = RecordArray.createWithContent();
     }
 
     len = arrayData.length;
@@ -183,8 +183,8 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     }
 
     // By default, serialzed records are wrapped in a resource-named object
-    // { post: { id:1, name:"first post" } }
-    // The option 'nonEmbedded' returns { id:1, name:"first post" }
+    // { post: { id:1, name:'first post' } }
+    // The option 'nonEmbedded' returns { id:1, name:'first post' }
     if(options && options.nonEmbedded) {
       return json;
     }
@@ -215,7 +215,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     }
 
     //Check for a custom transform
-    transform = RESTless.JSONTransforms[type];
+    transform = JSONTransforms[type];
     if(opts.type && transform) {
       value = transform.serialize(value);
     }
@@ -237,7 +237,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
 
     for(i = 0; i < len; i++) {
       item = array[i];
-      if(RESTless.Model.detectInstance(item)) {
+      if(Model.detectInstance(item)) {
         item = item.serialize();
       }
       result.push(item[key]);
@@ -318,7 +318,7 @@ RESTless.JSONSerializer = RESTless.Serializer.extend({
     @parma {Object} custom serialize and deserialize method hash
   */
   registerTransform: function(type, transform) {
-    RESTless.JSONTransforms[type] = transform;
+    JSONTransforms[type] = transform;
   },
 
   /**

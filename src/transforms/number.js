@@ -1,4 +1,4 @@
-RESTless.NumberTransform = RESTless.Transform.extend({
+var NumberTransform = RESTless.NumberTransform = Transform.extend({
   deserialize: function(serialized) {
     return isEmpty(serialized) ? null : Number(serialized);
   },

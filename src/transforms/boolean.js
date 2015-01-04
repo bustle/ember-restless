@@ -1,4 +1,4 @@
-RESTless.BooleanTransform = RESTless.Transform.extend({
+var BooleanTransform = RESTless.BooleanTransform = Transform.extend({
   deserialize: function(serialized) {
     var type = typeof serialized;
 
