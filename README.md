@@ -10,7 +10,7 @@ One of its main goals is to reproduce much of the simple, useful features of [em
 
 See the full [API documentation](http://bustlelabs.github.io/ember-restless/api/).  
 
-See the [changelog](CHANGELOG.md) for the latest features and API changes.
+See the [change log](CHANGELOG.md) for the latest features and API changes.
 
 
 ## Guide
@@ -82,12 +82,10 @@ Supported attribute types are string, number, boolean, and date. Defining a type
 You can define custom attribute type transforms in your adapter.  See the advanced section below.
 
 **Note on ES6 modules**  
-If using ES6 modules/ember-cli, you'll need to explictly define `resourceName` on all of your model classes:
+If using ES6 modules/ember-cli, you'll need to explicitly define `resourceName` on all of your model classes:
 
 ``` javascript
-var Post = RL.Model.extend({
-  ...
-});
+var Post = RL.Model.extend({ ... });
 
 Post.reopenClass({
   resourceName: 'post'
@@ -131,25 +129,27 @@ _Currently, all relational data should be embedded in the response. Also, see [S
 
 Use the ```find()``` method to retrieve records.
 
-To find a Post with an id of 1:
-
-``` javascript
-var post = App.Post.find(1);
-```
-
-To use a query to find:
-``` javascript
-var posts = App.Post.find({ isPublished: true });
-```
-
-To find all records:
+To find all records of type 'post':
 
 ``` javascript
 var posts = App.Post.find();
+// => Array of 'post' records
 ```
 
-```find()``` automatically handles all query types, however, explicit methods are also available:  
-```findAll()```, ```findQuery()```, ```findByKey()``` / ```findById()```
+To find a 'post' with an primary key of `1`:
+
+``` javascript
+var post = App.Post.find(1);
+// => 'post' record instance
+```
+
+To use a query to find records:
+``` javascript
+var posts = App.Post.find({ isPublished: true });
+// => Array of 'post' records
+```
+
+To return a Promise when finding records, use `fetch()`. See the [promises](#promises) section.
 
 
 ### Creating records
@@ -179,7 +179,7 @@ post.saveRecord();
 
 ### Deleting records
 
-The Adapter will delete the record remotely, then destroy the object when complete:
+The Adapter will delete the record from the data store, then destroy the object when complete:
 ``` javascript
 post.deleteRecord();
 ```
@@ -345,8 +345,8 @@ App.RESTAdapter = RL.RESTAdapter.create({
 ```
 Results in e.g. ```App.User.find()``` => ```http://api.example.com/users?api_key=abc1234```
 
-### Forcing content type extentions
-If you want the RESTAdapter to add extentions to requests:
+### Forcing content type extensions
+If you want the RESTAdapter to add extensions to requests:
 For example ```/users.json``` and ```/user/1.json```  
 ``` javascript
 App.RESTAdapter = RL.RESTAdapter.create({
@@ -385,7 +385,7 @@ App.Post = RL.ReadOnlyModel.extend({
 ### Custom transforms
 You can add custom transforms to modify data coming from and being sent to the persistence layer.
 ``` javascript
-App.RESTAdapter.registerTransform('timeAgo', RESTless.Transform.create({
+App.RESTAdapter.registerTransform('timeAgo', RL.Transform.create({
   deserialize: function(serialized) {
     // return a custom date string, such as: '5 minutes ago'
   }
