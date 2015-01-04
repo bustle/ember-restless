@@ -22,13 +22,6 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
     @example 'http://api.example.com'
    */
   host: reads('url'),
-  /**
-    Deprecated.
-    @property url
-    @type String
-    @deprecated Use: `host`
-   */
-  url: null,
 
   /**
     API namespace endpoint path
@@ -48,6 +41,7 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
     @example '{ 'X-API-KEY' : 'abc1234' }'
     */
   headers: null,
+  
   /**
     If an API requires paramters to be set on every request,
     e.g. an api key, you can add a hash of defaults.

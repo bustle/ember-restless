@@ -187,13 +187,6 @@ Model.reopenClass({
     instance.set('_isReady', true);
     return instance;
   },
-  /** 
-    Alias to `create`. Eases transition to/from ember-data
-    @deprecated Use `create`
-    @method createRecord
-    @return RESTless.Model
-   */
-  createRecord: Ember.aliasMethod('create'),
 
   /** 
     The adapter for the Model. Provides a hook for overriding.
@@ -311,13 +304,6 @@ Model.reopenClass({
   findByKey: function(key, params) {
     return get(this, 'adapter').findByKey(this, key, params);
   },
-  /** 
-    Find resource with specified id using the adapter.
-    Keeps API similar to ember-data.
-    @method findById
-    @deprecated Use `findByKey`
-   */
-  findById: Ember.aliasMethod('findByKey'),
 
   /** 
     Create model directly from data representation.

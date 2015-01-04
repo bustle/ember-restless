@@ -194,6 +194,32 @@ var BooleanTransform = RESTless.BooleanTransform = Transform.extend({
   }
 });
 
+// Date.prototype.toISOString shim
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
+var toISOString = Date.prototype.toISOString || function() {
+  function pad(number) {
+    if ( number < 10 ) {
+      return '0' + number;
+    }
+    return number;
+  }
+
+  return this.getUTCFullYear() +
+    '-' + pad( this.getUTCMonth() + 1 ) +
+    '-' + pad( this.getUTCDate() ) +
+    'T' + pad( this.getUTCHours() ) +
+    ':' + pad( this.getUTCMinutes() ) +
+    ':' + pad( this.getUTCSeconds() ) +
+    '.' + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) +
+    'Z';
+};
+
+if (Ember.SHIM_ES5) {
+  if (!Date.prototype.toISOString) {
+    Date.prototype.toISOString = toISOString;
+  }
+}
+
 var DateTransform = RESTless.DateTransform = Transform.extend({
   deserialize: function(serialized) {
     var type = typeof serialized;
@@ -213,32 +239,11 @@ var DateTransform = RESTless.DateTransform = Transform.extend({
 
   serialize: function(date) {
     if (date instanceof Date) {
-      var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-      var pad = function(num) {
-        return num < 10 ? '0'+num : ''+num;
-      };
-
-      var utcYear = date.getUTCFullYear(),
-          utcMonth = date.getUTCMonth(),
-          utcDayOfMonth = date.getUTCDate(),
-          utcDay = date.getUTCDay(),
-          utcHours = date.getUTCHours(),
-          utcMinutes = date.getUTCMinutes(),
-          utcSeconds = date.getUTCSeconds();
-
-
-      var dayOfWeek = days[utcDay];
-      var dayOfMonth = pad(utcDayOfMonth);
-      var month = months[utcMonth];
-
-      return dayOfWeek + ', ' + dayOfMonth + ' ' + month + ' ' + utcYear + ' ' +
-             pad(utcHours) + ':' + pad(utcMinutes) + ':' + pad(utcSeconds) + ' GMT';
+      return toISOString.call(date);
     } else {
       return null;
     }
-  } 
+  }
 });
 
 /**
@@ -881,13 +886,6 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
     @example 'http://api.example.com'
    */
   host: reads('url'),
-  /**
-    Deprecated.
-    @property url
-    @type String
-    @deprecated Use: `host`
-   */
-  url: null,
 
   /**
     API namespace endpoint path
@@ -907,6 +905,7 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
     @example '{ 'X-API-KEY' : 'abc1234' }'
     */
   headers: null,
+  
   /**
     If an API requires paramters to be set on every request,
     e.g. an api key, you can add a hash of defaults.
@@ -1608,13 +1607,6 @@ Model.reopenClass({
     instance.set('_isReady', true);
     return instance;
   },
-  /** 
-    Alias to `create`. Eases transition to/from ember-data
-    @deprecated Use `create`
-    @method createRecord
-    @return RESTless.Model
-   */
-  createRecord: Ember.aliasMethod('create'),
 
   /** 
     The adapter for the Model. Provides a hook for overriding.
@@ -1732,13 +1724,6 @@ Model.reopenClass({
   findByKey: function(key, params) {
     return get(this, 'adapter').findByKey(this, key, params);
   },
-  /** 
-    Find resource with specified id using the adapter.
-    Keeps API similar to ember-data.
-    @method findById
-    @deprecated Use `findByKey`
-   */
-  findById: Ember.aliasMethod('findByKey'),
 
   /** 
     Create model directly from data representation.
