@@ -1,7 +1,7 @@
 /**
  * ember-restless
  * @overview A lightweight data persistence library for Ember.js
- * @version  0.6.1
+ * @version  0.6.2
  * @author   Garth Poitras <garth@bustle.com>
  * @license  MIT
  * Copyright (c) 2013-2015 Bustle Labs
@@ -22,7 +22,7 @@ var merge = Ember.merge, noop = Ember.K;
 var RSVPPromise = Ember.RSVP.Promise;
 var exports = Ember.exports || this;
 var $ = Ember.$;
-var VERSION = '0.6.1';
+var VERSION = '0.6.2';
 var RESTless;
 
 if ('undefined' === typeof RESTless) {

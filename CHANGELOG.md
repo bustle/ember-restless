@@ -4,6 +4,14 @@ The change log documents features and breaking changes for each version.
 While RESTless reaches a 1.0 release and more feedback and testing continues, the API is subject to change.  
 To keep the library small, API depreciation warnings may not be added.
 
+### 0.6.2
+
+- Gulp for task runner instead of Grunt
+- `host` property in RESTAdapter now respects protocol-less assignments
+- Update date serialization to toISOString
+- Removing old, long deprecated properties/methods
+- Using Pretender in tests for XHRs
+
 ### 0.6.1
 
 - Bug fix to support Ember 1.8.0 which changed method signiture of Ember.Map.forEach
