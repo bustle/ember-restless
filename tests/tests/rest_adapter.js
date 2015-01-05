@@ -10,13 +10,6 @@ test('can set a host', function() {
   equal( adapter.get('rootPath'), 'http://api.com', 'root path is valid' );
 });
 
-test('can set a host using the deprecated url property', function() {
-  var adapter = RL.RESTAdapter.create({
-    url: 'http://api.com'
-  });
-  equal( adapter.get('rootPath'), 'http://api.com', 'root path is valid' );
-});
-
 test('can set a namespace', function() {
   var adapter = RL.RESTAdapter.create({
     namespace: 'v1'
@@ -33,34 +26,58 @@ test('can set a namespace with host', function() {
 });
 
 test('various combinations of setting a namespace and/or host is resilient', function() {
-  var adapter = RL.RESTAdapter.create({
+  var adapter = RL.RESTAdapter.create();
+  equal( adapter.get('rootPath'), '', 'default path is blank' );
+
+  adapter = RL.RESTAdapter.create({
+    host: '/'
+  });
+  equal( adapter.get('rootPath'), '', 'slash host converted to blank. (slash is added when building full urls)' );
+
+  adapter = RL.RESTAdapter.create({
+    namespace: 'v1/'
+  });
+  equal( adapter.get('rootPath'), '/v1', 'works with just a namespace and transforms to correct format' );
+
+  adapter = RL.RESTAdapter.create({
     host: 'http://api.com/'
   });
-  equal( adapter.get('rootPath'), 'http://api.com', 'root path is valid' );
+  equal( adapter.get('rootPath'), 'http://api.com', 'removes trailing slash' );
+
   adapter = RL.RESTAdapter.create({
     host: 'http://api.com'
   });
-  equal( adapter.get('rootPath'), 'http://api.com', 'root path is valid' );
+  equal( adapter.get('rootPath'), 'http://api.com', 'stays intact' );
+
   adapter = RL.RESTAdapter.create({
     host: 'http://api.com',
     namespace: 'v1'
   });
-  equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
+  equal( adapter.get('rootPath'), 'http://api.com/v1', 'joins namespace with single slash' );
+
   adapter = RL.RESTAdapter.create({
     host: 'http://api.com/',
     namespace: 'v1'
   });
-  equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
+  equal( adapter.get('rootPath'), 'http://api.com/v1', 'joins namespace with single slash' );
+
   adapter = RL.RESTAdapter.create({
     host: 'http://api.com',
     namespace: '/v1'
   });
-  equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
+  equal( adapter.get('rootPath'), 'http://api.com/v1', 'joins namespace with single slash' );
+
   adapter = RL.RESTAdapter.create({
     host: 'http://api.com/',
     namespace: '/v1'
   });
-  equal( adapter.get('rootPath'), 'http://api.com/v1', 'root path is valid' );
+  equal( adapter.get('rootPath'), 'http://api.com/v1', 'joins namespace with single slash' );
+
+  adapter = RL.RESTAdapter.create({
+    host: 'http://api.com/',
+    namespace: '/v1/'
+  });
+  equal( adapter.get('rootPath'), 'http://api.com/v1', 'removes trailing slash with namespace' );
 });
 
 test('creates valid path for multi-word model classes', function() {

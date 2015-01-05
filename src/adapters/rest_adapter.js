@@ -21,7 +21,7 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
     @optional
     @example 'http://api.example.com'
    */
-  host: reads('url'),
+  host: null,
 
   /**
     API namespace endpoint path
@@ -63,22 +63,25 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
   useContentTypeExtension: false,
 
   /**
-    Computed path based on host and namespace.
+    Root url path based on host and namespace.
     @property rootPath
     @type String
-    @final
    */
   rootPath: computed(function() {
-    var a = document.createElement('a');
-    var host = this.get('host');
-    var ns = this.get('namespace');
-    var rootReset = ns && ns.charAt(0) === '/';
-
-    a.href = host ? host : '/';
-    if(ns) {
-      a.pathname = rootReset ? ns : (a.pathname + ns);
+    var rootPath = this.get('host') || '/';
+    var namespace = this.get('namespace');
+    
+    if (namespace) {
+      if (rootPath.slice(-1) === '/') {
+        rootPath = rootPath.slice(0, -1);
+      }
+      if (namespace.charAt(0) === '/') {
+        namespace = namespace.slice(1);
+      }
+      rootPath = rootPath + '/' + namespace;
     }
-    return a.href.replace(/\/+$/, '');
+
+    return rootPath.replace(/\/+$/, '');
   }).property('host', 'namespace'),
 
   /**

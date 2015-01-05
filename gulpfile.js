@@ -80,29 +80,29 @@ gulp.task('lint', function() {
              .pipe(jshint.reporter('default'));
 });
 
-gulp.task('build:core', function() {
+gulp.task('build:core', ['clean', 'lint'], function() {
   return performBuild(coreSrc, jsDistName);
 });
 
-gulp.task('build:addons', function() {
+gulp.task('build:addons', ['clean', 'lint'], function() {
   return performBuild(allScr, jsDistAddonsName);
 });
 
-gulp.task('build', ['build:core', 'build:addons']);
+gulp.task('build', ['clean', 'lint', 'build:core', 'build:addons']);
 
-gulp.task('test:core', function() {
+gulp.task('test:core', ['build:core'], function() {
   return gulp.src(testRunnerCore).pipe(qunit());
 });
 
-gulp.task('test:addons', function() {
+gulp.task('test:addons', ['build:addons'], function() {
   return gulp.src(testRunnerAddons).pipe(qunit());
 });
 
 gulp.task('test:browser', function(){
-  return gulp.src(testRunner).pipe(open('<% file.path %>')); 
+  return gulp.src(testRunnerCore).pipe(open('<% file.path %>')); 
 });
 
-gulp.task('test', ['test:core', 'test:addons']);
+gulp.task('test', ['build', 'test:core', 'test:addons']);
 
 gulp.task('clean', function() {
   return del([distDest + '*']);
@@ -118,4 +118,5 @@ gulp.task('watch:tests', function() {
 
 gulp.task('watch', ['watch:src', 'watch:tests']);
 
-gulp.task('default', ['clean', 'lint', 'build', 'test']);
+gulp.task('default', ['build', 'test']);
+
