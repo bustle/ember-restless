@@ -5,7 +5,7 @@
  * @author   Garth Poitras <garth@bustle.com>
  * @license  MIT
  * Copyright (c) 2013-2015 Bustle Labs
- * Last modified: Jan 5, 2015
+ * Last modified: Jan 14, 2015
  */
 
 (function(Ember, undefined) {
@@ -599,8 +599,9 @@ var JSONSerializer = RESTless.JSONSerializer = Serializer.extend({
    */
   attributeNameForKey: function(klass, key) {
     // check if a custom key was configured for this property
-    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(get(klass, '_configKey'));
-    var keys = modelConfig && modelConfig.propertyKeys;
+    var modelConfig = get(klass, 'adapter.configurations.models');
+    var configForKey = modelConfig && modelConfig.get(get(klass, '_configKey'));
+    var keys = configForKey && configForKey.propertyKeys;
     if(keys && keys[key]) {
       return keys[key];
     }
@@ -1627,8 +1628,9 @@ Model.reopenClass({
     @default 'id'
    */
   primaryKey: computed(function() {
-    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(get(this, '_configKey'));
-    var primaryKey = modelConfig && modelConfig.primaryKey;
+    var modelConfig = get(this, 'adapter.configurations.models'); 
+    var configForKey = modelConfig && modelConfig.get(get(this, '_configKey'));
+    var primaryKey = configForKey && configForKey.primaryKey;
     return primaryKey || 'id';
   }).property('RESTless.client.adapter.configurations.models'),
 

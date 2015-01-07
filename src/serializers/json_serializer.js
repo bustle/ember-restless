@@ -275,8 +275,9 @@ var JSONSerializer = RESTless.JSONSerializer = Serializer.extend({
    */
   attributeNameForKey: function(klass, key) {
     // check if a custom key was configured for this property
-    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(get(klass, '_configKey'));
-    var keys = modelConfig && modelConfig.propertyKeys;
+    var modelConfig = get(klass, 'adapter.configurations.models');
+    var configForKey = modelConfig && modelConfig.get(get(klass, '_configKey'));
+    var keys = configForKey && configForKey.propertyKeys;
     if(keys && keys[key]) {
       return keys[key];
     }

@@ -204,8 +204,9 @@ Model.reopenClass({
     @default 'id'
    */
   primaryKey: computed(function() {
-    var modelConfig = get(RESTless, 'client.adapter.configurations.models').get(get(this, '_configKey'));
-    var primaryKey = modelConfig && modelConfig.primaryKey;
+    var modelConfig = get(this, 'adapter.configurations.models'); 
+    var configForKey = modelConfig && modelConfig.get(get(this, '_configKey'));
+    var primaryKey = configForKey && configForKey.primaryKey;
     return primaryKey || 'id';
   }).property('RESTless.client.adapter.configurations.models'),
 
