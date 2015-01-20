@@ -1,3 +1,7 @@
+var get = Ember.get;
+var merge = Ember.merge;
+var RSVPPromise = Ember.RSVP.Promise;
+
 /**
   Adapters handle sending and fetching data to and from a persistence layer.
   This is a base class to be subclassed. Subclasses should implement:
@@ -7,7 +11,7 @@
   @namespace RESTless
   @extends Ember.Object
 */
-var Adapter = RESTless.Adapter = Ember.Object.extend({
+var Adapter = Ember.Object.extend({
   /**
     Instance of a Serializer used to transform data
     @property serializer
@@ -75,7 +79,7 @@ var Adapter = RESTless.Adapter = Ember.Object.extend({
     var key = record.get(primaryKey);
 
     // Can't reload a record that hasn't been stored yet (no primary key)
-    if(isNone(key)) {
+    if(Ember.isNone(key)) {
       return new RSVPPromise(function(resolve, reject) {
         reject(null);
       });
@@ -173,3 +177,5 @@ var Adapter = RESTless.Adapter = Ember.Object.extend({
     this.get('serializer').registerTransform(type, transform);
   }
 });
+
+export default Adapter;

@@ -1,3 +1,11 @@
+import Adapter from './adapter';
+import JSONSerializer from '../serializers/json-serializer';
+import RecordArray from '../model/record-array';
+
+var RSVPPromise = Ember.RSVP.Promise;
+var get = Ember.get;
+var $ = Ember.$;
+
 /**
   The REST Adapter handles sending and fetching data to and from a REST API.
 
@@ -5,7 +13,7 @@
   @namespace RESTless
   @extends RESTless.Adapter
 */
-var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
+var RESTAdapter = Adapter.extend({
   /**
     Serializer used to transform data.
     @property serializer
@@ -67,7 +75,7 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
     @property rootPath
     @type String
    */
-  rootPath: computed(function() {
+  rootPath: Ember.computed(function() {
     var rootPath = this.get('host') || '/';
     var namespace = this.get('namespace');
     
@@ -187,7 +195,7 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
     var isNew = record.get('isNew'), ajaxPromise;
     //If an existing model isn't dirty, no need to save.
     if(!isNew && !record.get('isDirty')) {
-      return new RSVPPromise(function(resolve, reject){
+      return new RSVPPromise(function(resolve){
         resolve(record);
       });
     }
@@ -247,7 +255,7 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
     var key = record.get(primaryKey), ajaxPromise;
 
     // Can't reload a record that hasn't been stored yet (no primary key)
-    if(isNone(key)) {
+    if(Ember.isNone(key)) {
       return new RSVPPromise(function(resolve, reject){
         reject(null);
       });
@@ -346,3 +354,5 @@ var RESTAdapter = RESTless.RESTAdapter = Adapter.extend({
     return errors;
   }
 });
+
+export default RESTAdapter;

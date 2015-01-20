@@ -1,17 +1,22 @@
+import RESTless from '../core';
+import ModelStateMixin from './state';
+import Model from './model';
+
+var get = Ember.get;
+
 /**
   RecordArray is an Array of Model objects.
 
   @class RecordArray
   @namespace RESTless
   @extends Ember.ArrayProxy
-  @uses RESTless.State
 */
-var RecordArray = RESTless.RecordArray = Ember.ArrayProxy.extend( RESTless.State, {
+var RecordArray = Ember.ArrayProxy.extend( ModelStateMixin, {
   /**
     The default adapter for the RecordArray. Providing a hook for overriding.
     @property adapter
    */
-  adapter: computed(function() {
+  adapter: Ember.computed(function() {
     return get(RESTless, 'client.adapter');
   }).property('RESTless.client.adapter'),
 
@@ -125,3 +130,5 @@ RecordArray.reopenClass({
     return arr._initContent();
   }
 });
+
+export default RecordArray;

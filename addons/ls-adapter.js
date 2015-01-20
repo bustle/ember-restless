@@ -1,3 +1,12 @@
+import Adapter from '../src/adapters/adapter';
+import JSONSerializer from '../src/serializers/json-serializer';
+import Model from '../src/model/model';
+import RecordArray from '../src/model/record-array';
+import RESTless from '../src/index';
+
+var get = Ember.get;
+var isNone = Ember.isNone;
+
 /**
  * The LocalStorageAdapter uses browser's localStorage as persistence storage
  *
@@ -12,7 +21,7 @@
  * @namespace RESTless
  * @extends RESTless.Adapter
  */
-RESTless.LSAdapter = Adapter.extend({
+var LSAdapter = Adapter.extend({
 
   /*
    * serializer: default to a JSON serializer
@@ -96,7 +105,6 @@ RESTless.LSAdapter = Adapter.extend({
     var deferred = Ember.RSVP.defer();
     var primaryKey = get(record.consturctor, 'primaryKey');
     var key = record.get(primaryKey);
-    var dataStoreName = this._getDSName(record);
     var dataStore = this._getDataStore(record);
     var recordFromKey = this.recordByKey(dataStore, key);
 
@@ -125,7 +133,6 @@ RESTless.LSAdapter = Adapter.extend({
   findQuery: function(model, queryParams) {
     var resourceInstance = model.create({ isNew: false });
     var result = RecordArray.createWithContent();
-    var dataStoreName = this._getDSName(resourceInstance);
     var dataStore = this._getDataStore(resourceInstance);
     var items = [], itemsA, key;
 
@@ -137,7 +144,7 @@ RESTless.LSAdapter = Adapter.extend({
 
     itemsA = Ember.A(items);
     if(queryParams) {
-      itemsA = itemsA.filter(function(item, index, enumerable) {
+      itemsA = itemsA.filter(function(item) {
         for(var key in queryParams) {
           if(queryParams.hasOwnProperty(key) && item[key] !== queryParams[key]) {
             return false;
@@ -154,11 +161,9 @@ RESTless.LSAdapter = Adapter.extend({
   /*
    * findByKey: Find a record by given key
    */
-  findByKey: function(model, key, queryParams) {
+  findByKey: function(model, key/*, queryParams*/) {
     var result = model.create({isNew: false});
-    var dataStoreName = this._getDSName(result);
     var dataStore = this._getDataStore(result);
-    var primaryKey = get(model, 'primaryKey');
     var recordFromKey = this.recordByKey(dataStore, key);
 
     if(recordFromKey) {
@@ -216,7 +221,7 @@ RESTless.LSAdapter = Adapter.extend({
     var dataStore = this._getDataStore(record);
     var modelMeta = this._getModelMeta(record);
     var keys = modelMeta.keys;
-    var circularLimit = modelMeta.circularLimit, i, len;
+    var i, len;
 
     if(climit <= 0) { 
       modelMeta.circularLimit = -1;
@@ -297,7 +302,6 @@ RESTless.LSAdapter = Adapter.extend({
    */
   _getModelMeta: function(record) {
     var dataStoreName = this._getDSName(record);
-    var dataStore = this._getDataStore(record);
 
     // Get meta data for this model. Insert if not available already
     var modelsMeta = localStorage.getItem('_modelsMeta');
@@ -365,3 +369,7 @@ Model.reopenClass({
     return get(this, 'adapter').setCircularLimit(this, climit);
   }
 });
+
+RESTless.LSAdapter = LSAdapter;
+
+export default LSAdapter;

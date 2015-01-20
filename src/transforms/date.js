@@ -1,3 +1,5 @@
+import Transform from './base';
+
 // Date.prototype.toISOString shim
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
 var toISOString = Date.prototype.toISOString || function() {
@@ -24,7 +26,7 @@ if (Ember.SHIM_ES5) {
   }
 }
 
-var DateTransform = RESTless.DateTransform = Transform.extend({
+export default Transform.extend({
   deserialize: function(serialized) {
     var type = typeof serialized;
 

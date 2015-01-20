@@ -1,3 +1,7 @@
+import RecordArray from './record-array';
+
+var merge = Ember.merge;
+
 /**
   Defines an attribute on a Model.
   Supports types: 'string', 'number', 'boolean', 'date'.
@@ -8,10 +12,10 @@
   @param {Object} [opts] a hash of options
   @return {Ember.computed} attribute
 */
-RESTless.attr = function(type, opts) {
+function attr(type, opts) {
   var meta = merge({ type: type, isAttribute: true }, opts);
   return makeComputedAttribute(meta);
-};
+}
 
 /**
   Defines a one-to-one relationship attribute on a Model.
@@ -22,10 +26,10 @@ RESTless.attr = function(type, opts) {
   @param {Object} [opts] a hash of options
   @return {Ember.computed} attribute
 */
-RESTless.belongsTo = function(type, opts) {
+function belongsTo(type, opts) {
   var meta = merge({ type: type, isRelationship: true, belongsTo: true }, opts);
   return makeComputedAttribute(meta);
-};
+}
 
 /**
   Defines a one-to-many relationship attribute on a Model.
@@ -36,16 +40,16 @@ RESTless.belongsTo = function(type, opts) {
   @param {Object} [opts] a hash of options
   @return {Ember.computed} attribute
 */
-RESTless.hasMany = function(type, opts) {
+function hasMany(type, opts) {
   var defaultArray = function() {
-    return RESTless.RecordArray.createWithContent();
+    return RecordArray.createWithContent();
   },
   meta = merge({ type: type, isRelationship: true, hasMany: true, defaultValue: defaultArray }, opts);
   return makeComputedAttribute(meta);
-};
+}
 
 function makeComputedAttribute(meta) {
-  return computed(function(key, value) {
+  return Ember.computed(function(key, value) {
     var data = this.get('_data');
     // Getter
     if (arguments.length === 1) {
@@ -64,10 +68,12 @@ function makeComputedAttribute(meta) {
     // Setter 
     else if (value !== data[key]) {
       data[key] = value;
-      if (!meta.readOnly && !RESTless.ReadOnlyModel.detectInstance(this)) {
+      if (!meta.readOnly) {
         this._onPropertyChange(key);
       }
     }
     return value;
   }).property('_data').meta(meta);
 }
+
+export { attr, belongsTo, hasMany };

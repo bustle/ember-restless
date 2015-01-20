@@ -1,3 +1,5 @@
+import RESTless from '../core';
+
 /**
   Serializers handle transforming data to and from raw data and Models.
   This is a base class to be subclassed. Subclasses should implement:
@@ -7,7 +9,7 @@
   @namespace RESTless
   @extends Ember.Object
 */
-var Serializer = RESTless.Serializer = Ember.Object.extend({
+var Serializer = Ember.Object.extend({
   /**
     Type of data to serialize.
     @property dataType
@@ -26,14 +28,14 @@ var Serializer = RESTless.Serializer = Ember.Object.extend({
   /**
     Returns a model class for a particular type.
     @method modelFor
-    @param {String or subclass of RL.Model} type
-    @return {subclass of RL.Model}
+    @param {String or subclass of Model} type
+    @return {subclass of Model}
   */
   modelFor: function(type) {
     if (typeof type === 'string') {
       // Globals support
       if (type.split('.').length > 1) {
-        return get(Ember.lookup, type); 
+        return Ember.get(Ember.lookup, type); 
       }
 
       // Container support
@@ -61,3 +63,5 @@ var Serializer = RESTless.Serializer = Ember.Object.extend({
     return error;
   }
 });
+
+export default Serializer;

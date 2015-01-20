@@ -1,15 +1,41 @@
 {
-  "forin"   : true,
-  "noarg"   : true,
-  "noempty" : true,
-  "immed"   : true,
-  "eqeqeq"  : true,
-  "bitwise" : true,
-  "curly"   : true,
-  "browser" : true,
-  "es3"     : true,
+  // Global variables
+  "predef": {
+    "Ember": true
+  },
+  
+  // Enforcing options
+  "curly": true,
+  "eqeqeq": true,
+  "es3": true,
+  "forin": true,
+  "immed": true,
+  "newcap": true,
+  "noarg": true,
+  "noempty": false,
+  "nonew": false,
+  "plusplus": false,
+  "strict": false,
+  "undef": true,
+  "unused": true,
 
-  "predef": [
-    "Ember"
-  ]
+  // Relaxing options
+  "boss" : true,
+  "debug": false,
+  "esnext": true,
+  "eqnull": true,
+  "evil": true,
+  "laxbreak": false,
+  "sub": true,
+
+  // Env
+  "browser" : true,
+  "devel": false,
+
+  // Unsupported
+  "nomen": false,
+  "onevar": false,
+  "regexp": false,
+  "white": false,
+  "indent": 2
 }

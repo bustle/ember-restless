@@ -1,3 +1,10 @@
+import Serializer from './serializer';
+import JSONTransforms from '../transforms/json';
+import Model from '../model/model';
+import RecordArray from '../model/record-array';
+
+var get = Ember.get;
+
 /**
   Handles transforming json data to Models and Models to json data.
 
@@ -5,7 +12,7 @@
   @namespace RESTless
   @extends RESTless.Serializer
 */
-var JSONSerializer = RESTless.JSONSerializer = Serializer.extend({
+var JSONSerializer = Serializer.extend({
   /**
     Type of data to serialize.
     @property dataType
@@ -362,3 +369,5 @@ var JSONSerializer = RESTless.JSONSerializer = Serializer.extend({
     return dataForKey || null;
   }
 });
+
+export default JSONSerializer;
