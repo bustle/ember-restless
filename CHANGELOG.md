@@ -4,6 +4,10 @@ The change log documents features and breaking changes for each version.
 While RESTless reaches a 1.0 release and more feedback and testing continues, the API is subject to change.  
 To keep the library small, API depreciation warnings may not be added.
 
+### 0.7.0
+
+- Converted code to ES6 modules
+
 ### 0.6.2
 
 - Gulp for task runner instead of Grunt

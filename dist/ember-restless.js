@@ -1,7 +1,7 @@
 /**
  * ember-restless
  * @overview A lightweight data persistence library for Ember.js
- * @version  0.6.2
+ * @version  0.7.0
  * @author   Garth Poitras <garth@bustle.com>
  * @license  MIT
  * Copyright (c) 2013-2015 Bustle Labs
@@ -11,10 +11,9 @@
 (function(Ember, undefined) {
 
     "use strict";
+    var src$adapters$adapter$$get = Ember.get;
     var src$adapters$adapter$$merge = Ember.merge;
     var src$adapters$adapter$$RSVPPromise = Ember.RSVP.Promise;
-
-    var src$adapters$adapter$$get = Ember.get;
 
     /**
       Adapters handle sending and fetching data to and from a persistence layer.
@@ -198,17 +197,18 @@
     */
 
     var src$core$$libraries = Ember.libraries;
+    var src$core$$VERSION = '0.7.0';
 
     /**
       @class RESTless
       @static
     */
     var src$core$$RESTless = Ember.Namespace.create({
-      VERSION: '0.6.2'
+      VERSION: src$core$$VERSION
     });
 
     if (src$core$$libraries) { 
-      src$core$$libraries.register('Ember RESTless', src$core$$RESTless.VERSION);
+      src$core$$libraries.register('Ember RESTless', src$core$$VERSION);
     }
 
     var src$core$$default = src$core$$RESTless;
@@ -788,7 +788,7 @@
         // Setter 
         else if (value !== data[key]) {
           data[key] = value;
-          if (!meta.readOnly && !this.get('readOnly')) {
+          if (!meta.readOnly) {
             this._onPropertyChange(key);
           }
         }
@@ -1872,7 +1872,6 @@
       @extends RESTless.Model
     */
     var src$model$read$only$model$$ReadOnlyModel = src$model$model$$default.extend({
-      readOnly: true,
       serialize: null,
       saveRecord: null,
       deleteRecord: null,
