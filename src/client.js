@@ -1,3 +1,4 @@
+import RESTless from './core';
 import RESTAdapter from './adapters/rest-adapter';
 
 /**
@@ -9,7 +10,7 @@ import RESTAdapter from './adapters/rest-adapter';
   @namespace RESTless
   @extends Ember.Object
 */
-export default Ember.Object.extend({
+var Client = Ember.Object.extend({
   /**
     The default adapter for all models.
     @property adapter
@@ -17,3 +18,20 @@ export default Ember.Object.extend({
    */
   adapter: RESTAdapter.create()
 });
+
+/*
+  RESTless Client initializer
+ */
+Ember.Application.initializer({
+  name: 'RESTless.Client',
+  initialize: function(container, application) {
+    var client = application.Client ? application.Client : Client.create();
+    RESTless.set('client', client);
+    application.addObserver('Client', this, function() {
+      RESTless.set('client', this.Client);
+    });
+    RESTless.__container__ = container;
+  }
+});
+
+export default Client;

@@ -2,7 +2,6 @@ import Adapter from '../src/adapters/adapter';
 import JSONSerializer from '../src/serializers/json-serializer';
 import Model from '../src/model/model';
 import RecordArray from '../src/model/record-array';
-import RESTless from '../src/index';
 
 var get = Ember.get;
 var isNone = Ember.isNone;
@@ -369,7 +368,5 @@ Model.reopenClass({
     return get(this, 'adapter').setCircularLimit(this, climit);
   }
 });
-
-RESTless.LSAdapter = LSAdapter;
 
 export default LSAdapter;

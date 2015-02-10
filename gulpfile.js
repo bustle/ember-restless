@@ -2,26 +2,25 @@ var del       = require('del');
 var gulp      = require('gulp');
 var jshint    = require('gulp-jshint');
 var qunit     = require('gulp-qunit');
-var concat    = require('gulp-concat');
 var replace   = require('gulp-replace');
-var transpile = require('gulp-es6-module-transpiler');
+var transpile = require('esperanto');
 var header    = require('gulp-header');
-var footer    = require('gulp-footer');
 var util      = require('gulp-util');
 var open      = require('gulp-open');
+var file      = require('gulp-file');
 var pkg       = require('./package.json');
 
 // ------------------------------------------- 
 
 var coreSrc = ['src/**/*.js'];
+var coreEntry = 'src/index.js';
 var addonsSrc = ['addons/**/*.js'];
+var addonsEntry = 'addons/index.js';
 var allScr = coreSrc.concat(addonsSrc);
 
 var distDest = './dist/';
 var jsDistName = 'ember-restless.js';
 var jsDistAddonsName = 'ember-restless+addons.js';
-var jsDistPath = distDest + jsDistName;
-var jsDistAddonsPath = distDest + jsDistAddonsName;
 
 var testRunnerCore = './tests/index.html';
 var testRunnerAddons = './tests/addons.html';
@@ -38,23 +37,22 @@ var banner = ['/**',
               ' */',
               ''].join('\n');
 
-var iifeHeader = '\n(function(Ember, undefined) {\n\n';
-var iifeFooter = '\n}(Ember));\n';
+var iifeHeader = '\n(function(Ember, undefined) {\n\n\t\'use strict\';\n\n';
+var iifeFooter = '\n\n}(Ember));\n';
 
-function performBuild(files, outputFile) {
-  return gulp.src(files)
-             .pipe(transpile({ formatter: 'bundle' }))
-             .pipe(concat(outputFile))
-             .pipe(replace(/@@version/g, pkg.version))
-             // Remove gulp-es6-module-transpiler's IIFE so we can add our own
-             .pipe(replace(/^\(function\(\) {\n/g, ''))
-             .pipe(replace(/\}\)\.call\(this\);\n/g, ''))
-             .pipe(replace(/\n\/\/# sourceMappingURL\=bundle\.map/g, ''))
-             // end IFFE removal
-             .pipe(header(iifeHeader))
-             .pipe(footer(iifeFooter))
-             .pipe(header(banner, { pkg : pkg } ))
-             .pipe(gulp.dest(distDest));
+function performBuild(entryFile, outputFile) {
+  return transpile.bundle({
+    entry: entryFile
+  }).then(function(bundle) {
+    var transpiled = bundle.concat({
+      intro: iifeHeader,
+      outro: iifeFooter
+    });
+    return file(outputFile, transpiled.code, { src: true })
+               .pipe(replace(/@@version/g, pkg.version))
+               .pipe(header(banner, { pkg : pkg } ))
+               .pipe(gulp.dest(distDest));
+  });
 }
 
 gulp.task('lint', function() {
@@ -64,11 +62,11 @@ gulp.task('lint', function() {
 });
 
 gulp.task('build:core', ['clean', 'lint'], function() {
-  return performBuild(coreSrc, jsDistName);
+  return performBuild(coreEntry, jsDistName);
 });
 
 gulp.task('build:addons', ['clean', 'lint'], function() {
-  return performBuild(allScr, jsDistAddonsName);
+  return performBuild(addonsEntry, jsDistAddonsName);
 });
 
 gulp.task('build', ['clean', 'lint', 'build:core', 'build:addons']);

@@ -1,7 +1,6 @@
 import Adapter from '../src/adapters/adapter';
 import JSONSerializer from '../src/serializers/json-serializer';
 import RecordArray from '../src/model/record-array';
-import RESTless from '../src/index';
 
 var get = Ember.get;
 var RSVPPromise = Ember.RSVP.Promise;
@@ -196,7 +195,5 @@ var FixtureAdapter = Adapter.extend({
     return -1;
   }
 });
-
-RESTless.FixtureAdapter = FixtureAdapter;
 
 export default FixtureAdapter;
