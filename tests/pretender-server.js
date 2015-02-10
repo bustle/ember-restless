@@ -1,3 +1,2 @@
-var server = new Pretender(function(){
-
-});
+var server = new Pretender();
+server.unhandledRequest = function(){};

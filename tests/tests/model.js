@@ -121,15 +121,14 @@ test('attributes can have default values', function() {
 
 
 test('attributes can have a default value functions', function() {
-  var valueFunction = sinon.spy(function() { return new Date(); }),
-      model = RL.Model.extend({ createdAt: RL.attr('date', { defaultValue: valueFunction }) }),
-      record = model.create();
-
+  var valueFunction = function() { return new Date(); };
+  var Model = RL.Model.extend({ 
+    createdAt: RL.attr('date', { defaultValue: valueFunction })
+  });
+  var record = Model.create();
   var createdAt = record.get('createdAt');
-
   ok( createdAt, 'defaultValue function used when no value');
-  equal( record.get('createdAt'), createdAt, "repeated calls return same value");
-  ok( valueFunction.calledOnce, "function only called once");
+  equal( record.get('createdAt'), createdAt, 'repeated calls return same value');
 });
 
 
