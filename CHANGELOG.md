@@ -2,7 +2,11 @@
 
 The change log documents features and breaking changes for each version.  
 While RESTless reaches a 1.0 release and more feedback and testing continues, the API is subject to change.  
-To keep the library small, API depreciation warnings may not be added.
+To keep the library small, API deprecation warnings will not be added.
+
+### 0.7.1
+
+- Using esperanto for ES6 module transpiler
 
 ### 0.7.0
 
