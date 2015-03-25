@@ -17,15 +17,15 @@
   ],
   "devDependencies": {
     "del": "^1.1.1",
-    "esperanto": "^0.6.11",
-    "gulp": "^3.8.10",
+    "esperanto": "^0.6.17",
+    "gulp": "^3.8.11",
     "gulp-file": "^0.2.0",
     "gulp-header": "^1.2.2",
-    "gulp-jshint": "^1.9.0",
-    "gulp-open": "^0.3.1",
-    "gulp-qunit": "^1.1.0",
-    "gulp-replace": "^0.5.0",
-    "gulp-util": "^3.0.1"
+    "gulp-jshint": "^1.9.4",
+    "gulp-open": "^0.3.2",
+    "gulp-qunit": "^1.2.1",
+    "gulp-replace": "^0.5.3",
+    "gulp-util": "^3.0.4"
   },
   "scripts": {
     "test": "gulp test --verbose"

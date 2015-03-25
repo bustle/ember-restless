@@ -1,6 +1,7 @@
 {
   // Global variables
   "predef": {
+    "JSON": true,
     "Ember": true
   },
   
