@@ -38,9 +38,8 @@ var Model = Ember.Object.extend( ModelStateMixin, Ember.Copyable, {
     @protected
    */
   didDefineProperty: function(proto, key, value) {
-    var meta;
-    if (value instanceof Ember.Descriptor) {
-      meta = value.meta();
+    if (value instanceof Ember.ComputedProperty) {
+      var meta = value.meta();
       if (meta.isRelationship && !meta.readOnly) {
         // If a relationship's property becomes dirty, need to mark owner as dirty.
         Ember.addObserver(proto, key + '.isDirty', null, '_onRelationshipChange');
