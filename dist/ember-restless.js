@@ -1,11 +1,11 @@
 /**
  * ember-restless
  * @overview A lightweight data persistence library for Ember.js
- * @version  0.7.1
+ * @version  0.7.2
  * @author   Garth Poitras <garth@bustle.com>
  * @license  MIT
  * Copyright (c) 2013-2015 Bustle Labs
- * Last modified: Feb 10, 2015
+ * Last modified: Mar 24, 2015
  */
 
 (function(Ember, undefined) {
@@ -17,7 +17,7 @@
   */
 
   var libraries = Ember.libraries;
-  var VERSION = '0.7.1';
+  var VERSION = '0.7.2';
 
   /**
     @class RESTless
@@ -824,9 +824,8 @@
       @protected
      */
     didDefineProperty: function(proto, key, value) {
-      var meta;
-      if (value instanceof Ember.Descriptor) {
-        meta = value.meta();
+      if (value instanceof Ember.ComputedProperty) {
+        var meta = value.meta();
         if (meta.isRelationship && !meta.readOnly) {
           // If a relationship's property becomes dirty, need to mark owner as dirty.
           Ember.addObserver(proto, key + '.isDirty', null, '_onRelationshipChange');
