@@ -4,6 +4,15 @@ The change log documents features and breaking changes for each version.
 While RESTless reaches a 1.0 release and more feedback and testing continues, the API is subject to change.  
 To keep the library small, API deprecation warnings will not be added.
 
+### 0.7.3
+
+- Allow the RESTAdapter's ajax method to be overridden.  Allows you to manually modify params or swap in something other than jQuery ajax.
+- NOTE: the **_private_** `currentRequest` property on models is now a pointer to a promise instead of the jQuery.ajax call.
+
+### 0.7.2
+
+- Bug fix: remove usage of private Ember method that was removed in canary.
+
 ### 0.7.1
 
 - Using esperanto for ES6 module transpiler

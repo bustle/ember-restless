@@ -1,11 +1,11 @@
 /**
  * ember-restless
  * @overview A lightweight data persistence library for Ember.js
- * @version  0.7.2
+ * @version  0.7.3
  * @author   Garth Poitras <garth@bustle.com>
  * @license  MIT
  * Copyright (c) 2013-2015 Bustle Labs
- * Last modified: Mar 24, 2015
+ * Last modified: Mar 26, 2015
  */
 
 (function(Ember, undefined) {
@@ -17,7 +17,7 @@
   */
 
   var libraries = Ember.libraries;
-  var VERSION = '0.7.2';
+  var VERSION = '0.7.3';
 
   /**
     @class RESTless
@@ -1589,29 +1589,36 @@
     },
 
     /**
-      Creates and executes an ajax request wrapped in a promise.
-      @method request
+      Builds the url, params, and triggers an ajax request
       @param {Object} [options] hash of request options
       @return {Ember.RSVP.Promise}
      */
     request: function(options) {
-      var adapter = this;
-      var ajaxParams = adapter.prepareParams(options.params);
       var klass = options.type || options.model.constructor;
-      
-      ajaxParams.url = adapter.buildUrl(options.model, options.key, klass);
+      var ajaxParams = this.prepareParams(options.params);
+      ajaxParams.url = this.buildUrl(options.model, options.key, klass);
+      var ajax = this.ajax(ajaxParams);
+      // store the ajax promise as 'currentRequest' on the model (private)
+      options.model.currentRequest = ajax;
+      return ajax;
+    },
 
+    /**
+      Executes a jQuery ajax request wrapped in a promise.
+      @param {Object} [options] hash of jQuery ajax options
+      @return {Ember.RSVP.Promise}
+     */
+    ajax: function(options) {
+      var adapter = this;
       return new RESTAdapter__RSVPPromise(function(resolve, reject) {
-        ajaxParams.success = function(data) {
+        options.success = function(data) {
           Ember.run(null, resolve, data);
         };
-        ajaxParams.error = function(jqXHR, textStatus, errorThrown) {
+        options.error = function(jqXHR, textStatus, errorThrown) {
           var errors = adapter.parseAjaxErrors(jqXHR, textStatus, errorThrown);
           Ember.run(null, reject, errors);
         };
-
-        // trigger ajax request and store it on the model (private)
-        options.model.currentRequest = $.ajax(ajaxParams);
+        $.ajax(options);
       });
     },
 
