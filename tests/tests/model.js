@@ -198,13 +198,26 @@ test('can set a different adapter per model', function() {
 });
 
 
-asyncTest('event hooks', function() {
-  expect(1);
+test('event hooks', function() {
+  expect(6);
   App.Comment.reopen({
-    becameError: function (error) {
-      ok( 1, 'event hook was invoked' );
-      start();
+    didCreate: function () {
+      ok( 1, 'create event hook was invoked' );
+    },
+    didUpdate: function () {
+      ok( 1, 'update event hook was invoked' );
+    },
+    didLoad: function () {
+      ok( 1, 'load event hook was invoked by onSaved 2x and onLoaded' );
+    },
+    becameError: function () {
+      ok( 1, 'error event hook was invoked' );
     }
   });
-  var comment = App.Comment.find(1).currentRequest.abort();
+
+  var comment = App.Comment.create();
+  comment.onSaved(true);
+  comment.onSaved(false);
+  comment.onLoaded();
+  comment.onError();
 });

@@ -86,16 +86,25 @@ test('creates valid path for multi-word model classes', function() {
   equal( adapter.resourcePath(resourceName), 'post_groups', 'resource path is valid' );
 });
 
-asyncTest('can optionally add query params to a findByKey request', 1, function() {
-  App.Person.find({ id: 1, some_param: 'test' }).currentRequest.abort().always(function() {
-    var urlParts = this.url.split('/');
-    var path = urlParts[urlParts.length-1];
-    equal( path, '1?some_param=test', 'findByKey with parameters requests expected url' );
-    start();
-  });
+test('can optionally add query params to a findByKey request', function() {
+  var oldJQueryAjax = jQuery.ajax, ajaxHash;
+  jQuery.ajax = function(hash) {
+    ajaxHash = hash;
+  };
+
+  App.Comment.find({ id: 1, some_param: 'test' });
+  equal (ajaxHash.url, '/comments/1', 'findByKey with parameters requests expected url');
+  equal (JSON.stringify(ajaxHash.data), JSON.stringify({ some_param: 'test' }), 'findByKey with parameters requests expected query params');
+
+  jQuery.ajax = oldJQueryAjax;
 });
 
 test('allows using content type extension', function() {
+  var oldJQueryAjax = jQuery.ajax, ajaxHash;
+  jQuery.ajax = function(hash) {
+    ajaxHash = hash;
+  };
+
   var adapter = RL.RESTAdapter.create({
     useContentTypeExtension: true
   });
@@ -103,20 +112,21 @@ test('allows using content type extension', function() {
     adapter: adapter
   }));
 
-  App.Post.find().currentRequest.abort().fail(function() {
-    var urlParts = this.url.split('/');
-    var path = urlParts[urlParts.length-1];
-    equal( path, 'posts.json', 'extension added' );
-  });
+  App.Post.find();
+  equal (ajaxHash.url, '/posts.json', 'extension added');
 
-  App.Post.find(5).currentRequest.abort().fail(function() {
-    var urlParts = this.url.split('/');
-    var path = [urlParts[urlParts.length-2], urlParts[urlParts.length-1]].join('/');
-    equal( path, 'posts/5.json', 'extension added to key' );
-  });
+  App.Post.find(5);
+  equal (ajaxHash.url, '/posts/5.json', 'extension added to key');
+
+  jQuery.ajax = oldJQueryAjax;
 });
 
-asyncTest('can optionally add headers to ajax requests', 1, function() {
+test('can optionally add headers to ajax requests', function() {
+  var oldJQueryAjax = jQuery.ajax, ajaxHash;
+  jQuery.ajax = function(hash) {
+    ajaxHash = hash;
+  };
+
   var adapter = RL.RESTAdapter.create({
     headers: { 'X-API-KEY': 'abc1234' }
   });
@@ -124,50 +134,44 @@ asyncTest('can optionally add headers to ajax requests', 1, function() {
     adapter: adapter
   }));
 
-  App.Person.find(1).currentRequest.abort().always(function() {
-    equal(this.headers['X-API-KEY'], 'abc1234', 'headers added correctly');
-    start();
-  });
+  App.Person.find();
+  equal (ajaxHash.headers['X-API-KEY'], 'abc1234', 'headers added correctly');
+
+  jQuery.ajax = oldJQueryAjax;
 });
 
-asyncTest('can optionally add default parameters to ajax requests', 5, function() {
+test('can optionally add default parameters to ajax requests', function() {
+  var oldJQueryAjax = jQuery.ajax, ajaxHash;
+  jQuery.ajax = function(hash) {
+    ajaxHash = hash;
+  };
+
+  var defaultData = { api_key: 'abc1234' }, mergedData;
   var adapter = RL.RESTAdapter.create({
-    defaultData: { api_key: 'abc1234' }
+    defaultData: defaultData
   });
+
   App.set('Client', RL.Client.create({
     adapter: adapter
   }));
 
-  App.Person.find(1).currentRequest.abort().always(function() {
-    var a = document.createElement('a');
-    a.href = this.url;
-    equal(a.search, '?api_key=abc1234', 'default data added');
-  });
+  App.Person.find(1);
+  equal (JSON.stringify(ajaxHash.data), JSON.stringify(defaultData), 'default data added');
 
-  App.Person.find({ id: 1, some_param: 'test' }).currentRequest.abort().always(function() {
-    var a = document.createElement('a');
-    a.href = this.url;
-    equal(a.search, '?api_key=abc1234&some_param=test', 'default data merges with other params');
-  });
+  App.Person.find({ id: 1, some_param: 'test' });
+  mergedData = $.extend({}, defaultData, { some_param: 'test' });
+  equal(JSON.stringify(ajaxHash.data), JSON.stringify(mergedData), 'default data merges with other params');
 
-  adapter.defaultData = { api_key: 'abc1234', some_param: 'foo' };
+  adapter.defaultData = defaultData = { api_key: 'abc1234', some_param: 'foo' };
 
-  App.Person.find(1).currentRequest.abort().always(function() {
-    var a = document.createElement('a');
-    a.href = this.url;
-    equal(a.search, '?api_key=abc1234&some_param=foo', 'supports multiple default data properties');
-  });
+  App.Person.find(1);
+  equal (JSON.stringify(ajaxHash.data), JSON.stringify(defaultData), 'supports multiple default data properties');
 
-  App.Person.find({ id: 1, some_param: 'test' }).currentRequest.abort().always(function() {
-    var a = document.createElement('a');
-    a.href = this.url;
-    equal(a.search, '?api_key=abc1234&some_param=test', 'query data has precedence over defaultData');
-  });
+  App.Person.find({ id: 1, some_param: 'test' });
+  equal (JSON.stringify(ajaxHash.data), JSON.stringify({ api_key: 'abc1234', some_param: 'test' }), 'query data has precedence over defaultData');
 
-  App.Person.find(1).currentRequest.abort().always(function() {
-    var a = document.createElement('a');
-    a.href = this.url;
-    equal(a.search, '?api_key=abc1234&some_param=foo', 'default data should not be modified by prior queries');
-    start();
-  });
+  App.Person.find(1);
+  equal (JSON.stringify(ajaxHash.data), JSON.stringify(defaultData), 'default data should not be modified by prior queries');
+
+  jQuery.ajax = oldJQueryAjax;
 });
