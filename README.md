@@ -1,12 +1,12 @@
 # Ember RESTless [![Build Status](https://travis-ci.org/bustlelabs/ember-restless.png?branch=master)](https://travis-ci.org/bustlelabs/ember-restless)
 
-RESTless is a lightweight data persistence library for [Ember.js](http://emberjs.com).
+ember-restless is a lightweight data persistence library for [Ember.js](http://emberjs.com).
 
-Out of the box, it is used to communicate with a remote JSON REST API to map data between a server and your Ember.js application.  
+Out of the box, it is used to communicate with a JSON REST API to map data between a server and your Ember.js application. ember-restless can be extended to support various other data persistence layers.
 
-RESTless can be extended to support various other data persistence layers. For example, to handle XML data instead of JSON, or persist data to localStorage instead of a remote server.
+One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), while remaining lightweight and stable.
 
-One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), and reflect a similar API, while remaining lightweight and stable. RESTless does not contain all of the features provided by ember-data, but was created to be less complex and contain most of the functionality needed for basic CRUD apps.  Transitioning between the two should be possible with minimal effort.
+You should use ember-restless if you want to easily perform CRUD operations on your ember models without having to write any ajax or json serialization / deserialization.
 
 See the full [API documentation](http://bustlelabs.github.io/ember-restless/api/).  
 
@@ -415,11 +415,11 @@ App.Client = RL.Client.create({
 
 ## Building
 
-If you wish to build ember-restless yourself, you will need node.js and Grunt.  
+If you wish to build ember-restless yourself, you will need node.js and Gulp.  
 
 1. Install node: <a href='http://nodejs.org/'>http://nodejs.org/</a>
 2. Install dependencies: ```npm install```
-3. Build: ```grunt build```
+3. Build: ```gulp build```
 4. Output will be in ```dist/```
 
 
@@ -427,9 +427,9 @@ If you wish to build ember-restless yourself, you will need node.js and Grunt.
 
 1. Install bower: ```npm install -g bower```
 2. Install dependencies: ```bower install```
-3. Test: ```grunt test``` or open tests/index.html in a browser  
+3. Test: ```gulp test``` or open tests/index.html in a browser  
 
-#### ```grunt``` default task will both build & test.
+**```gulp``` default task will both build & test.**
 
 ## Add-ons
 
