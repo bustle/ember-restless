@@ -17,11 +17,11 @@
   ],
   "devDependencies": {
     "del": "^1.1.1",
-    "esperanto": "^0.6.17",
+    "esperanto": "^0.6.27",
     "gulp": "^3.8.11",
     "gulp-file": "^0.2.0",
     "gulp-header": "^1.2.2",
-    "gulp-jshint": "^1.9.4",
+    "gulp-jshint": "^1.10.0",
     "gulp-open": "^0.3.2",
     "gulp-qunit": "^1.2.1",
     "gulp-replace": "^0.5.3",
