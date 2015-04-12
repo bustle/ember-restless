@@ -15,6 +15,9 @@
     "model",
     "json"
   ],
+  "scripts": {
+    "test": "gulp test --verbose"
+  },
   "devDependencies": {
     "del": "^1.1.1",
     "esperanto": "^0.6.27",
@@ -24,10 +27,6 @@
     "gulp-jshint": "^1.10.0",
     "gulp-open": "^0.3.2",
     "gulp-qunit": "^1.2.1",
-    "gulp-replace": "^0.5.3",
-    "gulp-util": "^3.0.4"
-  },
-  "scripts": {
-    "test": "gulp test --verbose"
+    "gulp-replace": "^0.5.3"
   }
 }

@@ -5,7 +5,6 @@ var qunit     = require('gulp-qunit');
 var replace   = require('gulp-replace');
 var transpile = require('esperanto');
 var header    = require('gulp-header');
-var util      = require('gulp-util');
 var open      = require('gulp-open');
 var file      = require('gulp-file');
 var pkg       = require('./package.json');
@@ -28,12 +27,11 @@ var testScripts = './tests/tests/*.js';
 
 var banner = ['/**',
               ' * <%= pkg.name %>',
-              ' * @overview <%= pkg.description %>',
-              ' * @version  <%= pkg.version %>',
-              ' * @author   <%= pkg.author %>',
-              ' * @license  <%= pkg.license %>',
-              ' * Copyright (c) 2013-2015 Bustle Labs',
-              ' * Last modified: ' + util.date('mmm d, yyyy'),
+              ' * @overview  <%= pkg.description %>',
+              ' * @version   <%= pkg.version %>',
+              ' * @author    <%= pkg.author %>',
+              ' * @license   <%= pkg.license %>',
+              ' * @copyright (c) 2013-2015 Bustle Labs',
               ' */',
               ''].join('\n');
 
