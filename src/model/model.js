@@ -197,9 +197,9 @@ Model.reopenClass({
     @property adapter
     @type RESTless.Adapter
    */
-  adapter: computed(function() {
+  adapter: computed('RESTless.client.adapter', function() {
     return get(RESTless, 'client.adapter');
-  }).property('RESTless.client.adapter'),
+  }),
 
   /** 
     The property name for the primary key
@@ -207,12 +207,12 @@ Model.reopenClass({
     @type String
     @default 'id'
    */
-  primaryKey: computed(function() {
+  primaryKey: computed('RESTless.client.adapter.configurations.models', function() {
     var modelConfig = get(this, 'adapter.configurations.models'); 
     var configForKey = modelConfig && modelConfig.get(get(this, '_configKey'));
     var primaryKey = configForKey && configForKey.primaryKey;
     return primaryKey || 'id';
-  }).property('RESTless.client.adapter.configurations.models'),
+  }),
 
   /** 
     The name of the resource, derived from the class name.
@@ -244,9 +244,9 @@ Model.reopenClass({
     @type String
     @private
    */
-  _configKey: computed(function() {
+  _configKey: computed('resourceName', function() {
     return Ember.String.camelize(get(this, 'resourceName'));
-  }).property('resourceName'),
+  }),
 
   /** 
     Meta information for all attributes and relationships

@@ -16,9 +16,9 @@ var RecordArray = Ember.ArrayProxy.extend( ModelStateMixin, {
     The default adapter for the RecordArray. Providing a hook for overriding.
     @property adapter
    */
-  adapter: Ember.computed(function() {
+  adapter: Ember.computed('RESTless.client.adapter', function() {
     return get(RESTless, 'client.adapter');
-  }).property('RESTless.client.adapter'),
+  }),
 
   /**
     Use the current Serializer to turn the data into a record array.

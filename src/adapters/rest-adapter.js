@@ -75,7 +75,7 @@ var RESTAdapter = Adapter.extend({
     @property rootPath
     @type String
    */
-  rootPath: Ember.computed(function() {
+  rootPath: Ember.computed('host', 'namespace', function() {
     var rootPath = this.get('host') || '/';
     var namespace = this.get('namespace');
     
@@ -90,7 +90,7 @@ var RESTAdapter = Adapter.extend({
     }
 
     return rootPath.replace(/\/+$/, '');
-  }).property('host', 'namespace'),
+  }),
 
   /**
     Helper method creates a valid REST path to a resource

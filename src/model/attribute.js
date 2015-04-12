@@ -49,7 +49,7 @@ function hasMany(type, opts) {
 }
 
 function makeComputedAttribute(meta) {
-  return Ember.computed(function(key, value) {
+  return Ember.computed('_data', function(key, value) {
     var data = this.get('_data');
     // Getter
     if (arguments.length === 1) {
@@ -73,7 +73,7 @@ function makeComputedAttribute(meta) {
       }
     }
     return value;
-  }).property('_data').meta(meta);
+  }).meta(meta);
 }
 
 export { attr, belongsTo, hasMany };
