@@ -34,11 +34,11 @@ See the [change log](CHANGELOG.md) for the latest features and API changes.
 
 ## Getting started
 
-Include [ember-restless.js](https://raw.github.com/bustlelabs/ember-restless/master/dist/ember-restless.js) in your Ember application after ember.js
+To use in an ember-cli app, simply:
+ 
+```npm install --save-dev ember-restless```
 
-or via package managers:
-```bower install ember-restless```  
-```npm install ember-restless```
+For old-school global apps, include [ember-restless.js](https://raw.github.com/bustlelabs/ember-restless/master/dist/ember-restless.js) after ember.js.
 
 **Namespace**
 

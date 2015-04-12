@@ -1,11 +1,11 @@
 /**
  * ember-restless
  * @overview A lightweight data persistence library for Ember.js
- * @version  0.7.3
+ * @version  0.7.4
  * @author   Garth Poitras <garth@bustle.com>
  * @license  MIT
  * Copyright (c) 2013-2015 Bustle Labs
- * Last modified: Mar 26, 2015
+ * Last modified: Apr 12, 2015
  */
 
 (function(Ember, undefined) {
@@ -17,7 +17,7 @@
   */
 
   var libraries = Ember.libraries;
-  var VERSION = '0.7.3';
+  var VERSION = '0.7.4';
 
   /**
     @class RESTless
