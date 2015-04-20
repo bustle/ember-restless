@@ -196,6 +196,7 @@ var RESTAdapter = Adapter.extend({
     Saves a record. POSTs a new record, or PUTs an updated record to REST API
     @method saveRecord
     @param {RESTless.Model} record record to be saved
+    @param {Object} [options] additional serialization options
     @return {Ember.RSVP.Promise}
    */
   saveRecord: function(record, options) {
