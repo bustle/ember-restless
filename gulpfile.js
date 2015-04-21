@@ -35,7 +35,7 @@ var banner = ['/**',
               ' */',
               ''].join('\n');
 
-var iifeHeader = '\n(function(Ember, undefined) {\n\n\t\'use strict\';\n\n';
+var iifeHeader = '\n(function(Ember, undefined) {\n\n  \'use strict\';\n\n';
 var iifeFooter = '\n\n}(Ember));\n';
 
 function performBuild(entryFile, outputFile) {
