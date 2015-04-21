@@ -4,6 +4,9 @@ The change log documents features and breaking changes for each version.
 While RESTless reaches a 1.0 release and more feedback and testing continues, the API is subject to change.  
 To keep the library small, API deprecation warnings will not be added.
 
+### 0.7.4
+- Can now be easily included in apps as an ember-cli addon
+
 ### 0.7.3
 
 - Allow the RESTAdapter's ajax method to be overridden.  Allows you to manually modify params or swap in something other than jQuery ajax.

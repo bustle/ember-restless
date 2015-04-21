@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "del": "^1.1.1",
-    "esperanto": "^0.6.27",
+    "esperanto": "^0.6.29",
     "gulp": "^3.8.11",
     "gulp-file": "^0.2.0",
     "gulp-header": "^1.2.2",

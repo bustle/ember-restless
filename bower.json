@@ -15,7 +15,7 @@
     "ember": ">= 1.0.0"
   },
   "devDependencies": {
-    "ember": "~1.11.1",
+    "ember": "1.11.3",
     "pretender": "~0.6.0",
     "qunit": "~1.18.0"
   }
