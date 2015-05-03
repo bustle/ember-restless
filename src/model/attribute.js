@@ -1,6 +1,13 @@
 import RecordArray from './record-array';
 
 var merge = Ember.merge;
+var computed = Ember.computed;
+var supportsNewComputedSyntax = true;
+try {
+  computed({ set: function(){}, get: function(){} });
+} catch(e) {
+  supportsNewComputedSyntax = false;
+}
 
 /**
   Defines an attribute on a Model.
@@ -48,32 +55,53 @@ function hasMany(type, opts) {
   return makeComputedAttribute(meta);
 }
 
-function makeComputedAttribute(meta) {
-  return Ember.computed('_data', function(key, value) {
-    var data = this.get('_data');
-    // Getter
-    if (arguments.length === 1) {
-      value = data[key];
+function computedAttributeGet(key, meta) {
+  var data = this.get('_data');
+  var value = data[key];
 
-      if (value === undefined) { 
-        // Default values
-        if (typeof meta.defaultValue === 'function') {
-          value = meta.defaultValue.call(this);
-        } else {
-          value = meta.defaultValue;
-        }
-        data[key] = value;
-      }
+  if (value === undefined) { 
+    if (typeof meta.defaultValue === 'function') {
+      value = meta.defaultValue.call(this);
+    } else {
+      value = meta.defaultValue;
     }
-    // Setter 
-    else if (value !== data[key]) {
-      data[key] = value;
-      if (!meta.readOnly) {
-        this._onPropertyChange(key);
-      }
+    data[key] = value;
+  }
+  return value;
+}
+
+function computedAttributeSet(key, value, meta) {
+  var data = this.get('_data');
+  if (value !== data[key]) {
+    data[key] = value;
+    if (!meta.readOnly) {
+      this._onPropertyChange(key);
     }
-    return value;
-  }).meta(meta);
+  }
+  return value;
+}
+
+function makeComputedAttribute(meta) {
+  var computedAttribute;
+  if (supportsNewComputedSyntax) {
+    computedAttribute = {
+      get: function(key) {
+        return computedAttributeGet.call(this, key, meta);
+      },
+      set: function(key, value) {
+        return computedAttributeSet.call(this, key, value, meta);
+      }
+    };
+  } else {
+    computedAttribute = function(key, value) {
+      if (arguments.length === 1) {
+        return computedAttributeGet.call(this, key, meta);
+      }
+      return computedAttributeSet.call(this, key, value, meta);
+    };
+  }
+
+  return computed('_data', computedAttribute).meta(meta);
 }
 
 export { attr, belongsTo, hasMany };
