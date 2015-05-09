@@ -1,7 +1,7 @@
 /**
  * ember-restless
  * @overview  A lightweight data persistence library for Ember.js
- * @version   0.7.4
+ * @version   0.7.5
  * @author    Garth Poitras <garth@bustle.com>
  * @license   MIT
  * @copyright (c) 2013-2015 Bustle Labs
@@ -9,14 +9,14 @@
 
 (function(Ember, undefined) {
 
-	'use strict';
+  'use strict';
 
   /**
     @module ember-restless
   */
 
   var libraries = Ember.libraries;
-  var VERSION = '0.7.4';
+  var VERSION = '0.7.5';
 
   /**
     @class RESTless
@@ -721,6 +721,13 @@
   var record_array = RecordArray;
 
   var attribute__merge = Ember.merge;
+  var attribute__computed = Ember.computed;
+  var supportsNewComputedSyntax = true;
+  try {
+    attribute__computed({ set: function(){}, get: function(){} });
+  } catch(e) {
+    supportsNewComputedSyntax = false;
+  }
 
   /**
     Defines an attribute on a Model.
@@ -768,35 +775,56 @@
     return makeComputedAttribute(meta);
   }
 
-  function makeComputedAttribute(meta) {
-    return Ember.computed('_data', function(key, value) {
-      var data = this.get('_data');
-      // Getter
-      if (arguments.length === 1) {
-        value = data[key];
+  function computedAttributeGet(key, meta) {
+    var data = this.get('_data');
+    var value = data[key];
 
-        if (value === undefined) { 
-          // Default values
-          if (typeof meta.defaultValue === 'function') {
-            value = meta.defaultValue.call(this);
-          } else {
-            value = meta.defaultValue;
-          }
-          data[key] = value;
-        }
+    if (value === undefined) { 
+      if (typeof meta.defaultValue === 'function') {
+        value = meta.defaultValue.call(this);
+      } else {
+        value = meta.defaultValue;
       }
-      // Setter 
-      else if (value !== data[key]) {
-        data[key] = value;
-        if (!meta.readOnly) {
-          this._onPropertyChange(key);
-        }
-      }
-      return value;
-    }).meta(meta);
+      data[key] = value;
+    }
+    return value;
   }
 
-  var computed = Ember.computed;
+  function computedAttributeSet(key, value, meta) {
+    var data = this.get('_data');
+    if (value !== data[key]) {
+      data[key] = value;
+      if (!meta.readOnly) {
+        this._onPropertyChange(key);
+      }
+    }
+    return value;
+  }
+
+  function makeComputedAttribute(meta) {
+    var computedAttribute;
+    if (supportsNewComputedSyntax) {
+      computedAttribute = {
+        get: function(key) {
+          return computedAttributeGet.call(this, key, meta);
+        },
+        set: function(key, value) {
+          return computedAttributeSet.call(this, key, value, meta);
+        }
+      };
+    } else {
+      computedAttribute = function(key, value) {
+        if (arguments.length === 1) {
+          return computedAttributeGet.call(this, key, meta);
+        }
+        return computedAttributeSet.call(this, key, value, meta);
+      };
+    }
+
+    return attribute__computed('_data', computedAttribute).meta(meta);
+  }
+
+  var model_model__computed = Ember.computed;
   var model_model__get = Ember.get;
 
   /**
@@ -819,7 +847,7 @@
       @private
      */
     __data: null,
-    _data: computed(function() {
+    _data: model_model__computed(function() {
       if (!this.__data) { 
         this.__data = {};
       }
@@ -990,7 +1018,7 @@
       @property adapter
       @type RESTless.Adapter
      */
-    adapter: computed('RESTless.client.adapter', function() {
+    adapter: model_model__computed('RESTless.client.adapter', function() {
       return model_model__get(core, 'client.adapter');
     }),
 
@@ -1000,7 +1028,7 @@
       @type String
       @default 'id'
      */
-    primaryKey: computed('RESTless.client.adapter.configurations.models', function() {
+    primaryKey: model_model__computed('adapter', function() {
       var modelConfig = model_model__get(this, 'adapter.configurations.models'); 
       var configForKey = modelConfig && modelConfig.get(model_model__get(this, '_configKey'));
       var primaryKey = configForKey && configForKey.primaryKey;
@@ -1015,7 +1043,7 @@
       @property resourceName
       @type String
      */
-    resourceName: computed(function() {
+    resourceName: model_model__computed(function() {
       var classNameParts = this.toString().split('.');
       return classNameParts[classNameParts.length-1];
     }),
@@ -1026,7 +1054,7 @@
       @property resourceNamePlural
       @type String
      */
-    resourceNamePlural: computed(function() {
+    resourceNamePlural: model_model__computed(function() {
       var resourceName = model_model__get(this, 'resourceName');
       var adapter = model_model__get(this, 'adapter');    
       return adapter.pluralize(Ember.String.decamelize(resourceName));
@@ -1037,7 +1065,7 @@
       @type String
       @private
      */
-    _configKey: computed('resourceName', function() {
+    _configKey: model_model__computed('resourceName', function() {
       return Ember.String.camelize(model_model__get(this, 'resourceName'));
     }),
 
@@ -1046,7 +1074,7 @@
       @property fields
       @type Ember.Map
      */
-    fields: computed(function() {
+    fields: model_model__computed(function() {
       var fields = {};
       this.eachComputedProperty(function(name, meta) {
         if (meta.isAttribute || meta.isRelationship) {
@@ -1874,13 +1902,13 @@
    */
   Ember.Application.initializer({
     name: 'RESTless.Client',
-    initialize: function(container, application) {
+    initialize: function(registry, application) {
       var client = application.Client ? application.Client : Client.create();
       core.set('client', client);
-      application.addObserver('Client', this, function() {
-        core.set('client', this.Client);
+      application.addObserver('Client', application, function() {
+        core.set('client', application.Client);
       });
-      core.__container__ = container;
+      core.__container__ = application.__container__;
     }
   });
 
@@ -1896,48 +1924,60 @@
 
   var read_only_model = ReadOnlyModel;
 
-  /*
+  /** Copied from: <https://github.com/emberjs/data/blob/master/packages/ember-data/lib/ext/date.js> **/
+  /**
     Date.parse with progressive enhancement for ISO 8601 <https://github.com/csnover/js-iso8601>
+
     © 2011 Colin Snover <http://zetafleet.com>
+
     Released under MIT license.
-    Copied from: <https://raw.github.com/emberjs/data/master/packages/ember-data/lib/ext/date.js>
+
+    @class Date
+    @namespace Ember
+    @static
   */
   Ember.Date = Ember.Date || {};
 
-  var origParse = Date.parse, numericKeys = [ 1, 4, 5, 6, 7, 10, 11 ];
+  var origParse = Date.parse;
+  var numericKeys = [1, 4, 5, 6, 7, 10, 11];
 
+  /**
+    @method parse
+    @param {Date} date
+    @return {Number} timestamp
+  */
   Ember.Date.parse = function (date) {
-      var timestamp, struct, minutesOffset = 0;
+    var timestamp, struct;
+    var minutesOffset = 0;
 
-      // ES5 §15.9.4.2 states that the string should attempt to be parsed as a Date Time String Format string
-      // before falling back to any implementation-specific date parsing, so that’s what we do, even if native
-      // implementations could be faster
-      //              1 YYYY                2 MM       3 DD           4 HH    5 mm       6 ss        7 msec        8 Z 9 ±    10 tzHH    11 tzmm
-      if ((struct = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:(Z)|([+\-])(\d{2})(?::(\d{2}))?)?)?$/.exec(date))) {
-          // avoid NaN timestamps caused by “undefined” values being passed to Date.UTC
-          for (var i = 0, k; (k = numericKeys[i]); ++i) {
-              struct[k] = +struct[k] || 0;
-          }
-
-          // allow undefined days and months
-          struct[2] = (+struct[2] || 1) - 1;
-          struct[3] = +struct[3] || 1;
-
-          if (struct[8] !== 'Z' && struct[9] !== undefined) {
-              minutesOffset = struct[10] * 60 + struct[11];
-
-              if (struct[9] === '+') {
-                  minutesOffset = 0 - minutesOffset;
-              }
-          }
-
-          timestamp = Date.UTC(struct[1], struct[2], struct[3], struct[4], struct[5] + minutesOffset, struct[6], struct[7]);
-      }
-      else {
-          timestamp = origParse ? origParse(date) : NaN;
+    // ES5 §15.9.4.2 states that the string should attempt to be parsed as a Date Time String Format string
+    // before falling back to any implementation-specific date parsing, so that’s what we do, even if native
+    // implementations could be faster
+    //              1 YYYY                2 MM       3 DD           4 HH    5 mm       6 ss        7 msec        8 Z 9 ±    10 tzHH    11 tzmm
+    if ((struct = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:(Z)|([+\-])(\d{2})(?::(\d{2}))?)?)?$/.exec(date))) {
+      // avoid NaN timestamps caused by “undefined” values being passed to Date.UTC
+      for (var i = 0, k; (k = numericKeys[i]); ++i) {
+        struct[k] = +struct[k] || 0;
       }
 
-      return timestamp;
+      // allow undefined days and months
+      struct[2] = (+struct[2] || 1) - 1;
+      struct[3] = +struct[3] || 1;
+
+      if (struct[8] !== 'Z' && struct[9] !== undefined) {
+        minutesOffset = struct[10] * 60 + struct[11];
+
+        if (struct[9] === '+') {
+          minutesOffset = 0 - minutesOffset;
+        }
+      }
+
+      timestamp = Date.UTC(struct[1], struct[2], struct[3], struct[4], struct[5] + minutesOffset, struct[6], struct[7]);
+    } else {
+      timestamp = origParse ? origParse(date) : NaN;
+    }
+
+    return timestamp;
   };
 
   if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.Date) {
@@ -1962,9 +2002,11 @@
   core.DateTransform = DateTransform;
   core.JSONTransforms = JSONTransforms;
 
-  var main = core;
-
+  /*
+    Expose to global namespace 
+    and create shortcut alias `RL`
+   */
   var index__exports = Ember.lookup;
-  index__exports.RL = index__exports.RESTless = main;
+  index__exports.RL = index__exports.RESTless = core;
 
 }(Ember));
