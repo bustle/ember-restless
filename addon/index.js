@@ -1,5 +1,3 @@
-import Ember from 'ember';
-
 export var Client = RESTless.Client;
 export var Adapter = RESTless.Adapter;
 export var RESTAdapter = RESTless.RESTAdapter;

@@ -1,7 +1,7 @@
 {
   "name": "ember-restless",
   "title": "Ember RESTless",
-  "description": "A lightweight data persistence library for Ember.js",
+  "description": "A lightweight data model library for Ember.js",
   "version": "0.7.5",
   "repository": "https://github.com/bustlelabs/ember-restless.git",
   "homepage": "https://github.com/bustlelabs/ember-restless",

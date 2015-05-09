@@ -1,12 +1,8 @@
 # Ember RESTless [![Build Status](https://travis-ci.org/bustlelabs/ember-restless.png?branch=master)](https://travis-ci.org/bustlelabs/ember-restless)
 
-ember-restless is a lightweight data persistence library for [Ember.js](http://emberjs.com).
+RESTless is a lightweight data model library for [Ember.js](http://emberjs.com).
 
-Out of the box, it is used to communicate with a JSON REST API to map data between a server and your Ember.js application. ember-restless can be extended to support various other data persistence layers.
-
-One of its main goals is to reproduce much of the simple, useful features of [ember-data](https://github.com/emberjs/data), while remaining lightweight and stable.
-
-You should use ember-restless if you want to easily perform CRUD operations on your ember models without having to write any ajax or json serialization / deserialization.
+Out of the box, you can quickly and easily map data between a JSON REST API and your Ember.js application.  It's goal is to create a simple API to perform CRUD operations without having to write ajax requests or handle model serialization & deserialization.  RESTless is *not* a client-side data store.
 
 See the full [API documentation](http://bustlelabs.github.io/ember-restless/api/).  
 
@@ -30,7 +26,6 @@ See the [change log](CHANGELOG.md) for the latest features and API changes.
 - [Advanced](#advanced)
 - [Building](#building)
 - [Tests](#tests)
-- [Add-ons](#add-ons)
 
 ## Getting started
 
@@ -397,21 +392,6 @@ App.Comment = RL.Model.extend({
 });
 ```
 
-### Custom Adapters & Serializers
-RESTless is abstracted so you can write your own Adapters and Serializers.
-``` javascript
-App.XMLSerializer = RL.Serializer.create({
-  ...
-});
-App.SOAPAdapter = RL.Adapter.create({
-  serializer: App.XMLSerializer
-  ...
-});
-App.Client = RL.Client.create({
-  adapter: App.SOAPAdapter
-});
-```
-
 
 ## Building
 
@@ -430,10 +410,3 @@ If you wish to build ember-restless yourself, you will need node.js and Gulp.
 3. Test: ```gulp test``` or open tests/index.html in a browser  
 
 **```gulp``` default task will both build & test.**
-
-## Add-ons
-
-RESTless also has the following (unbundled) add-ons, which you can include separately or build yourself:
-- Fixture Adapter
-- LocalStorage Adapter
-
