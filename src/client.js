@@ -24,14 +24,16 @@ var Client = Ember.Object.extend({
  */
 Ember.Application.initializer({
   name: 'RESTless.Client',
-  initialize: function(container, application) {
+  initialize: function(registry, application) {
     var client = application.Client ? application.Client : Client.create();
     RESTless.set('client', client);
-    application.addObserver('Client', this, function() {
-      RESTless.set('client', this.Client);
+    application.addObserver('Client', application, function() {
+      RESTless.set('client', application.Client);
     });
-    RESTless.__container__ = container;
+    RESTless.__container__ = application.__container__;
   }
 });
 
 export default Client;
+
+
