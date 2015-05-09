@@ -11,18 +11,13 @@ var pkg       = require('./package.json');
 
 // ------------------------------------------- 
 
-var coreSrc = ['src/**/*.js'];
+var allSrc = ['src/**/*.js'];
 var coreEntry = 'src/index.js';
-var addonsSrc = ['addons/**/*.js'];
-var addonsEntry = 'addons/index.js';
-var allScr = coreSrc.concat(addonsSrc);
 
 var distDest = './dist/';
 var jsDistName = 'ember-restless.js';
-var jsDistAddonsName = 'ember-restless+addons.js';
 
 var testRunnerCore = './tests/index.html';
-var testRunnerAddons = './tests/addons.html';
 var testScripts = './tests/tests/*.js';
 
 var banner = ['/**',
@@ -54,7 +49,7 @@ function performBuild(entryFile, outputFile) {
 }
 
 gulp.task('lint', function() {
-  return gulp.src(allScr)
+  return gulp.src(allSrc)
              .pipe(jshint('.jshintrc'))
              .pipe(jshint.reporter('default'));
 });
@@ -63,25 +58,17 @@ gulp.task('build:core', ['clean', 'lint'], function() {
   return performBuild(coreEntry, jsDistName);
 });
 
-gulp.task('build:addons', ['clean', 'lint'], function() {
-  return performBuild(addonsEntry, jsDistAddonsName);
-});
-
-gulp.task('build', ['clean', 'lint', 'build:core', 'build:addons']);
+gulp.task('build', ['clean', 'lint', 'build:core']);
 
 gulp.task('test:core', ['build:core'], function() {
   return gulp.src(testRunnerCore).pipe(qunit());
-});
-
-gulp.task('test:addons', ['build:addons'], function() {
-  return gulp.src(testRunnerAddons).pipe(qunit());
 });
 
 gulp.task('test:browser', function(){
   return gulp.src(testRunnerCore).pipe(open('<% file.path %>')); 
 });
 
-gulp.task('test', ['build', 'test:core', 'test:addons']);
+gulp.task('test', ['build', 'test:core']);
 
 gulp.task('clean', function() {
   return del([distDest + '*']);
