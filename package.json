@@ -2,7 +2,7 @@
   "name": "ember-restless",
   "title": "Ember RESTless",
   "description": "A lightweight data model library for Ember.js",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "repository": "https://github.com/bustlelabs/ember-restless.git",
   "homepage": "https://github.com/bustlelabs/ember-restless",
   "author": "Garth Poitras <garth@bustle.com>",

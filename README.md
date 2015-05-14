@@ -35,9 +35,17 @@ To use in an ember-cli app, simply:
 
 For old-school global apps, include [ember-restless.js](https://raw.github.com/bustlelabs/ember-restless/master/dist/ember-restless.js) after ember.js.
 
-**Namespace**
+**Usage:**
 
-RESTless can be referenced either with the namespace **RESTless** or the shorthand **RL**.  Similar to **Ember** and **Em**
+*ember-cli:*
+```js
+import RL from 'ember-restless'; // imports entire library
+import { Model, attr } from 'ember-restless'; // or import individual modules
+```
+
+*globals:*
+RESTless can be referenced in the global namespace as **RESTless** or the shorthand **RL**.
+
 
 ### Defining a RESTAdapter
 
