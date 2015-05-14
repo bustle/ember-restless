@@ -7,6 +7,13 @@ module.exports = {
 
   included: function(app) {
     this._super.included(app);
-    app.import('vendor/ember-restless.js');
+
+    var options = {
+      exports: {
+        'ember-restless': [ 'default' ]
+      }
+    };
+
+    app.import('vendor/ember-restless.js', options);
   }
 };
