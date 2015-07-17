@@ -4,6 +4,9 @@ The change log documents features and breaking changes for each version.
 While RESTless reaches a 1.0 release and more feedback and testing continues, the API is subject to change.  
 To keep the library small, API deprecation warnings will not be added.
 
+### 0.7.7
+- Bug fix: observer argument order for ember 2.0
+
 ### 0.7.6
 - The RESTless library and its individual modules can now be imported in ember-cli apps
 - Removed fixture and local storage adapters from main repo.

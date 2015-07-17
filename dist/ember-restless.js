@@ -1,7 +1,7 @@
 /**
  * ember-restless
  * @overview  A lightweight data model library for Ember.js
- * @version   0.7.6
+ * @version   0.7.7
  * @author    Garth Poitras <garth@bustle.com>
  * @license   MIT
  * @copyright (c) 2013-2015 Bustle Labs
@@ -16,7 +16,7 @@
   */
 
   var libraries = Ember.libraries;
-  var VERSION = '0.7.6';
+  var VERSION = '0.7.7';
 
   /**
     @class RESTless
@@ -666,18 +666,18 @@
       Observes when items become dirty and sets itself to dirty.
       @private
      */
-    _onItemDirtyChange: Ember.observer(function() {
+    _onItemDirtyChange: Ember.observer('@each.isDirty', function() {
       var clean = this.get('content').everyBy('isDirty', false);
       if(this.get('isLoaded') && !clean) {
         this.set('isDirty', true);
       }
-    }, '@each.isDirty'),
+    }),
 
     /**
       Observes when the array's isLoaded state changes and triggers each item's onLoaded.
       @private
      */
-    _onLoadedChange: Ember.observer(function() {
+    _onLoadedChange: Ember.observer('isLoaded', function() {
       if(this.get('isLoaded')) {
         this.forEach(function(item) {
           if(Model.detectInstance(item)) {
@@ -685,7 +685,7 @@
           }
         });
       }
-    }, 'isLoaded')
+    })
   });
 
 
