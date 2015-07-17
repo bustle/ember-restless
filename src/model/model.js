@@ -317,7 +317,10 @@ Model.reopenClass({
     @return RESTless.Model
    */
   load: function(data) {
-    var model = this.create().set('_isReady', false).deserialize(data).set('_isReady', true);
+    var model = this.create();
+    model.set('_isReady', false);
+    model.deserialize(data);
+    model.set('_isReady', true);
     model.onLoaded();
     return model;
   },
