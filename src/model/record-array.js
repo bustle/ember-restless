@@ -86,7 +86,7 @@ var RecordArray = Ember.ArrayProxy.extend( ModelStateMixin, {
     @private
    */
   _onItemDirtyChange: Ember.observer('@each.isDirty', function() {
-    var clean = this.get('content').everyBy('isDirty', false);
+    var clean = this.get('content').isEvery('isDirty', false);
     if(this.get('isLoaded') && !clean) {
       this.set('isDirty', true);
     }
