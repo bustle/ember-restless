@@ -1,7 +1,7 @@
 /**
  * ember-restless
  * @overview  A lightweight data model library for Ember.js
- * @version   0.7.8
+ * @version   0.7.9
  * @author    Garth Poitras <garth@bustle.com>
  * @license   MIT
  * @copyright (c) 2013-2015 Bustle Labs
@@ -16,7 +16,7 @@
   */
 
   var libraries = Ember.libraries;
-  var VERSION = '0.7.8';
+  var VERSION = '0.7.9';
 
   /**
     @class RESTless
@@ -609,8 +609,10 @@
       @returns RESTless.RecordArray
      */
     deserializeMany: function(type, data) {
-      this._initContent();
       type = type || this.typeOfContent();
+      if(!this.content) { 
+        this.set('content', Ember.A());
+      }
       return RecordArray__get(this, 'adapter.serializer').deserializeMany(this, type, data);
     },
 
@@ -647,19 +649,6 @@
     typeOfContent: function() {
       var firstObj = this.objectAt(0);
       return firstObj && firstObj.constructor || null;
-    },
-
-    /**
-      Helper to initialize the content property of the RecordArray if not present.
-      @private
-      @method _initContent
-      @returns RecordArray this
-     */
-    _initContent: function() {
-      if(!this.content) { 
-        this.set('content', Ember.A());
-      }
-      return this;
     },
 
     /**
@@ -706,9 +695,12 @@
       @method createWithContent
       @returns RESTless.RecordArray
      */
-    createWithContent: function() {
-      var arr = this.create.apply(this, arguments);
-      return arr._initContent();
+    createWithContent: function(options) {
+      options = options || {};
+      if (!options.content) {
+        options.content = Ember.A();
+      }
+      return this.create(options);
     }
   });
 
