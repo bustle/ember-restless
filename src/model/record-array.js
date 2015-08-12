@@ -28,8 +28,10 @@ var RecordArray = Ember.ArrayProxy.extend( ModelStateMixin, {
     @returns RESTless.RecordArray
    */
   deserializeMany: function(type, data) {
-    this._initContent();
     type = type || this.typeOfContent();
+    if(!this.content) { 
+      this.set('content', Ember.A());
+    }
     return get(this, 'adapter.serializer').deserializeMany(this, type, data);
   },
 
@@ -66,19 +68,6 @@ var RecordArray = Ember.ArrayProxy.extend( ModelStateMixin, {
   typeOfContent: function() {
     var firstObj = this.objectAt(0);
     return firstObj && firstObj.constructor || null;
-  },
-
-  /**
-    Helper to initialize the content property of the RecordArray if not present.
-    @private
-    @method _initContent
-    @returns RecordArray this
-   */
-  _initContent: function() {
-    if(!this.content) { 
-      this.set('content', Ember.A());
-    }
-    return this;
   },
 
   /**
@@ -125,9 +114,12 @@ RecordArray.reopenClass({
     @method createWithContent
     @returns RESTless.RecordArray
    */
-  createWithContent: function() {
-    var arr = this.create.apply(this, arguments);
-    return arr._initContent();
+  createWithContent: function(options) {
+    options = options || {};
+    if (!options.content) {
+      options.content = Ember.A();
+    }
+    return this.create(options);
   }
 });
 
