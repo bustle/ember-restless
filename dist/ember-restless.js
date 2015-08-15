@@ -1,7 +1,7 @@
 /**
  * ember-restless
  * @overview  A lightweight data model library for Ember.js
- * @version   0.7.9
+ * @version   0.7.10
  * @author    Garth Poitras <garth@bustle.com>
  * @license   MIT
  * @copyright (c) 2013-2015 Bustle Labs
@@ -16,7 +16,7 @@
   */
 
   var libraries = Ember.libraries;
-  var VERSION = '0.7.9';
+  var VERSION = '0.7.10';
 
   /**
     @class RESTless
@@ -1136,7 +1136,7 @@
       @return RESTless.RecordArray
      */
     loadMany: function(data) {
-      var array = RecordArray.create().deserializeMany(this, data);
+      var array = RecordArray.createWithContent().deserializeMany(this, data);
       array.onLoaded();
       return array;
     }
