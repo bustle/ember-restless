@@ -24,7 +24,8 @@ var Client = Ember.Object.extend({
  */
 Ember.Application.initializer({
   name: 'RESTless.Client',
-  initialize: function(registry, application) {
+  initialize: function() {
+    var application = arguments[1] || arguments[0]; // See: http://emberjs.com/deprecations/v2.x/#toc_deprecations-added-in-2-1
     var applicationClient = application.Client;
     RESTless.set('client', applicationClient ? applicationClient : Client.create());
     application.addObserver('Client', application, function() {
