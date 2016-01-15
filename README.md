@@ -20,7 +20,7 @@ See the [change log](CHANGELOG.md) for the latest features and API changes.
     - [Saving records](#saving-records)
     - [Deleting records](#deleting-records)
     - [Reloading records](#reloading-records)
-    - [Side-loading records](#side-loading-records)
+    - [Loading records](#loading-records)
     - [Model lifecycle](#model-lifecycle)
 - [Promises](#promises)
 - [Advanced](#advanced)
@@ -29,66 +29,70 @@ See the [change log](CHANGELOG.md) for the latest features and API changes.
 
 ## Getting started
 
-To use in an ember-cli app, simply:
+**Install:**
  
 ```npm install --save-dev ember-restless```
 
-For old-school global apps, include [ember-restless.js](https://raw.github.com/bustlelabs/ember-restless/master/dist/ember-restless.js) after ember.js.
+**Module usage:**
 
-**Usage:**
-
-*ember-cli:*
 ```js
 import RL from 'ember-restless'; // imports entire library
 import { Model, attr } from 'ember-restless'; // or import individual modules
 ```
 
-*globals:*
-RESTless can be referenced in the global namespace as **RESTless** or the shorthand **RL**.
+**Initializer:**  
+Create an initializer in your ember-cli app:
+`app/initializers/restless.js`:
 
+```js
+import Ember from 'ember';
+import { Client } from 'ember-restless';
+
+export function initialize() {
+  var application = arguments[1] || arguments[0];
+  application.set('Client', Client.create());
+}
+
+export default {
+  initialize,
+  name: 'restless',
+  before: 'RESTless.Client'
+};
+```
 
 ### Defining a RESTAdapter
 
 The REST adapter is responsible for communicating with your backend REST service.
 Here, you can optionally set the host, and a namespace.  
 For example, if your REST API is located at http://api.example.com/v1
-``` javascript
-App.RESTAdapter = RL.RESTAdapter.create({
+```js
+import { RESTAdapter } from 'ember-restless';
+
+var adapter = RESTAdapter.create({
   host: 'http://api.example.com',
   namespace: 'v1'
 });
 ```
-
-### Defining a 'Client'
-
-Similar to defining the 'Store' using ember-data, instead define the 'Client' for your application.  RESTless will automatically detect the Client on your application namespace and initialize RESTless to work with your app.
-
-``` javascript
-App.Client = RL.Client.create({
-  adapter: App.RESTAdapter
-});
+You should then set your custom adapter as a property of the `Client`, created above.
+```js
+application.set('Client', Client.create({
+  adapter: adapter
+}));
 ```
 
 ### Models
 
-Each model you create should extend RL.Model:  
+Each model you create should extend Model:  
 
-``` javascript
-App.Post = RL.Model.extend({
-  title:       RL.attr('string'),
-  isPublished: RL.attr('boolean'),
-  readCount:   RL.attr('number'),
-  createdAt:   RL.attr('date')
+```js
+import { Model, attr } from 'ember-restless';
+
+var Post = Model.extend({
+  title:       attr('string'),
+  isPublished: attr('boolean'),
+  readCount:   attr('number'),
+  createdAt:   attr('date')
 });
-```
-Supported attribute types are string, number, boolean, and date. Defining a type is optional.
-You can define custom attribute type transforms in your adapter.  See the advanced section below.
-
-**Note on ES6 modules**  
-If using ES6 modules/ember-cli, you'll need to explicitly define `resourceName` on all of your model classes:
-
-``` javascript
-var Post = RL.Model.extend({ ... });
 
 Post.reopenClass({
   resourceName: 'post'
@@ -96,36 +100,41 @@ Post.reopenClass({
 
 export default Post;
 ```
-
+Supported attribute types are string, number, boolean, and date. Defining a type is optional.
+You can define custom attribute type transforms in your adapter.  See the advanced section below.
 
 ### Relationships
 
 For one-to-one relationships use the _belongsTo_ attribute helper.
 
-``` javascript
-App.User = RL.Model.extend({
-  name: RL.attr('string'),
-  role: RL.attr('number')
+```js
+var User = Model.extend({
+  name: attr('string'),
+  role: attr('number')
 });
 
-App.Profile = RL.Model.extend({
-  user: RL.belongsTo('user')
+User.reopenClass({
+  resourceName: 'user'
+});
+
+var Profile = Model.extend({
+  user: belongsTo('user')
 });
 ```
 
 For one-to-many relationships, use the _hasMany_ helper.  
 For example, if a ```Post``` model contains an array of ```Tag``` models:
-``` javascript
-App.Tag = RL.Model.extend({
-  name: RL.attr('string'),
-  count: RL.attr('number')
+```js
+var Tag = Model.extend({
+  name: attr('string'),
+  count: attr('number')
 });
 
-App.Post = RL.Model.extend({
-  tags: RL.hasMany('tag')
+var Post = Model.extend({
+  tags: hasMany('tag')
 });
 ```
-_Currently, all relational data should be embedded in the response. Also, see [Side-loading records](#side-loading-records)._
+_Currently, all relational data should be embedded in the response. Also, see [Loading records](#loading-records)._
 
 
 ### Finding records
@@ -134,21 +143,21 @@ Use the ```find()``` method to retrieve records.
 
 To find all records of type 'post':
 
-``` javascript
-var posts = App.Post.find();
+```js
+var posts = Post.find();
 // => Array of 'post' records
 ```
 
 To find a 'post' with an primary key of `1`:
 
-``` javascript
-var post = App.Post.find(1);
+```js
+var post = Post.find(1);
 // => 'post' record instance
 ```
 
 To use a query to find records:
-``` javascript
-var posts = App.Post.find({ isPublished: true });
+```js
+var posts = Post.find({ isPublished: true });
 // => Array of 'post' records
 ```
 
@@ -159,8 +168,8 @@ To return a Promise when finding records, use `fetch()`. See the [promises](#pro
 
 Create records like you would a normal Ember Object:
 
-``` javascript
-var post = App.Post.create({
+```js
+var post = Post.create({
   title: 'My First Post'
 });
 ```
@@ -170,12 +179,12 @@ var post = App.Post.create({
 Simply call: ```saveRecord()```  
 The Adapter will automatically POST to save a new record, or PUT to update an existing record.
 
-``` javascript
-var post = App.Post.create({ title: 'My First Post' });
+```js
+var post = Post.create({ title: 'My First Post' });
 post.saveRecord();
 ```
 Updating:
-``` javascript
+```js
 post.set('title', 'My Very First Post');
 post.saveRecord();
 ```
@@ -183,7 +192,7 @@ post.saveRecord();
 ### Deleting records
 
 The Adapter will delete the record from the data store, then destroy the object when complete:
-``` javascript
+```js
 post.deleteRecord();
 ```
 
@@ -191,30 +200,30 @@ post.deleteRecord();
 
 To refresh an existing record from the data store: ```reloadRecord()```
 
-``` javascript
-var post = App.Post.find(1);
+```js
+var post = Post.find(1);
 // ...
 post.reloadRecord();
 ```
 
-### Side-loading records
+### Loading records
 
-You can manually populate records using raw data (side-loading).  
+You can manually populate records using raw data.  
 Use the ```load``` and ```loadMany``` convenience methods:
 
-``` javascript
-var post = App.Post.create();
+```js
+var post = Post.create();
 
 // The following could have been retrieved from a separate ajax request
 var commentData = { comment: { id: 101, message: 'This is awesome!' } };
-var comment = App.Comment.load(commentData);
+var comment = Comment.load(commentData);
 post.set('comment', comment);
 
 var postTagData = [
   { id: 1, name: 'technology', count: 50 },
   { id: 2, name: 'entertainment', count: 11 }
 ];
-var tags = App.Tag.loadMany(postTagData);
+var tags = Tag.loadMany(postTagData);
 post.set('tags', tags);
 ```
 
@@ -236,8 +245,8 @@ You can subscribe to events that are fired during the lifecycle:
 * **becameError**
 
 **Event Examples:**
-``` javascript
-var post = App.Post.create({ title: 'My First Post' });
+```js
+var post = Post.create({ title: 'My First Post' });
 
 post.on('didCreate', function() {
   console.log('post created!');
@@ -248,8 +257,8 @@ post.on('becameError', function(error) {
 post.saveRecord();
 ```
 
-``` javascript
-var allPosts = App.Post.find();
+```js
+var allPosts = Post.find();
 
 allPosts.on('didLoad', function() {
   console.log('posts retrieved!');
@@ -262,8 +271,8 @@ allPosts.on('becameError', function(error) {
 ### Promises
 
 CRUD actions return promises (```saveRecord()```, ```deleteRecord()```, ```reloadRecord()```), allowing you to do the following:
-``` javascript
-var post = App.Post.create({
+```js
+var post = Post.create({
   title: 'My First Post'
 });
 
@@ -276,18 +285,18 @@ post.saveRecord().then(function(record) {
 
 **To take advantage of promises when finding records, use ```fetch()``` instead of ```find()```**  
 ```fetch()``` returns a promise, while ```find()``` will return entities that will update when resolved.  
-``` javascript
-var posts = App.Post.fetch().then(function(records) {
+```js
+var posts = Post.fetch().then(function(records) {
   // Success!
 }, function(error) {
   // Error!
 });
 ```
 Using the router:
-``` javascript
-App.PostIndexRoute = Ember.Route.extend({
+```js
+export default Ember.Route.extend({
   model: function() {
-    App.Post.fetch();
+    Post.fetch();
   }
 });
 ```
@@ -298,17 +307,17 @@ App.PostIndexRoute = Ember.Route.extend({
 ### Changing resource endpoints
 Sometimes the name of your Ember model is different than the API endpoint.  
 For example if a ```CurrentUser``` model needs to point to ```/users``` and ```/user/1```  
-``` javascript
-App.CurrentUser = RL.Model.extend();
-App.CurrentUser.reopenClass({
+```js
+var CurrentUser = Model.extend();
+CurrentUser.reopenClass({
   resourceName: 'user'
 });
 ```
 
 ### Custom plurals configuration
 You can use a custom adapter to set irregular plural resource names
-``` javascript
-App.RESTAdapter.configure('plurals', {
+```js
+adapter.configure('plurals', {
   person: 'people'
 });
 ```
@@ -316,87 +325,89 @@ App.RESTAdapter.configure('plurals', {
 ### Changing the the primary key for a model
 The primary key for all models defaults to 'id'. 
 You can customize it per model class to match your API:
-``` javascript
-App.RESTAdapter.map('post', {
+```js
+adapter.map('post', {
   primaryKey: 'slug'
 });
 ```
 
 ### Mapping different property keys
 For example, if your JSON has a key ```lastNameOfPerson``` and the desired attribute name is ```lastName```:
-``` javascript
-App.Person = RL.Model.extend({
-  lastName: RL.attr('string')
+```js
+var Person = Model.extend({
+  lastName: attr('string')
 });
-App.RESTAdapter.map('person', {
+apdater.map('person', {
   lastName: { key: 'lastNameOfPerson' }
 });
 ```
 
 ### Sending headers and/or data with every request (e.g. api keys)
 To add a header to every ajax request:
-``` javascript
-App.RESTAdapter = RL.RESTAdapter.create({
+```js
+var adapter = RESTAdapter.create({
   headers: { 'X-API-KEY' : 'abc1234' }
 });
 ```
 To add data to every request url:
-``` javascript
-App.RESTAdapter = RL.RESTAdapter.create({
+```js
+var adapter = RESTAdapter.create({
   defaultData: { api_key: 'abc1234' }
 });
 ```
-Results in e.g. ```App.User.find()``` => ```http://api.example.com/users?api_key=abc1234```
+Results in e.g. ```User.find()``` => ```http://api.example.com/users?api_key=abc1234```
 
 ### Forcing content type extensions
 If you want the RESTAdapter to add extensions to requests:
 For example ```/users.json``` and ```/user/1.json```  
-``` javascript
-App.RESTAdapter = RL.RESTAdapter.create({
+```js
+var adapter = RESTAdapter.create({
   useContentTypeExtension: true
 });
 ```
 
 ### Default attribute values
 You can define default values to assign to newly created instances of a model:
-``` javascript
-App.User = RL.Model.extend({
-  name: RL.attr('string'),
-  role: RL.attr('number', { defaultValue: 3 })
+```js
+var User = Model.extend({
+  name: attr('string'),
+  role: attr('number', { defaultValue: 3 })
 });
 ```
 
 ### Read-only attributes
 You can make attributes 'read-only', which will exclude them from being serialized and transmitted when saving.
 For example, if you want to let the backend compute the date a record is created:
-``` javascript
-App.Person = RL.Model.extend({
-  firstName: RL.attr('string'),
-  lastName: RL.attr('string'),
-  createdAt: RL.attr('date', { readOnly: true })
+```js
+var Person = Model.extend({
+  firstName: attr('string'),
+  lastName: attr('string'),
+  createdAt: attr('date', { readOnly: true })
 });
 ```
 
 ### Read-only models
 You can make an entire model to read-only. This removes all 'write' methods and provides a slight performance increase since each property won't have to be observed for 'isDirty'.
-``` javascript
-App.Post = RL.ReadOnlyModel.extend({
+```js
+import { ReadOnlyModel } from 'ember-restless';
+var Post = ReadOnlyModel.extend({
 ...
 });
 ```
 
 ### Custom transforms
 You can add custom transforms to modify data coming from and being sent to the persistence layer.
-``` javascript
-App.RESTAdapter.registerTransform('timeAgo', RL.Transform.create({
+```js
+import { Transform } from 'ember-restless';
+adapter.registerTransform('timeAgo', Transform.create({
   deserialize: function(serialized) {
     // return a custom date string, such as: '5 minutes ago'
   }
 }));
 ```
-``` javascript
-App.Comment = RL.Model.extend({
-  createdAt: RL.attr('timeAgo')
+```js
+var Comment = Model.extend({
+  createdAt: attr('timeAgo')
 });
 ```
 
@@ -405,7 +416,7 @@ App.Comment = RL.Model.extend({
 
 If you wish to build ember-restless yourself, you will need node.js and Gulp.  
 
-1. Install node: <a href='http://nodejs.org/'>http://nodejs.org/</a>
+1. Install node: http://nodejs.org/
 2. Install dependencies: ```npm install```
 3. Build: ```gulp build```
 4. Output will be in ```dist/```
