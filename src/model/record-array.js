@@ -103,8 +103,19 @@ RecordArray.reopenClass({
     @method create
     @returns RESTless.RecordArray
    */
-  create: function() {
-    var arr = this._super.apply(this, arguments);
+  create: function(options) {
+    // If no content was provided, default to an empty array.
+    options = options || {};
+    if (!options.content) {
+      options.content = Ember.A();
+    }
+
+    // Properly apply rest args to super's create()
+    var restArgs = Array.prototype.slice.call(arguments, 1);
+    var args = [options].concat(restArgs);
+
+    var arr = this._super.apply(this, args);
+
     // override State defaults not implemented or applicable to arrays
     arr.setProperties({ _isReady: true, isNew: false });
     return arr;
@@ -114,12 +125,8 @@ RecordArray.reopenClass({
     @method createWithContent
     @returns RESTless.RecordArray
    */
-  createWithContent: function(options) {
-    options = options || {};
-    if (!options.content) {
-      options.content = Ember.A();
-    }
-    return this.create(options);
+  createWithContent: function() {
+    return this.create.apply(this, arguments);
   }
 });
 

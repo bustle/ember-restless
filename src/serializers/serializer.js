@@ -39,7 +39,7 @@ var Serializer = Ember.Object.extend({
       }
 
       // Container support
-      return RESTless.__container__.lookupFactory('model:' + type);
+      return RESTless.lookupFactory('model:' + type);
     }
     return type;
   },
