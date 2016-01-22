@@ -4,7 +4,7 @@ The change log documents features and breaking changes for each version.
 While RESTless reaches a 1.0 release and more feedback and testing continues, the API is subject to change.  
 To keep the library small, API deprecation warnings will not be added.
 
-### 0.7.7 - 0.7.9
+### 0.7.7 - 0.7.12
 - Fix deprecations and errors to support ember 2.0
 
 ### 0.7.6

@@ -1,7 +1,7 @@
 /**
  * ember-restless
  * @overview  A lightweight data model library for Ember.js
- * @version   0.7.11
+ * @version   0.7.12
  * @author    Garth Poitras <garth@bustle.com>
  * @license   MIT
  * @copyright (c) 2013-2015 Bustle Labs
@@ -16,7 +16,7 @@
   */
 
   var libraries = Ember.libraries;
-  var VERSION = '0.7.11';
+  var VERSION = '0.7.12';
 
   /**
     @class RESTless
@@ -210,15 +210,6 @@
     }
   });
 
-  /**
-    Serializers handle transforming data to and from raw data and Models.
-    This is a base class to be subclassed. Subclasses should implement:
-    `deserialize()`, `deserializeProperty()`, `deserializeMany()`, `serialize()`, `serializeProperty()`, `serializeMany()`
-
-    @class Serializer
-    @namespace RESTless
-    @extends Ember.Object
-  */
   var Serializer = Ember.Object.extend({
     /**
       Type of data to serialize.
@@ -351,8 +342,6 @@
     }
   });
 
-  // Date.prototype.toISOString shim
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
   var toISOString = Date.prototype.toISOString || function() {
     function pad(number) {
       if ( number < 10 ) {
@@ -403,11 +392,6 @@
     }
   });
 
-  /**
-    @property JSONTransforms
-    @type Object
-    @for RESTless
-  */
   var JSONTransforms = {
     'string'  : StringTransform.create(),
     'number'  : NumberTransform.create(),
@@ -701,11 +685,13 @@
       @returns RESTless.RecordArray
      */
     create: function(options) {
+      // If no content was provided, default to an empty array.
       options = options || {};
       if (!options.content) {
         options.content = Ember.A();
       }
 
+      // Properly apply rest args to super's create()
       var restArgs = Array.prototype.slice.call(arguments, 1);
       var args = [options].concat(restArgs);
 
@@ -1890,15 +1876,6 @@
     }
   });
 
-  /**
-    The Client is the top level store, housing the default adapter and configurations.
-    The client will be automatically detected and set from your App namespace.
-    Setting a client is optional and will automatically use a base client.
-
-    @class Client
-    @namespace RESTless
-    @extends Ember.Object
-  */
   var Client = Ember.Object.extend({
     /**
       The default adapter for all models.
@@ -1937,14 +1914,6 @@
     }
   });
 
-  /**
-    A read-only model. Removes property change observers and write methods.
-    Helps improve performance when write functionality is not needed.
-
-    @class ReadOnlyModel
-    @namespace RESTless
-    @extends RESTless.Model
-  */
   var ReadOnlyModel = Model.extend({
     serialize: null,
     saveRecord: null,
@@ -2013,9 +1982,6 @@
     Date.parse = Ember.Date.parse;
   }
 
-  /*
-    Export public modules to namespace
-  */
   RESTless.Client = Client;
   RESTless.Adapter = Adapter;
   RESTless.RESTAdapter = RESTAdapter;
