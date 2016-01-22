@@ -249,7 +249,7 @@
         }
 
         // Container support
-        return RESTless.__container__.lookupFactory('model:' + type);
+        return RESTless.lookupFactory('model:' + type);
       }
       return type;
     },
@@ -700,8 +700,17 @@
       @method create
       @returns RESTless.RecordArray
      */
-    create: function() {
-      var arr = this._super.apply(this, arguments);
+    create: function(options) {
+      options = options || {};
+      if (!options.content) {
+        options.content = Ember.A();
+      }
+
+      var restArgs = Array.prototype.slice.call(arguments, 1);
+      var args = [options].concat(restArgs);
+
+      var arr = this._super.apply(this, args);
+
       // override State defaults not implemented or applicable to arrays
       arr.setProperties({ _isReady: true, isNew: false });
       return arr;
@@ -711,12 +720,8 @@
       @method createWithContent
       @returns RESTless.RecordArray
      */
-    createWithContent: function(options) {
-      options = options || {};
-      if (!options.content) {
-        options.content = Ember.A();
-      }
-      return this.create(options);
+    createWithContent: function() {
+      return this.create.apply(this, arguments);
     }
   });
 
@@ -1915,7 +1920,20 @@
       application.addObserver('Client', application, function() {
         RESTless.set('client', this.Client);
       });
-      RESTless.__container__ = application.__container__;
+
+      var container = application.__container__;
+      RESTless.lookupFactory = function() {
+        return container.lookupFactory.apply(container, arguments);
+      };
+    }
+  });
+
+  Ember.Application.instanceInitializer({
+    name: 'RESTless.Client',
+    initialize: function(applicationInstance) {
+      RESTless.lookupFactory = function() {
+        return applicationInstance._lookupFactory.apply(applicationInstance, arguments);
+      };
     }
   });
 
