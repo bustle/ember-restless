@@ -1,7 +1,7 @@
 /**
  * ember-restless
  * @overview  A lightweight data model library for Ember.js
- * @version   0.7.12
+ * @version   0.7.13
  * @author    Garth Poitras <garth@bustle.com>
  * @license   MIT
  * @copyright (c) 2013-2015 Bustle Labs
@@ -16,7 +16,7 @@
   */
 
   var libraries = Ember.libraries;
-  var VERSION = '0.7.12';
+  var VERSION = '0.7.13';
 
   /**
     @class RESTless

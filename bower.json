@@ -1,6 +1,6 @@
 {
   "name": "ember-restless",
-  "version": "0.7.12",
+  "version": "0.7.13",
   "author": "Garth Poitras",
   "main": "dist/ember-restless.js",
   "ignore": [
