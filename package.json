@@ -16,6 +16,7 @@
     "json"
   ],
   "scripts": {
+    "build": "gulp build",
     "test": "gulp test --verbose"
   },
   "devDependencies": {

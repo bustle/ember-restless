@@ -4,6 +4,6 @@ node_js:
 before_script:
   - npm install -g bower
   - bower install
-  - gulp build
+  - npm run build
 notifications:
   email: false

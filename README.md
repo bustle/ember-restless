@@ -411,21 +411,14 @@ var Comment = Model.extend({
 });
 ```
 
-
 ## Building
-
-If you wish to build ember-restless yourself, you will need node.js and Gulp.  
-
-1. Install node: http://nodejs.org/
-2. Install dependencies: ```npm install```
-3. Build: ```gulp build```
-4. Output will be in ```dist/```
-
+```shell
+npm run build
+```
 
 ## Testing
-
-1. Install bower: ```npm install -g bower```
-2. Install dependencies: ```bower install```
-3. Test: ```gulp test``` or open tests/index.html in a browser  
-
-**```gulp``` default task will both build & test.**
+Install test dependencies: ```bower install```
+```shell
+npm test
+```
+or open tests/index.html in a browser  
