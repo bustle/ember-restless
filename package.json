@@ -20,14 +20,14 @@
     "test": "gulp test --verbose"
   },
   "devDependencies": {
-    "del": "^1.1.1",
+    "del": "^2.2.0",
     "esperanto": "^0.7.0",
-    "gulp": "^3.8.11",
+    "gulp": "^3.9.0",
     "gulp-file": "^0.2.0",
-    "gulp-header": "^1.2.2",
-    "gulp-jshint": "^1.10.0",
-    "gulp-open": "^0.3.2",
-    "gulp-qunit": "^1.2.1",
-    "gulp-replace": "^0.5.3"
+    "gulp-header": "^1.7.1",
+    "gulp-jshint": "^1.12.0",
+    "gulp-open": "^1.0.0",
+    "gulp-qunit": "^1.3.0",
+    "gulp-replace": "^0.5.4"
   }
 }

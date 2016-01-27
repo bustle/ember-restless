@@ -8,7 +8,7 @@
   // Enforcing options
   "curly": true,
   "eqeqeq": true,
-  "es3": true,
+  "esversion": 6,
   "forin": true,
   "immed": true,
   "newcap": true,
@@ -23,7 +23,6 @@
   // Relaxing options
   "boss" : true,
   "debug": false,
-  "esnext": true,
   "eqnull": true,
   "evil": true,
   "laxbreak": false,
