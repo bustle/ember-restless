@@ -49,7 +49,7 @@ var RESTAdapter = Adapter.extend({
     @example '{ 'X-API-KEY' : 'abc1234' }'
     */
   headers: null,
-  
+
   /**
     If an API requires paramters to be set on every request,
     e.g. an api key, you can add a hash of defaults.
@@ -78,7 +78,7 @@ var RESTAdapter = Adapter.extend({
   rootPath: Ember.computed('host', 'namespace', function() {
     var rootPath = this.get('host') || '/';
     var namespace = this.get('namespace');
-    
+
     if (namespace) {
       if (rootPath.slice(-1) === '/') {
         rootPath = rootPath.slice(0, -1);
@@ -148,7 +148,7 @@ var RESTAdapter = Adapter.extend({
     var serializer = this.serializer;
     var headers = this.get('headers');
     var defaultData = this.get('defaultData');
-    
+
     params = params || {};
     params.type = params.type || 'GET';
     params.dataType = serializer.dataType;
@@ -196,9 +196,10 @@ var RESTAdapter = Adapter.extend({
     Saves a record. POSTs a new record, or PUTs an updated record to REST API
     @method saveRecord
     @param {RESTless.Model} record record to be saved
+    @param {Object} [options] additional serialization options
     @return {Ember.RSVP.Promise}
    */
-  saveRecord: function(record) {
+  saveRecord: function(record, options) {
     var isNew = record.get('isNew'), ajaxPromise;
     //If an existing model isn't dirty, no need to save.
     if(!isNew && !record.get('isDirty')) {
@@ -209,7 +210,7 @@ var RESTAdapter = Adapter.extend({
 
     record.set('isSaving', true);
     ajaxPromise = this.request({
-      params: { type: isNew ? 'POST' : 'PUT', data: record.serialize() },
+      params: { type: isNew ? 'POST' : 'PUT', data: record.serialize(options) },
       model: record
     });
 
