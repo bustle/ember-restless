@@ -2,6 +2,7 @@ module.exports = {
   name: 'ember-restless',
 
   init: function(name) {
+    this._super(...arguments);
     this.treePaths['vendor'] = 'dist';
   },
 
